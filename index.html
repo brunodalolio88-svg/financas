@@ -9,25 +9,46 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
         .hide-scroll::-webkit-scrollbar { display: none; }
         
-        /* Estilo das Abas */
         .tab-active { color: #0f172a; border-bottom: 3px solid #0f172a; font-weight: 800; background-color: #f8fafc; }
         .tab-inactive { color: #94a3b8; font-weight: 600; }
         .tab-inactive:hover { background-color: #f1f5f9; color: #64748b; }
         
-        /* Input Invisível */
         .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; }
         .input-invisible:focus { background: white; border-color: #cbd5e1; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); padding: 2px 4px; }
-        
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
+
+        /* --- CSS MÁGICO PARA PC --- */
+        @media (min-width: 768px) {
+            .mobile-tabs { display: none; } /* Esconde abas mobile */
+            
+            /* Layout Grid Principal do PC */
+            main {
+                display: grid;
+                grid-template-columns: 340px 1fr; /* Coluna Esquerda Fixa | Resto Flexível */
+                gap: 2rem;
+                align-items: start;
+            }
+
+            /* Quando a aba for RESUMO no PC: */
+            body.pc-resumo #lists-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr; /* Duas colunas para as listas */
+                gap: 1.5rem;
+            }
+            
+            /* Força as listas aparecerem no PC quando em Resumo */
+            body.pc-resumo #view-entradas,
+            body.pc-resumo #view-saidas {
+                display: block !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 pb-28 md:pb-10">
+<body class="bg-slate-50 text-slate-800 pb-28 md:pb-10 pc-resumo">
 
     <header class="bg-white sticky top-0 z-30 shadow-sm border-b border-slate-200">
         <div class="flex justify-between items-center px-4 py-3 bg-slate-900 text-white">
@@ -44,46 +65,46 @@
         </div>
 
         <nav class="flex text-sm border-b border-slate-100 bg-white justify-center">
-            <button onclick="mudarAba('resumo')" id="tab-resumo" class="flex-1 md:flex-none md:w-40 py-3 text-center tab-active transition-all">Resumo</button>
-            <button onclick="mudarAba('entradas')" id="tab-entradas" class="flex-1 md:flex-none md:w-40 py-3 text-center tab-inactive transition-all text-green-600">Entradas</button>
-            <button onclick="mudarAba('saidas')" id="tab-saidas" class="flex-1 md:flex-none md:w-40 py-3 text-center tab-inactive transition-all text-red-600">Saídas</button>
+            <button onclick="mudarAba('resumo')" id="tab-resumo" class="flex-1 md:flex-none md:w-32 py-3 text-center tab-active transition-all">Resumo</button>
+            <button onclick="mudarAba('entradas')" id="tab-entradas" class="flex-1 md:flex-none md:w-32 py-3 text-center tab-inactive transition-all text-green-600">Entradas</button>
+            <button onclick="mudarAba('saidas')" id="tab-saidas" class="flex-1 md:flex-none md:w-32 py-3 text-center tab-inactive transition-all text-red-600">Saídas</button>
         </nav>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 mt-6">
+    <main class="max-w-7xl mx-auto px-4 mt-6">
 
         <div id="view-resumo" class="space-y-6 animate-fade-in">
-            <div class="hidden md:block text-center mb-6">
-                <h1 class="text-2xl font-bold text-slate-800">Planilha Bruno & Nathalia</h1>
-                <p class="text-sm text-slate-400">Visão Geral do Mês</p>
+            <div class="hidden md:block mb-4">
+                <h1 class="text-xl font-bold text-slate-800">Visão Geral</h1>
+                <p class="text-xs text-slate-400 uppercase">Bruno & Nathalia</p>
             </div>
 
             <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
                 <div class="flex flex-col items-center justify-center text-center">
                     <p class="text-xs text-slate-400 font-bold uppercase mb-2">Saldo em Caixa</p>
-                    <h1 id="total-saldo" class="text-5xl font-extrabold tracking-tight">R$ 0,00</h1>
+                    <h1 id="total-saldo" class="text-4xl font-extrabold tracking-tight">R$ 0,00</h1>
                 </div>
                 
                 <div class="mt-6 pt-4 border-t border-slate-800 grid grid-cols-2 gap-4 text-center">
                     <div>
                         <span class="text-[10px] text-green-400 uppercase font-bold">Entrou</span>
-                        <p id="total-renda" class="font-bold text-xl">R$ 0,00</p>
+                        <p id="total-renda" class="font-bold text-lg">R$ 0,00</p>
                     </div>
                     <div class="border-l border-slate-800">
                         <span class="text-[10px] text-red-400 uppercase font-bold">Saiu</span>
-                        <p id="total-gastos" class="font-bold text-xl">R$ 0,00</p>
+                        <p id="total-gastos" class="font-bold text-lg">R$ 0,00</p>
                     </div>
                 </div>
             </div>
 
             <div class="bg-indigo-600 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
                 <div class="absolute right-0 top-0 p-4 opacity-10">
-                    <i data-lucide="trending-up" class="w-32 h-32"></i>
+                    <i data-lucide="trending-up" class="w-24 h-24"></i>
                 </div>
                 <div class="flex justify-between items-start relative z-10">
                     <div>
                         <p class="text-xs text-indigo-200 font-bold uppercase mb-1">Investido (Mês)</p>
-                        <h2 id="total-investido" class="text-4xl font-extrabold">R$ 0,00</h2>
+                        <h2 id="total-investido" class="text-3xl font-extrabold">R$ 0,00</h2>
                     </div>
                     <button onclick="abrirModalInvestimento()" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded-xl transition-colors shadow-lg">
                         <i data-lucide="plus" class="w-6 h-6 text-white"></i>
@@ -92,49 +113,51 @@
                 <div id="lista-investimentos" class="mt-4 space-y-2 relative z-10 max-h-48 overflow-y-auto hide-scroll"></div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4 text-center">Top Categorias de Gastos</h3>
-                <div class="h-64 relative flex justify-center">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4 text-center">Top Gastos</h3>
+                <div class="h-48 relative flex justify-center">
                     <canvas id="graficoGastos"></canvas>
                 </div>
             </div>
         </div>
 
-        <div id="view-entradas" class="hidden space-y-6">
-            <div class="flex items-center justify-between mb-4 border-b pb-2 border-slate-200">
-                <div class="flex items-center gap-2">
-                    <div class="p-2 bg-green-100 rounded-lg text-green-700"><i data-lucide="arrow-up" class="w-5 h-5"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-700">Entradas</h3>
-                        <p class="text-xs text-slate-400 uppercase font-bold">Salários & Receitas</p>
+        <div id="lists-wrapper" class="md:contents">
+            
+            <div id="view-entradas" class="hidden space-y-6">
+                <div class="flex items-center justify-between mb-4 border-b pb-2 border-slate-200 bg-white sticky top-14 z-20 pt-2">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-green-100 rounded-lg text-green-700"><i data-lucide="arrow-up" class="w-5 h-5"></i></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-700">Entradas</h3>
+                            <p class="text-xs text-slate-400 uppercase font-bold hidden md:block">Salários</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 uppercase md:hidden">Total</span>
+                        <p id="header-total-renda" class="text-xl font-bold text-green-600">R$ 0,00</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-xs text-slate-400 uppercase">Total</span>
-                    <p id="header-total-renda" class="text-xl font-bold text-green-600">R$ 0,00</p>
-                </div>
+                <div id="lista-entradas-content" class="space-y-4 min-h-[100px]"></div>
             </div>
-            <div id="lista-entradas-content" class="space-y-4 min-h-[100px]"></div>
-        </div>
 
-        <div id="view-saidas" class="hidden space-y-6">
-            <div class="flex items-center justify-between mb-4 border-b pb-2 border-slate-200">
-                <div class="flex items-center gap-2">
-                    <div class="p-2 bg-red-100 rounded-lg text-red-700"><i data-lucide="arrow-down" class="w-5 h-5"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-700">Saídas</h3>
-                        <p class="text-xs text-slate-400 uppercase font-bold">Despesas & Contas</p>
+            <div id="view-saidas" class="hidden space-y-6">
+                <div class="flex items-center justify-between mb-4 border-b pb-2 border-slate-200 bg-white sticky top-14 z-20 pt-2">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-red-100 rounded-lg text-red-700"><i data-lucide="arrow-down" class="w-5 h-5"></i></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-700">Saídas</h3>
+                            <p class="text-xs text-slate-400 uppercase font-bold hidden md:block">Despesas</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 uppercase md:hidden">Total</span>
+                        <p id="header-total-gastos" class="text-xl font-bold text-red-600">R$ 0,00</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-xs text-slate-400 uppercase">Total</span>
-                    <p id="header-total-gastos" class="text-xl font-bold text-red-600">R$ 0,00</p>
-                </div>
+                <div id="lista-saidas-content" class="space-y-4 min-h-[100px]"></div>
             </div>
-            <div id="lista-saidas-content" class="space-y-4 min-h-[100px]"></div>
-        </div>
 
-    </main>
+        </div> </main>
 
     <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 bg-blue-600 hover:bg-blue-700 text-white w-16 h-16 rounded-full shadow-xl shadow-blue-600/30 z-40 active:scale-90 flex items-center justify-center transition-transform hover:scale-105">
         <i data-lucide="plus" class="w-8 h-8"></i>
@@ -235,14 +258,24 @@
             await editar(id, 'valor', valorFloat);
         }
 
-        // --- Navegação ---
+        // --- Navegação Inteligente (O segredo do PC) ---
         function mudarAba(aba) {
             abaAtiva = aba;
+            const body = document.body;
+            
+            // Controle CSS Body Class para PC
+            if(aba === 'resumo') body.classList.add('pc-resumo');
+            else body.classList.remove('pc-resumo');
+
+            // Esconde todas
             ['resumo', 'entradas', 'saidas'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 document.getElementById(`tab-${v}`).classList.remove('tab-active');
                 document.getElementById(`tab-${v}`).classList.add('tab-inactive');
             });
+
+            // Mostra a ativa (Mobile e PC funcionam aqui)
+            // No PC, o CSS força Entradas e Saidas a aparecerem se pc-resumo estiver ativo
             document.getElementById(`view-${aba}`).classList.remove('hidden');
             document.getElementById(`tab-${aba}`).classList.add('tab-active');
             document.getElementById(`tab-${aba}`).classList.remove('tab-inactive');
@@ -269,8 +302,7 @@
 
         function abrirModalInvestimento() {
             resetModal();
-            const radioInv = document.querySelector('input[value="investimento"]');
-            radioInv.checked = true;
+            document.querySelector('input[value="investimento"]').checked = true;
             esconderToggle(true);
             document.getElementById('container-categoria').classList.remove('hidden');
             atualizarCategoriasModal();
@@ -280,7 +312,7 @@
             abrirModal();
         }
 
-        function atualizarCategoriasModal() {
+        function actualizarCategoriasModal() {
             const tipo = document.querySelector('input[name="tipo"]:checked').value;
             const select = document.getElementById('categoria');
             select.innerHTML = '';
@@ -295,6 +327,9 @@
                 opt.value = cat; opt.textContent = cat; select.appendChild(opt);
             });
         }
+        
+        // Corrige erro de digitação da função acima
+        function atualizarCategoriasModal() { actualizarCategoriasModal(); } // Alias
 
         function resetModal() {
             document.getElementById('form-transacao').reset();
