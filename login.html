@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Finanças</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { brand: { 500: '#10b981', 600: '#059669' } } } } }
+    </script>
+</head>
+<body class="bg-brand-500 flex items-center justify-center h-screen px-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm animate-fade-in">
+        <div class="text-center mb-8">
+            <div class="bg-green-100 p-3 rounded-full inline-block mb-3">
+                <i data-lucide="wallet" class="w-8 h-8 text-brand-600"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">Bem-vindo(a)</h1>
+            <p class="text-gray-400 text-sm">Controle financeiro Bruno & Nathalia</p>
+        </div>
+
+        <form id="form-login" class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Usuário</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="user" class="w-4 h-4"></i></div>
+                    <input type="text" id="usuario" class="w-full pl-10 p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 transition-colors" placeholder="Ex: bruno" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="lock" class="w-4 h-4"></i></div>
+                    <input type="password" id="senha" class="w-full pl-10 p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 transition-colors" placeholder="••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-entrar" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-green-500/30 flex justify-center items-center gap-2">
+                Entrar
+            </button>
+        </form>
+        
+        <p id="erro-msg" class="text-red-500 text-center text-sm mt-4 hidden"></p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Se já estiver logado, joga pro painel direto
+        if(localStorage.getItem('usuario_logado')) {
+            window.location.href = '/';
+        }
+
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-entrar');
+            const erro = document.getElementById('erro-msg');
+            
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5"></i> Entrando...';
+            lucide.createIcons();
+            btn.disabled = true;
+            erro.classList.add('hidden');
+
+            const usuario = document.getElementById('usuario').value.toLowerCase().trim();
+            const senha = document.getElementById('senha').value;
+
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ usuario, senha })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // Salva sessão
+                    localStorage.setItem('usuario_logado', 'true');
+                    localStorage.setItem('usuario_nome', data.nome);
+                    window.location.href = '/'; // Vai para o Dashboard
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (err) {
+                erro.textContent = err.message || "Erro ao conectar.";
+                erro.classList.remove('hidden');
+                btn.innerHTML = 'Entrar';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
