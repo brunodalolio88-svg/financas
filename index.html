@@ -35,7 +35,7 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         
         /* Abas */
-        .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 600; transition: all 0.2s; cursor: pointer; white-space: nowrap; }
+        .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 600; transition: all 0.2s; cursor: pointer; }
         .nav-item:hover { color: white; }
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
@@ -50,6 +50,7 @@
             border-radius: 0 !important; 
             padding: 0 !important;
             transition: all 0.2s; 
+            text-overflow: ellipsis; 
             cursor: pointer;
         }
         .input-invisible:focus { 
@@ -61,47 +62,14 @@
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: transparent; } }
 
-        /* --- OTIMIZAÇÃO PC (LAYOUT DASHBOARD) --- */
+        /* --- OTIMIZAÇÃO PC --- */
         @media (min-width: 1024px) {
-            /* Layout Principal */
-            main { 
-                display: grid; 
-                grid-template-columns: 1fr; /* Coluna única no topo */
-                gap: 2rem; 
-                align-items: start;
-                max-width: 80rem !important; /* Mais largo no PC */
-            }
-            
-            /* Grid dos Cards de Resumo (3 Colunas) */
-            .grid-resumo-pc {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1.5rem;
-            }
-
-            /* Layout das Listas lado a lado */
-            .grid-listas-pc {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-            }
-
-            /* Visibilidade Condicional */
+            main { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
             body.pc-resumo #view-resumo { display: block !important; }
-            body.pc-resumo #listas-container { display: grid !important; } /* Força grid na visão geral */
-            
-            /* Quando NÃO for resumo, centraliza a lista única */
-            body:not(.pc-resumo) #listas-container { 
-                display: block !important; 
-                max-width: 60rem; 
-                margin: 0 auto; 
-            }
-            
-            #view-entradas, #view-saidas { 
-                background: white; border-radius: 1rem; padding: 1.5rem; 
-                border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
-                height: fit-content;
-            }
+            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
+            body:not(.pc-resumo) main { display: block; max-width: 60rem; margin: 2rem auto; }
+            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
             .mobile-header { display: none !important; }
             .pc-header { display: flex !important; }
         }
@@ -112,29 +80,26 @@
     <header class="bg-brand-500 shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3 text-white overflow-hidden">
-                    <div class="bg-white/20 p-2 rounded-lg flex-shrink-0"><i data-lucide="wallet" class="w-6 h-6"></i></div>
-                    <div class="min-w-0">
-                        <h1 class="font-bold text-base md:text-lg leading-tight truncate">Bruno & Nathalia</h1>
-                        <p class="text-[10px] opacity-80 uppercase tracking-wider truncate">Gestão Financeira</p>
+                <div class="flex items-center gap-2 text-white">
+                    <div class="bg-white/20 p-2 rounded-lg"><i data-lucide="wallet" class="w-6 h-6"></i></div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Bruno & Nathalia</h1>
+                        <p class="text-[10px] opacity-80 uppercase tracking-wider">Gestão Financeira</p>
                     </div>
                 </div>
-
-                <div class="flex gap-2 items-center">
-                    <div class="flex items-center bg-brand-600/50 rounded-lg p-0.5">
-                        <button onclick="mudarMes(-1)" class="p-1.5 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-                        <div class="px-2 text-center cursor-pointer min-w-[90px]" onclick="resetarHoje()">
-                            <span id="mes-titulo" class="text-xs font-bold text-white uppercase tracking-wide">...</span>
+                <div class="flex gap-3 items-center">
+                    <div class="flex items-center bg-brand-600/50 rounded-lg p-1">
+                        <button onclick="mudarMes(-1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <div class="px-3 text-center cursor-pointer min-w-[100px]" onclick="resetarHoje()">
+                            <span id="mes-titulo" class="text-sm font-bold text-white capitalize">Carregando...</span>
                         </div>
-                        <button onclick="mudarMes(1)" class="p-1.5 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
-                    
-                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white p-1.5 hidden md:block" title="Evolução"><i data-lucide="bar-chart-big" class="w-5 h-5"></i></button>
-                    <button onclick="logout()" class="text-white/70 hover:text-white p-1.5" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white p-1 hidden md:block" title="Evolução"><i data-lucide="bar-chart-big" class="w-5 h-5"></i></button>
+                    <button onclick="logout()" class="text-white/70 hover:text-white p-1" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
-
-            <nav class="flex gap-4 mt-1 overflow-x-auto hide-scroll pb-1">
+            <nav class="flex gap-6 mt-1 overflow-x-auto hide-scroll">
                 <button onclick="mudarAba('resumo')" id="tab-resumo" class="nav-item active">Visão Geral</button>
                 <button onclick="mudarAba('entradas')" id="tab-entradas" class="nav-item">Entradas</button>
                 <button onclick="mudarAba('saidas')" id="tab-saidas" class="nav-item">Saídas</button>
@@ -143,72 +108,63 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 mt-6">
-        
         <div id="view-resumo" class="animate-fade-in space-y-6">
-            
-            <div class="grid-resumo-pc space-y-4 lg:space-y-0">
-                
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-green-100 relative overflow-hidden group">
-                    <div class="absolute right-0 top-0 p-3 opacity-10"><i data-lucide="arrow-up-circle" class="w-16 h-16 text-green-500"></i></div>
-                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Receitas</p>
-                    <p id="total-renda" class="text-2xl font-bold text-green-600">R$ 0,00</p>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-red-100 relative overflow-hidden group">
-                    <div class="absolute right-0 top-0 p-3 opacity-10"><i data-lucide="arrow-down-circle" class="w-16 h-16 text-red-500"></i></div>
-                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Despesas</p>
-                    <p id="total-gastos" class="text-2xl font-bold text-red-600">R$ 0,00</p>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-brand-500 relative overflow-hidden">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs text-gray-500 font-bold uppercase mb-1">Saldo em Caixa</p>
-                            <h1 id="total-saldo" class="text-3xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
-                        </div>
-                        <button onclick="abrirModalEvolucao()" class="lg:hidden text-brand-500 bg-brand-50 p-2 rounded-lg"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></button>
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Boa tarde! ⛅</h2>
+                        <p class="text-xs text-gray-400" id="last-update">Sincronizando...</p>
                     </div>
+                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="abrirModalEvolucao()"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
+                </div>
+                <div class="flex gap-8 mt-2">
+                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receita</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
+                    <div class="w-px bg-gray-100"></div>
+                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Despesa</p><p id="total-gastos" class="text-lg font-bold text-red-500">R$ 0,00</p></div>
                 </div>
             </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-center border-l-4 border-l-brand-500">
+                <div class="flex items-center gap-2 mb-2"><div class="w-2 h-8 bg-brand-500 rounded-full"></div><p class="text-sm font-bold text-gray-500 uppercase">Saldo Geral</p></div>
+                <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
+                <p class="text-xs text-gray-400 mt-2">Saldo acumulado</p>
+            </div>
 
-            <div class="grid lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full">
-                    <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                        <h3 class="font-bold text-gray-700 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4"></i> Investimentos</h3>
-                        <button onclick="abrirModalInvestimento()" class="text-brand-600 hover:bg-brand-100 p-1.5 rounded-full"><i data-lucide="plus" class="w-4 h-4"></i></button>
-                    </div>
-                    <div class="p-4 bg-emerald-50/30 border-b border-emerald-50"><p class="text-xs text-emerald-700 font-bold uppercase">Acumulado</p><p id="total-investido" class="text-2xl font-bold text-emerald-800">R$ 0,00</p></div>
-                    <div id="lista-investimentos" class="divide-y divide-gray-50 max-h-[300px] overflow-y-auto flex-1"></div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="font-bold text-gray-700">Investimentos</h3>
+                    <button onclick="abrirModalInvestimento()" class="text-brand-600 hover:bg-brand-100 p-1.5 rounded-full"><i data-lucide="plus" class="w-4 h-4"></i></button>
                 </div>
+                <div class="p-4 bg-emerald-50/30"><p class="text-xs text-emerald-700 font-bold uppercase">Total Acumulado</p><p id="total-investido" class="text-2xl font-bold text-emerald-800">R$ 0,00</p></div>
+                <div id="lista-investimentos" class="divide-y divide-gray-50 max-h-[300px] overflow-y-auto"></div>
+            </div>
 
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-center items-center h-full">
-                    <h3 class="font-bold text-gray-700 mb-6 text-sm">Distribuição de Gastos</h3>
-                    <div class="h-56 w-full relative flex justify-center"><canvas id="graficoGastos"></canvas></div>
-                </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-4 text-sm text-center">Gastos por Categoria</h3>
+                <div class="h-48 relative flex justify-center"><canvas id="graficoGastos"></canvas></div>
             </div>
         </div>
 
-        <div id="listas-container" class="grid-listas-pc contents">
-            
+        <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
             <div id="view-entradas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-xl border border-green-100 shadow-sm sticky top-0 z-10">
+                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-0 z-10">
                     <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
                     <span id="header-total-renda" class="text-sm font-bold text-green-600">R$ 0,00</span>
                 </div>
                 <div class="pc-header hidden justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                    <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2"><i data-lucide="arrow-up-circle" class="w-5 h-5 text-green-500"></i> Entradas</h3>
+                    <h3 class="font-bold text-xl text-gray-700">Entradas</h3>
                     <span class="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full">RECEITAS</span>
                 </div>
                 <div id="lista-entradas-content" class="space-y-3"></div>
             </div>
 
             <div id="view-saidas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-xl border border-red-100 shadow-sm sticky top-0 z-10">
+                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-0 z-10">
                     <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
                     <span id="header-total-gastos" class="text-sm font-bold text-red-600">R$ 0,00</span>
                 </div>
                 <div class="pc-header hidden justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                    <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2"><i data-lucide="arrow-down-circle" class="w-5 h-5 text-red-500"></i> Saídas</h3>
+                    <h3 class="font-bold text-xl text-gray-700">Saídas</h3>
                     <span class="text-xs font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full">DESPESAS</span>
                 </div>
                 <div id="lista-saidas-content" class="space-y-3"></div>
@@ -279,9 +235,9 @@
         }
 
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = '/login.html'; }
-        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMes(); }
-        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMes(); }
-        async function salvarMes() { const m = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth()+1).padStart(2,'0')}`; try{ fetch(`${API_URL}?tipo=config`, {method:'POST', body: JSON.stringify({ultimo_mes:m})}); }catch(e){} }
+        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
+        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
+        async function salvarMesNoBanco() { const mesF = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth()+1).padStart(2,'0')}`; try{ fetch(`${API_URL}?tipo=config`, {method:'POST', body: JSON.stringify({ultimo_mes:m})}); }catch(e){} }
 
         function mudarAba(aba) {
             abaAtiva = aba; document.body.className = aba === 'resumo' ? 'text-gray-700 pb-24 md:pb-10 pc-resumo' : 'text-gray-700 pb-24 md:pb-10';
@@ -302,24 +258,24 @@
                     const corBg = i.tipo==='receita'?'bg-green-100 text-green-600':'bg-red-50 text-red-500';
                     const valor = formatMoney(i.valor);
                     
-                    // --- LISTA OTIMIZADA PARA TEXTO LONGO ---
+                    // CORREÇÃO: Usando Flexbox para dividir o espaço e garantir que nada fique em cima de nada
                     html += `
-                    <div class="group flex items-start gap-3 p-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
-                        <div class="w-10 h-10 rounded-full ${corBg} flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
+                    <div class="group flex items-center p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 gap-3">
+                        <div class="w-10 h-10 rounded-full ${corBg} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
                         
-                        <div class="flex-1 min-w-0 mr-1">
-                            <input value="${i.descricao}" onchange="editar(${i.id},'descricao',this.value)" class="input-invisible text-sm font-bold text-gray-700 w-full whitespace-normal break-words leading-tight" style="min-height: 1.25rem;">
-                            <div class="flex items-center gap-2 mt-1">
+                        <div class="flex-1 min-w-0" title="${i.descricao}">
+                            <input value="${i.descricao}" onchange="editar(${i.id},'descricao',this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate w-full">
+                            <div class="flex items-center gap-2 mt-0.5">
                                 <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${i.categoria}</span>
                                 ${i.status!=='pago'?'<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>':''}
                             </div>
                         </div>
 
-                        <div class="flex flex-col items-end gap-1">
+                        <div class="flex items-center gap-2 flex-shrink-0">
                             <input type="text" inputmode="numeric" value="${valor}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this,${i.id})" class="input-invisible text-right font-bold ${corValor} w-24 text-sm">
-                            <div class="flex items-center gap-2 opacity-100 lg:opacity-0 group-hover:lg:opacity-100 transition-opacity">
-                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="text-gray-400 hover:text-green-600"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
-                                <button onclick="deletar(${i.id})" class="text-red-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <div class="flex opacity-100 lg:opacity-0 group-hover:lg:opacity-100 transition-opacity gap-1">
+                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-200 rounded text-gray-400"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
+                                <button onclick="deletar(${i.id})" class="p-1.5 hover:bg-red-50 rounded text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </div>
                     </div>`;
@@ -334,7 +290,7 @@
                 container.innerHTML += `
                 <div class="flex items-center gap-3 p-4 hover:bg-gray-50 group transition">
                     <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="${ICON_MAP[i.categoria]||'pie-chart'}" class="w-4 h-4"></i></div>
-                    <div class="flex-1"><p class="text-sm font-bold text-gray-700 truncate">${i.descricao}</p><p class="text-[10px] text-gray-400 uppercase">${i.categoria}</p></div>
+                    <div class="flex-1" title="${i.descricao}"><p class="text-sm font-bold text-gray-700 truncate">${i.descricao}</p><p class="text-[10px] text-gray-400 uppercase">${i.categoria}</p></div>
                     <div class="text-right flex items-center gap-3">
                         <p class="text-sm font-bold text-gray-800">${formatMoney(i.valor)}</p>
                         <button onclick="if(confirm('Apagar?')) deletar(${i.id})" class="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -349,13 +305,7 @@
         function mascaraMoeda(e) { const v=e.value.replace(/\D/g,""); e.value = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v/100); }
         function limpaMoeda(v) { return typeof v==='number'?v:parseFloat(v.replace(/\D/g,''))/100; }
         function formatMoney(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-        
-        function atualizarTituloMes() { 
-            // Formato curto no mobile para não quebrar
-            const opt = window.innerWidth < 768 ? { month: 'short', year: 'numeric' } : { month: 'long', year: 'numeric' };
-            const txt = dataAtual.toLocaleDateString('pt-BR', opt).replace(' de ', ' ');
-            document.getElementById('mes-titulo').textContent = txt; 
-        }
+        function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
 
         function processarDados(dados) {
             let renda=0, gastos=0, invest=0; const ent=[], sai=[], inv=[];
@@ -415,7 +365,6 @@
             await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); fecharModal(); carregarDados();
         });
 
-        window.addEventListener('resize', atualizarTituloMes); // Atualiza data ao girar tela
         init();
     </script>
 </body>
