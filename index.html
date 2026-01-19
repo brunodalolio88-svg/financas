@@ -14,7 +14,7 @@
         
         .hide-scroll::-webkit-scrollbar { display: none; }
         
-        /* Abas Estilizadas */
+        /* Estilo das Abas */
         .tab-active { color: #0f172a; border-bottom: 3px solid #0f172a; font-weight: 800; background-color: #f8fafc; }
         .tab-inactive { color: #94a3b8; font-weight: 600; }
         .tab-inactive:hover { background-color: #f1f5f9; color: #64748b; }
@@ -50,7 +50,7 @@
         </nav>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 mt-6">
+    <main class="max-w-3xl mx-auto px-4 mt-6">
 
         <div id="view-resumo" class="space-y-6 animate-fade-in">
             <div class="hidden md:block text-center mb-6">
@@ -59,42 +59,41 @@
             </div>
 
             <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
-                <p class="text-xs text-slate-400 font-bold uppercase mb-1">Saldo em Caixa</p>
-                <h1 id="total-saldo" class="text-4xl font-extrabold tracking-tight">R$ 0,00</h1>
+                <div class="flex flex-col items-center justify-center text-center">
+                    <p class="text-xs text-slate-400 font-bold uppercase mb-2">Saldo em Caixa</p>
+                    <h1 id="total-saldo" class="text-5xl font-extrabold tracking-tight">R$ 0,00</h1>
+                </div>
                 
-                <div class="mt-4 pt-4 border-t border-slate-800 flex gap-4">
+                <div class="mt-6 pt-4 border-t border-slate-800 grid grid-cols-2 gap-4 text-center">
                     <div>
                         <span class="text-[10px] text-green-400 uppercase font-bold">Entrou</span>
-                        <p id="total-renda" class="font-bold text-lg">R$ 0,00</p>
+                        <p id="total-renda" class="font-bold text-xl">R$ 0,00</p>
                     </div>
-                    <div class="w-px bg-slate-800"></div>
-                    <div>
+                    <div class="border-l border-slate-800">
                         <span class="text-[10px] text-red-400 uppercase font-bold">Saiu</span>
-                        <p id="total-gastos" class="font-bold text-lg">R$ 0,00</p>
+                        <p id="total-gastos" class="font-bold text-xl">R$ 0,00</p>
                     </div>
                 </div>
             </div>
 
             <div class="bg-indigo-600 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
                 <div class="absolute right-0 top-0 p-4 opacity-10">
-                    <i data-lucide="trending-up" class="w-24 h-24"></i>
+                    <i data-lucide="trending-up" class="w-32 h-32"></i>
                 </div>
                 <div class="flex justify-between items-start relative z-10">
                     <div>
                         <p class="text-xs text-indigo-200 font-bold uppercase mb-1">Investido (Mês)</p>
-                        <h2 id="total-investido" class="text-3xl font-extrabold">R$ 0,00</h2>
+                        <h2 id="total-investido" class="text-4xl font-extrabold">R$ 0,00</h2>
                     </div>
                     <button onclick="abrirModalInvestimento()" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded-xl transition-colors shadow-lg">
                         <i data-lucide="plus" class="w-6 h-6 text-white"></i>
                     </button>
                 </div>
-
-                <div id="lista-investimentos" class="mt-4 space-y-2 relative z-10 max-h-48 overflow-y-auto hide-scroll">
-                    </div>
+                <div id="lista-investimentos" class="mt-4 space-y-2 relative z-10 max-h-48 overflow-y-auto hide-scroll"></div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Top Categorias</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4 text-center">Top Categorias de Gastos</h3>
                 <div class="h-64 relative flex justify-center">
                     <canvas id="graficoGastos"></canvas>
                 </div>
@@ -159,7 +158,6 @@
                         <div class="py-3 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div>
                     </label>
                 </div>
-                
                 <input type="radio" name="tipo" value="investimento" class="hidden" onchange="atualizarCategoriasModal()">
 
                 <div>
@@ -196,10 +194,8 @@
         let chartInstance = null;
         let abaAtiva = 'resumo';
 
-        // --- Configurações de Categorias ---
         const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Luz', 'Gás', 'Condomínio', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Outros'];
-        // Novas Categorias de Investimento
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
 
         const ICON_MAP = {
@@ -207,7 +203,6 @@
             'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Luz': 'lightbulb',
             'Gás': 'flame', 'Condomínio': 'building', 'Internet': 'wifi', 'Lazer': 'party-popper', 
             'Alimentação': 'utensils', 'Saúde': 'heart-pulse', 'Outros': 'more-horizontal', 
-            // Ícones de Investimento
             'CDB': 'landmark', 'Tesouro': 'scroll', 'Ações': 'trending-up', 'FIIs': 'building-2', 
             'Cripto': 'bitcoin', 'Poupança': 'piggy-bank', 'Caixinha': 'archive', 'investimento': 'bar-chart-3'
         };
@@ -266,7 +261,6 @@
                 radioGasto.checked = true; esconderToggle(true);
                 document.getElementById('modal-titulo').textContent = 'Nova Despesa';
             } else {
-                // No resumo, mostra toggle
                 radioGasto.checked = true; esconderToggle(false);
                 document.getElementById('modal-titulo').textContent = 'Adicionar';
             }
@@ -277,14 +271,9 @@
             resetModal();
             const radioInv = document.querySelector('input[value="investimento"]');
             radioInv.checked = true;
-            
-            // Esconde toggle de tipo (Receita/Despesa) mas MOSTRA categoria
             esconderToggle(true);
             document.getElementById('container-categoria').classList.remove('hidden');
-            
-            // Atualiza categorias para mostrar CDB, Ações...
             atualizarCategoriasModal();
-
             document.getElementById('modal-titulo').textContent = 'Novo Investimento';
             document.getElementById('descricao').placeholder = 'Nome do Ativo (Ex: Nubank)';
             document.getElementById('btn-salvar').className = 'w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-500 shadow-lg';
@@ -352,7 +341,6 @@
             document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
             document.getElementById('total-investido').textContent = formatMoney(totalInvestido);
             
-            // Atualiza Headers das Abas
             document.getElementById('header-total-renda').textContent = formatMoney(totalRenda);
             document.getElementById('header-total-gastos').textContent = formatMoney(totalGastos);
 
@@ -378,13 +366,11 @@
                     <div class="flex justify-between items-center text-sm p-2 bg-indigo-500/10 rounded-lg hover:bg-indigo-500/20 transition-colors">
                         <div class="flex items-center gap-3 overflow-hidden">
                              <span class="text-indigo-200 font-mono text-xs opacity-70 flex-shrink-0">${dataFormatada}</span>
-                             
                              <div class="flex flex-col min-w-0">
                                  <span class="font-bold text-white truncate">${item.descricao}</span>
                                  <span class="text-[10px] text-indigo-200 uppercase tracking-wide">${item.categoria}</span>
                              </div>
                         </div>
-                        
                         <div class="flex items-center gap-3 flex-shrink-0">
                             <span class="font-bold text-white">${formatMoney(item.valor)}</span>
                             <button onclick="if(confirm('Apagar ${item.descricao}?')) deletar(${item.id})" class="text-indigo-300 hover:text-white p-1 rounded-full hover:bg-red-500/20 transition-all">
@@ -409,7 +395,12 @@
             for (const [data, itens] of Object.entries(grupos)) {
                 let html = `<div class="mb-4"><h3 class="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">${data}</h3><div class="bg-white rounded-xl shadow-sm border border-slate-100 divide-y divide-slate-50 overflow-hidden">`;
                 itens.forEach(item => {
-                    let iconeNome = ICON_MAP[item.categoria] || 'circle-dollar-sign';
+                    let iconeNome = ICON_MAP[item.categoria];
+                    if (!iconeNome) {
+                        const chaves = Object.keys(ICON_MAP);
+                        const match = chaves.find(chave => item.categoria.includes(chave));
+                        iconeNome = match ? ICON_MAP[match] : 'circle-dollar-sign';
+                    }
                     const isPago = item.status === 'pago';
                     const valorMascarado = formatMoney(item.valor); 
 
@@ -455,6 +446,7 @@
         }
 
         async function deletar(id) {
+            if(!confirm("Tem certeza?")) return;
             await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             carregarDados();
         }
