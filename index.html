@@ -41,26 +41,29 @@
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
         
-        /* --- CORREÇÃO DA EDIÇÃO (MODO FANTASMA) --- */
+        /* --- MODO FANTASMA (PARA PC E CELULAR) --- */
         .input-invisible { 
-            background: transparent; 
+            background: transparent !important; 
             width: 100%; 
-            outline: none; 
-            border: 1px solid transparent; 
-            border-bottom: 1px solid transparent; /* Reserva espaço */
-            border-radius: 0; 
+            outline: none !important; 
+            border: 1px solid transparent !important; 
+            border-bottom: 1px solid transparent !important;
+            border-radius: 0 !important; 
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            padding-left: 0 !important;
+            /* padding-right é controlado via classe utilitária pr-16 no HTML */
             transition: all 0.2s; 
             text-overflow: ellipsis; 
             cursor: text;
+            box-shadow: none !important;
         }
-        /* Quando clica, apenas sublinha (sem caixa branca cobrindo) */
         .input-invisible:focus { 
-            background: transparent; 
-            border-color: transparent;
-            border-bottom: 2px solid #10b981; /* Sublinhado Verde */
-            padding: 0; 
-            box-shadow: none;
-            color: #000;
+            background: transparent !important; 
+            border-color: transparent !important;
+            border-bottom: 2px solid #10b981 !important;
+            box-shadow: none !important;
+            color: #000 !important;
         }
         
         .piscar-salvo { animation: flash 0.5s ease-out; }
@@ -100,8 +103,14 @@
                         </div>
                         <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
-                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white hidden md:block" title="Ver Evolução"><i data-lucide="bar-chart-big" class="w-5 h-5"></i></button>
-                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    
+                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white hidden md:block" title="Ver Evolução">
+                        <i data-lucide="bar-chart-big" class="w-5 h-5"></i>
+                    </button>
+
+                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
 
@@ -178,11 +187,16 @@
         </div>
     </main>
 
-    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
+    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90">
+        <i data-lucide="plus" class="w-7 h-7"></i>
+    </button>
 
     <div id="modal" class="fixed inset-0 bg-gray-900/50 hidden items-end md:items-center justify-center z-50 transition-opacity backdrop-blur-sm">
         <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-            <div class="flex justify-between items-center mb-6"><h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2><button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2>
+                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
             <form id="form-transacao" class="space-y-5">
                 <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
                     <label class="cursor-pointer"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div></label>
@@ -254,6 +268,7 @@
             document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
         }
 
+        // --- Renderização de Listas com Correção de Sobreposição ---
         function renderizarListaAgrupada(lista, containerId, corValor) {
             const container = document.getElementById(containerId); container.innerHTML = '';
             if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm font-medium">Tudo limpo por aqui</p></div>`; return; }
@@ -262,13 +277,20 @@
                 let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
                 itens.forEach(item => {
                     let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign'; let corIcone = item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-500'; const isPago = item.status === 'pago'; const valorF = formatMoney(item.valor);
+                    // IMPORTANTE: Adicionado pr-16 (padding-right) no input de valor para não ficar embaixo dos botões
                     html += `<div class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
                         <div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
                         <div class="flex-1 min-w-0" title="${item.descricao}">
                             <input value="${item.descricao}" title="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate w-full">
                             <div class="flex items-center gap-2"><span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div>
                         </div>
-                        <div class="text-right"><input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-28"><div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-md rounded-lg p-1 flex gap-1 border border-gray-100"><button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-500"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button><button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`;
+                        <div class="text-right">
+                            <input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-28 pr-16">
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-md rounded-lg p-1 flex gap-1 border border-gray-100">
+                                <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-500"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
+                                <button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </div></div>`;
                 }); html += `</div></div>`; container.innerHTML += html;
             }
         }
