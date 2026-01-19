@@ -19,9 +19,9 @@
         
         /* Ajustes para PC */
         @media (min-width: 768px) {
-            .mobile-tabs { display: none; } /* Esconde abas no PC */
+            .mobile-tabs { display: none; }
             .desktop-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
-            .desktop-view-all { display: block !important; } /* Mostra tudo no PC */
+            .desktop-view-all { display: block !important; }
         }
     </style>
 </head>
@@ -49,7 +49,7 @@
         <div id="view-resumo" class="space-y-6 desktop-view-all">
             
             <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
-                <p class="text-xs text-slate-400 font-bold uppercase mb-1">Saldo Líquido</p>
+                <p class="text-xs text-slate-400 font-bold uppercase mb-1">Saldo em Caixa</p>
                 <h1 id="total-saldo" class="text-4xl font-extrabold tracking-tight">R$ 0,00</h1>
                 
                 <div class="mt-4 pt-4 border-t border-slate-800 flex gap-4">
@@ -65,6 +65,25 @@
                 </div>
             </div>
 
+            <div class="bg-indigo-600 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-4 opacity-10">
+                    <i data-lucide="trending-up" class="w-24 h-24"></i>
+                </div>
+                
+                <div class="flex justify-between items-start relative z-10">
+                    <div>
+                        <p class="text-xs text-indigo-200 font-bold uppercase mb-1">Total Aportado (Mês)</p>
+                        <h2 id="total-investido" class="text-3xl font-extrabold">R$ 0,00</h2>
+                    </div>
+                    <button onclick="abrirModalInvestimento()" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded-xl transition-colors shadow-lg shadow-indigo-900/20">
+                        <i data-lucide="plus" class="w-6 h-6 text-white"></i>
+                    </button>
+                </div>
+
+                <div id="lista-investimentos" class="mt-4 space-y-2 relative z-10 max-h-32 overflow-y-auto hide-scroll">
+                    </div>
+            </div>
+
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Gastos por Categoria</h3>
                 <div class="h-48 relative flex justify-center">
@@ -74,7 +93,6 @@
         </div>
 
         <div class="space-y-6">
-            
             <div id="view-entradas" class="hidden desktop-view-all">
                 <div class="flex items-center gap-2 mb-3 px-1">
                     <div class="p-1 bg-green-100 rounded text-green-700"><i data-lucide="arrow-up" class="w-4 h-4"></i></div>
@@ -91,7 +109,6 @@
                 <div id="lista-saidas-content" class="space-y-4 min-h-[100px]"></div>
             </div>
         </div>
-
     </main>
 
     <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 bg-blue-600 hover:bg-blue-700 text-white w-16 h-16 rounded-full shadow-xl shadow-blue-600/30 z-40 active:scale-90 flex items-center justify-center transition-transform">
@@ -116,9 +133,11 @@
                         <div class="py-3 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div>
                     </label>
                 </div>
+                
+                <input type="radio" name="tipo" value="investimento" class="hidden">
 
                 <div>
-                    <input type="text" id="descricao" placeholder="Descrição (ex: Mercado)" class="w-full text-lg font-medium border-b-2 border-slate-100 py-3 focus:outline-none focus:border-blue-500 bg-transparent transition-colors" required>
+                    <input type="text" id="descricao" placeholder="Descrição" class="w-full text-lg font-medium border-b-2 border-slate-100 py-3 focus:outline-none focus:border-blue-500 bg-transparent transition-colors" required>
                 </div>
 
                 <div class="flex gap-4">
@@ -126,14 +145,19 @@
                         <label class="text-[10px] font-bold text-slate-400 uppercase">Valor</label>
                         <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" class="w-full text-xl font-bold border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent" required>
                     </div>
-                    <div class="flex-[1.5]">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Categoria</label>
-                        <select id="categoria" class="w-full text-lg font-medium border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent h-[46px]">
-                            </select>
+                    <div class="flex-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Data</label>
+                        <input type="date" id="data-custom" class="w-full text-lg font-medium border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent text-slate-600">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 active:scale-95 transition-all shadow-lg">
+                <div id="container-categoria">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Categoria</label>
+                    <select id="categoria" class="w-full text-lg font-medium border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent h-[46px]">
+                        </select>
+                </div>
+
+                <button type="submit" id="btn-salvar" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 active:scale-95 transition-all shadow-lg">
                     Confirmar
                 </button>
             </form>
@@ -144,88 +168,102 @@
         const API_URL = '/api/financas';
         let dataAtual = new Date();
         let chartInstance = null;
-        let abaAtiva = 'resumo'; // Controle da aba
+        let abaAtiva = 'resumo';
 
-        // --- Configuração das Categorias ---
         const CAT_RECEITAS = ['Renda', '13º Salário', 'Férias', 'Reembolso', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Luz', 'Gás', 'Condomínio', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Outros'];
-
         const ICON_MAP = {
-            'Renda': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw',
-            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Luz': 'lightbulb',
-            'Gás': 'flame', 'Condomínio': 'building', 'Internet': 'wifi', 'Lazer': 'party-popper',
-            'Alimentação': 'utensils', 'Saúde': 'heart-pulse', 'Outros': 'more-horizontal'
+            'Renda': 'wallet', 'Cartão': 'credit-card', 'Gasolina': 'fuel', 'Luz': 'lightbulb',
+            'Gás': 'flame', 'Condomínio': 'building', 'Internet': 'wifi', 'Lazer': 'party-popper', 'investimento': 'trending-up'
         };
 
         function init() {
             atualizarTituloMes();
             carregarDados();
-            
-            // Detecta PC para ajustar visualização
             if(window.innerWidth >= 768) abaAtiva = 'pc-mode';
         }
 
-        // --- Navegação ---
         function mudarAba(aba) {
             abaAtiva = aba;
-            
-            // Mobile: Esconde tudo e mostra só a aba
             ['resumo', 'entradas', 'saidas'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 document.getElementById(`tab-${v}`).classList.remove('tab-active');
                 document.getElementById(`tab-${v}`).classList.add('tab-inactive');
             });
-
             document.getElementById(`view-${aba}`).classList.remove('hidden');
-            const tabEl = document.getElementById(`tab-${aba}`);
-            tabEl.classList.add('tab-active');
-            tabEl.classList.remove('tab-inactive');
+            document.getElementById(`tab-${aba}`).classList.add('tab-active');
+            document.getElementById(`tab-${aba}`).classList.remove('tab-inactive');
         }
 
-        // --- Modal Inteligente ---
         function abrirModalContexto() {
-            const modal = document.getElementById('modal');
-            const toggleContainer = document.getElementById('toggle-tipo-container');
-            const radioReceita = document.querySelector('input[value="receita"]');
+            resetModal();
             const radioGasto = document.querySelector('input[value="gasto"]');
+            const radioReceita = document.querySelector('input[value="receita"]');
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            // Lógica de Contexto
             if (abaAtiva === 'entradas') {
                 radioReceita.checked = true;
-                toggleContainer.classList.add('hidden'); // Esconde opção de trocar
+                esconderToggle(true);
                 document.getElementById('modal-titulo').textContent = 'Nova Receita';
             } else if (abaAtiva === 'saidas') {
                 radioGasto.checked = true;
-                toggleContainer.classList.add('hidden'); // Esconde opção de trocar
+                esconderToggle(true);
                 document.getElementById('modal-titulo').textContent = 'Nova Despesa';
             } else {
-                // No resumo ou PC, mostra o toggle e padroniza Gasto (mais comum)
-                toggleContainer.classList.remove('hidden');
                 radioGasto.checked = true;
+                esconderToggle(false);
                 document.getElementById('modal-titulo').textContent = 'Adicionar';
             }
-            
             atualizarCategoriasModal();
+            abrirModal();
         }
+
+        // Função específica para o botão do Box de Investimentos
+        function abrirModalInvestimento() {
+            resetModal();
+            document.querySelector('input[value="investimento"]').checked = true;
+            
+            // Esconde toggle de Receita/Despesa e Categoria (não precisa pra investimento)
+            esconderToggle(true);
+            document.getElementById('container-categoria').classList.add('hidden');
+            
+            // Ajusta visual
+            document.getElementById('modal-titulo').textContent = 'Novo Investimento';
+            document.getElementById('descricao').placeholder = 'Investimento em: (Ex: CDB, Ações)';
+            document.getElementById('btn-salvar').className = 'w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-500 shadow-lg';
+            
+            abrirModal();
+        }
+
+        function resetModal() {
+            document.getElementById('form-transacao').reset();
+            // Data padrão: Hoje
+            document.getElementById('data-custom').valueAsDate = new Date();
+            document.getElementById('container-categoria').classList.remove('hidden');
+            document.getElementById('btn-salvar').className = 'w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 shadow-lg';
+            document.getElementById('descricao').placeholder = 'Descrição';
+        }
+
+        function esconderToggle(esconder) {
+            const el = document.getElementById('toggle-tipo-container');
+            if(esconder) el.classList.add('hidden'); else el.classList.remove('hidden');
+        }
+
+        function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
+        function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
 
         function atualizarCategoriasModal() {
             const tipo = document.querySelector('input[name="tipo"]:checked').value;
             const select = document.getElementById('categoria');
             select.innerHTML = '';
-            
+            if (tipo === 'investimento') return; // Sem categoria para investimento
+
             const lista = tipo === 'receita' ? CAT_RECEITAS : CAT_DESPESAS;
             lista.forEach(cat => {
                 const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                select.appendChild(opt);
+                opt.value = cat; opt.textContent = cat; select.appendChild(opt);
             });
         }
 
-        // --- Core ---
         async function carregarDados() {
             try {
                 const ano = dataAtual.getFullYear();
@@ -238,79 +276,77 @@
         }
 
         function processarDados(dados) {
-            let totalRenda = 0, totalGastos = 0;
-            const entradas = [], saidas = [];
+            let totalRenda = 0, totalGastos = 0, totalInvestido = 0;
+            const entradas = [], saidas = [], investimentos = [];
 
             dados.forEach(item => {
                 item.valor = parseFloat(item.valor);
                 if (item.tipo === 'receita') { totalRenda += item.valor; entradas.push(item); }
-                else { totalGastos += item.valor; saidas.push(item); }
+                else if (item.tipo === 'gasto') { totalGastos += item.valor; saidas.push(item); }
+                else if (item.tipo === 'investimento') { totalInvestido += item.valor; investimentos.push(item); }
             });
 
-            // Totais
             document.getElementById('total-saldo').textContent = formatMoney(totalRenda - totalGastos);
             document.getElementById('total-renda').textContent = formatMoney(totalRenda);
             document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
+            document.getElementById('total-investido').textContent = formatMoney(totalInvestido);
 
-            // Renderiza Listas
             renderizarListaAgrupada(entradas, 'lista-entradas-content', 'text-green-600');
             renderizarListaAgrupada(saidas, 'lista-saidas-content', 'text-slate-800');
-            
-            // Gráfico
+            renderizarInvestimentos(investimentos);
             renderizarGrafico(saidas);
             lucide.createIcons();
+        }
+
+        function renderizarInvestimentos(lista) {
+            const container = document.getElementById('lista-investimentos');
+            container.innerHTML = '';
+            
+            if(lista.length === 0) return;
+
+            lista.forEach(item => {
+                const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+                container.innerHTML += `
+                    <div class="flex justify-between items-center text-sm p-2 hover:bg-indigo-500/20 rounded cursor-pointer group" onclick="if(confirm('Apagar investimento?')) deletar(${item.id})">
+                        <div class="flex items-center gap-3">
+                             <span class="text-indigo-200 font-mono text-xs opacity-70">${dataFormatada}</span>
+                             <span class="font-bold text-white truncate max-w-[120px]">${item.descricao}</span>
+                        </div>
+                        <span class="font-bold text-white">${formatMoney(item.valor)}</span>
+                    </div>
+                `;
+            });
         }
 
         function renderizarListaAgrupada(lista, containerId, corValor) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-
-            if(lista.length === 0) {
-                container.innerHTML = '<div class="text-center py-8 text-slate-300 text-sm italic">Nenhum lançamento</div>';
-                return;
-            }
-
+            if(lista.length === 0) { container.innerHTML = '<div class="text-center py-8 text-slate-300 text-sm italic">Vazio</div>'; return; }
+            
             const grupos = {};
             lista.forEach(item => {
-                const dataKey = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', weekday: 'short' });
-                if(!grupos[dataKey]) grupos[dataKey] = [];
-                grupos[dataKey].push(item);
+                const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', weekday: 'short' });
+                if(!grupos[dk]) grupos[dk] = []; grupos[dk].push(item);
             });
 
             for (const [data, itens] of Object.entries(grupos)) {
-                let html = `<div class="mb-4">
-                    <h3 class="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">${data}</h3>
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 divide-y divide-slate-50 overflow-hidden">`;
-                
+                let html = `<div class="mb-4"><h3 class="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">${data}</h3><div class="bg-white rounded-xl shadow-sm border border-slate-100 divide-y divide-slate-50 overflow-hidden">`;
                 itens.forEach(item => {
                     const icone = ICON_MAP[item.categoria] || 'circle';
                     const isPago = item.status === 'pago';
-                    
-                    html += `
-                    <div id="card-${item.id}" class="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors group">
-                        <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="${icone}" class="w-4 h-4"></i>
-                        </div>
+                    html += `<div id="card-${item.id}" class="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors group">
+                        <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-4 h-4"></i></div>
                         <div class="flex-1 min-w-0">
-                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" 
-                                class="input-invisible text-sm font-bold text-slate-700 truncate cursor-pointer hover:text-blue-600">
+                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-slate-700 truncate cursor-pointer hover:text-blue-600">
                             <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">${item.categoria}</div>
                         </div>
                         <div class="text-right">
-                            <input type="number" step="0.01" value="${item.valor}" onchange="editar(${item.id}, 'valor', this.value)" 
-                                class="input-invisible text-right text-sm font-bold ${corValor} w-24 cursor-pointer hover:bg-slate-100 rounded px-1">
-                            
+                            <input type="number" step="0.01" value="${item.valor}" onchange="editar(${item.id}, 'valor', this.value)" class="input-invisible text-right text-sm font-bold ${corValor} w-24 cursor-pointer hover:bg-slate-100 rounded px-1">
                             <div class="flex items-center justify-end gap-2 mt-1">
-                                <button onclick="deletar(${item.id})" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-opacity">
-                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                                </button>
-                                <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" 
-                                    class="text-[9px] px-1.5 py-0.5 rounded ${isPago?'bg-green-100 text-green-700':'bg-orange-100 text-orange-600'} font-bold">
-                                    ${isPago ? 'PAGO' : 'PEND.'}
-                                </button>
+                                <button onclick="deletar(${item.id})" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-opacity"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                                <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="text-[9px] px-1.5 py-0.5 rounded ${isPago?'bg-green-100 text-green-700':'bg-orange-100 text-orange-600'} font-bold">${isPago ? 'PAGO' : 'PEND.'}</button>
                             </div>
-                        </div>
-                    </div>`;
+                        </div></div>`;
                 });
                 html += `</div></div>`;
                 container.innerHTML += html;
@@ -320,24 +356,11 @@
         function renderizarGrafico(saidas) {
             const ctx = document.getElementById('graficoGastos').getContext('2d');
             if(chartInstance) chartInstance.destroy();
-
-            const cats = {};
-            saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
-            
-            // Cores personalizadas para o gráfico
-            const cores = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
-
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(cats),
-                    datasets: [{ data: Object.values(cats), backgroundColor: cores, borderWidth: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, cutout: '70%' }
-            });
+            const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
+            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, cutout: '70%' } });
         }
 
-        // --- Funções Auxiliares ---
+        // Funções Auxiliares
         function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); }
         function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); }
         function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
@@ -350,28 +373,31 @@
         }
 
         async function deletar(id) {
-            if(!confirm("Tem certeza?")) return;
             await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             carregarDados();
         }
 
         document.getElementById('form-transacao').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const dataReg = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), new Date().getDate(), 12,0,0);
+            
+            // Pega data do input customizado
+            const dataInput = document.getElementById('data-custom').value;
+            // Cria data mantendo o horário para não dar fuso errado
+            const dataReg = dataInput ? new Date(dataInput + 'T12:00:00') : new Date();
+
             const form = {
                 tipo: document.querySelector('input[name="tipo"]:checked').value,
                 descricao: document.getElementById('descricao').value,
                 valor: parseFloat(document.getElementById('valor').value),
-                categoria: document.getElementById('categoria').value,
-                status: 'pago', data: dataReg.toISOString()
+                categoria: document.getElementById('categoria').value || 'Aporte', // Default para investimento
+                status: 'pago', 
+                data: dataReg.toISOString()
             };
             await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) });
-            fecharModal(); e.target.reset(); carregarDados();
+            fecharModal(); carregarDados();
         });
 
         function formatMoney(v) { return v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
-        function fecharModal() { document.getElementById('modal').classList.remove('flex'); document.getElementById('modal').classList.add('hidden'); }
-        
         init();
     </script>
 </body>
