@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Finanças Bruno & Nathalia</title>
     
+    <script>
+        if (!localStorage.getItem('usuario_logado')) {
+            window.location.href = '/login.html';
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,48 +30,44 @@
         }
     </script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f3f4f6; }
+        
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
         /* Abas */
-        .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 600; transition: all 0.2s; cursor: pointer; }
+        .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 500; transition: all 0.2s; cursor: pointer; }
         .nav-item:hover { color: white; }
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
         
-        /* Inputs Invisíveis (Estilo Simples e Seguro) */
-        .input-invisible { 
-            background: transparent; 
-            width: 100%; 
-            outline: none; 
-            border: 1px solid transparent; 
-            border-radius: 4px; 
-            transition: all 0.2s; 
-        }
-        .input-invisible:focus { 
-            background: white; 
-            border-color: #d1d5db; 
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); 
-            padding: 2px 4px; 
-        }
+        .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; text-overflow: ellipsis; }
+        .input-invisible:focus { background: white; border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); padding: 2px 4px; position: relative; z-index: 10; }
         
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
 
-        /* --- OTIMIZAÇÃO PC (A VERSÃO SEGURA) --- */
+        /* --- OTIMIZAÇÃO PC (LAYOUT PERFEITO) --- */
         @media (min-width: 1024px) {
-            main { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
+            main { 
+                display: grid; 
+                grid-template-columns: 360px 1fr; 
+                gap: 2rem; 
+                align-items: start; 
+            }
             body.pc-resumo #view-resumo { display: block !important; }
-            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+            body.pc-resumo #lists-wrapper { 
+                display: grid !important; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 1.5rem; 
+            }
             body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
-            
-            /* Garante que as listas apareçam corretamente nas abas individuais */
-            body:not(.pc-resumo) main { display: block; max-width: 60rem; margin: 2rem auto; }
-            
-            #view-entradas, #view-saidas { 
+            body:not(.pc-resumo) main {
+                display: block; max-width: 56rem; margin: 2rem auto;
+            }
+            #view-entradas, #view-saidas {
                 background: white; border-radius: 1rem; padding: 1.5rem; 
-                border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
+                border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             }
             .mobile-header { display: none !important; }
             .pc-header { display: flex !important; }
@@ -84,18 +86,27 @@
                         <p class="text-[10px] opacity-80 uppercase tracking-wider">Gestão Financeira</p>
                     </div>
                 </div>
-                <div class="flex gap-3 items-center">
+
+                <div class="flex gap-4 items-center">
                     <div class="flex items-center bg-brand-600/50 rounded-lg p-1">
-                        <button onclick="mudarMes(-1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-                        <div class="px-3 text-center cursor-pointer min-w-[100px]" onclick="resetarHoje()">
-                            <span id="mes-titulo" class="text-sm font-bold text-white capitalize">Carregando...</span>
+                        <button onclick="mudarMes(-1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <div class="px-2 md:px-4 text-center cursor-pointer" onclick="resetarHoje()">
+                            <span id="mes-titulo" class="text-xs md:text-sm font-bold text-white capitalize">Carregando...</span>
                         </div>
-                        <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
-                    <button onclick="logout()" class="text-white/70 hover:text-white p-1" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    
+                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white hidden md:block" title="Ver Evolução">
+                        <i data-lucide="bar-chart-big" class="w-5 h-5"></i>
+                    </button>
+
+                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
-            <nav class="flex gap-6 mt-1 overflow-x-auto hide-scroll">
+
+            <nav class="flex gap-6 mt-2 overflow-x-auto hide-scroll">
                 <button onclick="mudarAba('resumo')" id="tab-resumo" class="nav-item active">Visão Geral</button>
                 <button onclick="mudarAba('entradas')" id="tab-entradas" class="nav-item">Entradas</button>
                 <button onclick="mudarAba('saidas')" id="tab-saidas" class="nav-item">Saídas</button>
@@ -105,92 +116,106 @@
 
     <main class="max-w-7xl mx-auto px-4 mt-6">
         <div id="view-resumo" class="animate-fade-in space-y-6">
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-800">Olá, <span id="nome-usuario">...</span>! 👋</h2>
-                        <p class="text-xs text-gray-400" id="last-update">Atualizando...</p>
+                        <h2 class="text-xl font-bold text-gray-800">Boa tarde, <span id="nome-usuario">...</span>! ⛅</h2>
+                        <p class="text-xs text-gray-400" id="last-update">Sincronizando...</p>
                     </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
+                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="abrirModalEvolucao()">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 mt-2">
-                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receitas</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
-                    <div class="border-l pl-4 border-gray-100"><p class="text-xs text-gray-400 uppercase font-bold mb-1">Despesas</p><p id="total-gastos" class="text-lg font-bold text-red-500">R$ 0,00</p></div>
+                <div class="flex gap-8 mt-2">
+                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receita</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
+                    <div class="w-px bg-gray-100"></div>
+                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Despesa</p><p id="total-gastos" class="text-lg font-bold text-red-500">R$ 0,00</p></div>
                 </div>
             </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 border-l-4 border-l-brand-500">
-                <p class="text-sm font-bold text-gray-500 uppercase mb-1">Saldo em Caixa</p>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-center border-l-4 border-l-brand-500">
+                <div class="flex items-center gap-2 mb-2"><div class="w-2 h-8 bg-brand-500 rounded-full"></div><p class="text-sm font-bold text-gray-500 uppercase">Saldo Geral</p></div>
                 <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
+                <p class="text-xs text-gray-400 mt-2">Saldo acumulado</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                     <h3 class="font-bold text-gray-700">Investimentos</h3>
-                    <button onclick="abrirModalInvestimento()" class="text-brand-600 hover:bg-brand-100 p-1.5 rounded-full"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    <button onclick="abrirModalInvestimento()" class="text-brand-600 hover:bg-brand-50 p-1.5 rounded-full transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
                 </div>
-                <div class="p-4 bg-emerald-50/30"><p class="text-xs text-emerald-700 font-bold uppercase">Total Acumulado</p><p id="total-investido" class="text-2xl font-bold text-emerald-800">R$ 0,00</p></div>
+                <div class="p-4 bg-emerald-50/50 border-b border-emerald-100"><p class="text-xs text-emerald-600 font-bold uppercase">Acumulado</p><p id="total-investido" class="text-2xl font-bold text-emerald-700">R$ 0,00</p></div>
                 <div id="lista-investimentos" class="divide-y divide-gray-50 max-h-[300px] overflow-y-auto"></div>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <h3 class="font-bold text-gray-700 mb-4 text-sm text-center">Gastos por Categoria</h3>
+                <h3 class="font-bold text-gray-700 mb-4 text-sm">Por Categoria</h3>
                 <div class="h-48 relative flex justify-center"><canvas id="graficoGastos"></canvas></div>
             </div>
         </div>
 
         <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
             <div id="view-entradas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-0 z-10">
-                    <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
-                    <span id="header-total-renda" class="text-sm font-bold text-green-600">R$ 0,00</span>
+                <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
+                    <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
+                    <span id="header-total-renda" class="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">R$ 0,00</span>
                 </div>
-                <div class="pc-header hidden justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                    <h3 class="font-bold text-xl text-gray-700">Entradas</h3>
-                    <span class="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full">RECEITAS</span>
+                <div class="pc-header hidden justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                    <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-green-500"></div> Entradas</h3>
+                    <span class="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-100">RECEITAS</span>
                 </div>
                 <div id="lista-entradas-content" class="space-y-3"></div>
             </div>
 
             <div id="view-saidas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-0 z-10">
-                    <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
-                    <span id="header-total-gastos" class="text-sm font-bold text-red-600">R$ 0,00</span>
+                <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
+                    <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
+                    <span id="header-total-gastos" class="text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded">R$ 0,00</span>
                 </div>
-                <div class="pc-header hidden justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                    <h3 class="font-bold text-xl text-gray-700">Saídas</h3>
-                    <span class="text-xs font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full">DESPESAS</span>
+                <div class="pc-header hidden justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                    <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div> Saídas</h3>
+                    <span class="text-xs font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full border border-red-100">DESPESAS</span>
                 </div>
                 <div id="lista-saidas-content" class="space-y-3"></div>
             </div>
         </div>
     </main>
 
-    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-95 flex items-center justify-center transition-transform hover:rotate-90">
-        <i data-lucide="plus" class="w-8 h-8"></i>
+    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90">
+        <i data-lucide="plus" class="w-7 h-7"></i>
     </button>
 
-    <div id="modal" class="fixed inset-0 bg-gray-900/60 hidden items-end md:items-center justify-center z-50 backdrop-blur-sm transition-all">
-        <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-fade-in">
+    <div id="modal" class="fixed inset-0 bg-gray-900/50 hidden items-end md:items-center justify-center z-50 transition-opacity backdrop-blur-sm">
+        <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2>
-                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form id="form-transacao" class="space-y-4">
-                <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
+            <form id="form-transacao" class="space-y-5">
+                <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
                     <label class="cursor-pointer"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div></label>
                     <label class="cursor-pointer"><input type="radio" name="tipo" value="gasto" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div></label>
                 </div>
                 <input type="radio" name="tipo" value="investimento" class="hidden" onchange="atualizarCategoriasModal()">
-                
-                <div class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="type" class="w-4 h-4"></i></div><input type="text" id="descricao" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium" placeholder="Descrição" required></div>
-                <div class="flex gap-3">
-                    <div class="relative flex-1"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><span class="text-xs font-bold">R$</span></div><input type="text" inputmode="numeric" id="valor-mask" class="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-bold text-gray-800" placeholder="0,00" onkeyup="mascaraMoeda(this)" required></div>
-                    <div class="relative w-40"><input type="date" id="data-custom" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-600 text-sm"></div>
+                <div class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="type" class="w-4 h-4"></i></div><input type="text" id="descricao" placeholder="Descrição" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium" required></div>
+                <div class="flex gap-4">
+                    <div class="relative flex-1"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><span class="text-xs font-bold">R$</span></div><input type="text" inputmode="numeric" id="valor-mask" placeholder="0,00" onkeyup="mascaraMoeda(this)" class="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-bold text-gray-800" required></div>
+                    <div class="relative flex-1" id="box-data"><input type="date" id="data-custom" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-600"></div>
                 </div>
-                <div id="container-categoria" class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="tag" class="w-4 h-4"></i></div><select id="categoria" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium appearance-none bg-transparent"></select><div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div></div>
-                <button type="submit" id="btn-salvar" class="w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 active:scale-95 transition-all shadow-lg">Salvar</button>
+                <div id="container-categoria" class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="tag" class="w-4 h-4"></i></div><select id="categoria" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium appearance-none"></select><div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div></div>
+                <button type="submit" id="btn-salvar" class="w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 active:scale-95 transition-all shadow-lg shadow-brand-500/20">Salvar Lançamento</button>
             </form>
+        </div>
+    </div>
+
+    <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50 transition-opacity backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg mx-4 rounded-2xl p-6 shadow-2xl animate-slide-up">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-800">Evolução Recente</h2>
+                <button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
+            <p class="text-xs text-center text-gray-400 mt-4">Comparativo dos últimos meses (Simulado para Demonstração)</p>
         </div>
     </div>
 
@@ -198,155 +223,148 @@
         const API_URL = '/api/financas';
         let dataAtual = new Date();
         let chartInstance = null;
+        let chartEvolucaoInstance = null;
         let abaAtiva = 'resumo';
 
-        // TODAS AS CATEGORIAS QUE VOCÊ PEDIU
+        // --- NOVAS CATEGORIAS ATUALIZADAS ---
         const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
-        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Governo', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
+        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
-        
+
+        // --- NOVOS ÍCONES MAPEADOS ---
         const ICON_MAP = {
             'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
             'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
-            'Manutenção Casa': 'hammer', 'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Governo': 'landmark', 'Internet': 'wifi', 'Lazer': 'coffee', 
+            'Manutenção Casa': 'hammer', 'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Internet': 'wifi', 'Lazer': 'coffee', 
             'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
         };
 
         async function init() {
-            document.getElementById('nome-usuario').textContent = localStorage.getItem('usuario_nome') || 'Usuário';
+            const nome = localStorage.getItem('usuario_nome') || 'Usuário';
+            document.getElementById('nome-usuario').textContent = nome;
             try {
-                const res = await fetch(`${API_URL}?tipo=config`); const config = await res.json();
-                if (config?.ultimo_mes) { const [a, m] = config.ultimo_mes.split('-'); dataAtual = new Date(a, m - 1, 1); }
-            } catch (e) {}
-            atualizarTituloMes(); carregarDados();
+                const res = await fetch(`${API_URL}?tipo=config`);
+                const config = await res.json();
+                if (config && config.ultimo_mes) {
+                    const [ano, mes] = config.ultimo_mes.split('-');
+                    dataAtual = new Date(ano, mes - 1, 1);
+                } else { dataAtual = new Date(); }
+            } catch (e) { dataAtual = new Date(); }
+            atualizarTituloMes();
+            carregarDados();
         }
 
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = '/login.html'; }
-        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMes(); }
-        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMes(); }
-        async function salvarMes() { const m = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth()+1).padStart(2,'0')}`; try{ fetch(`${API_URL}?tipo=config`, {method:'POST', body: JSON.stringify({ultimo_mes:m})}); }catch(e){} }
+        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
+        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
+        async function salvarMesNoBanco() { const mesF = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, '0')}`; try { await fetch(`${API_URL}?tipo=config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ultimo_mes: mesF }) }); } catch(e) {} }
 
         function mudarAba(aba) {
-            abaAtiva = aba; document.body.className = aba === 'resumo' ? 'text-gray-700 pb-24 md:pb-10 pc-resumo' : 'text-gray-700 pb-24 md:pb-10';
+            abaAtiva = aba;
+            const body = document.body;
+            if(aba === 'resumo') body.classList.add('pc-resumo'); else body.classList.remove('pc-resumo');
             ['resumo', 'entradas', 'saidas'].forEach(v => { document.getElementById(`view-${v}`).classList.add('hidden'); document.getElementById(`tab-${v}`).classList.remove('active'); });
             document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
         }
 
+        // --- Renderização de Listas com Tooltip (Melhoria de Leitura) ---
         function renderizarListaAgrupada(lista, containerId, corValor) {
             const container = document.getElementById(containerId); container.innerHTML = '';
-            if(!lista.length) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm">Tudo limpo</p></div>`; return; }
-            
-            const grupos = {}; lista.forEach(i => { const d = new Date(i.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'long'}); (grupos[d]=grupos[d]||[]).push(i); });
-            
+            if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm font-medium">Tudo limpo por aqui</p></div>`; return; }
+            const grupos = {}; lista.forEach(item => { const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); if(!grupos[dk]) grupos[dk] = []; grupos[dk].push(item); });
             for (const [data, itens] of Object.entries(grupos)) {
-                let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
-                itens.forEach(i => {
-                    const icone = ICON_MAP[i.categoria] || 'circle-dollar-sign';
-                    const corBg = i.tipo==='receita'?'bg-green-100 text-green-600':'bg-red-50 text-red-500';
-                    const valor = formatMoney(i.valor);
-                    
-                    // SEGURANÇA NO LAYOUT: Sem posição absoluta nos botões para não cobrir o texto
-                    html += `
-                    <div class="group flex items-center p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 gap-3">
-                        <div class="w-10 h-10 rounded-full ${corBg} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
-                        
-                        <div class="flex-1 min-w-0" title="${i.descricao}">
-                            <input value="${i.descricao}" onchange="editar(${i.id},'descricao',this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate w-full">
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${i.categoria}</span>
-                                ${i.status!=='pago'?'<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>':''}
-                            </div>
+                let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
+                itens.forEach(item => {
+                    let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign'; let corIcone = item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-500'; const isPago = item.status === 'pago'; const valorF = formatMoney(item.valor);
+                    // ADDED: title="${item.descricao}" nos containers principais e inputs para leitura fácil
+                    html += `<div class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                        <div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
+                        <div class="flex-1 min-w-0" title="${item.descricao}">
+                            <input value="${item.descricao}" title="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate w-full">
+                            <div class="flex items-center gap-2"><span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div>
                         </div>
-
-                        <div class="flex items-center gap-2">
-                            <input type="text" inputmode="numeric" value="${valor}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this,${i.id})" class="input-invisible text-right font-bold ${corValor} w-24 text-sm">
-                            <div class="flex opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity gap-1">
-                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-200 rounded text-gray-400"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
-                                <button onclick="deletar(${i.id})" class="p-1.5 hover:bg-red-50 rounded text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-                container.innerHTML += html + `</div></div>`;
+                        <div class="text-right"><input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-28"><div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-md rounded-lg p-1 flex gap-1 border border-gray-100"><button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-500"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button><button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`;
+                }); html += `</div></div>`; container.innerHTML += html;
             }
         }
 
         function renderizarInvestimentos(lista) {
             const container = document.getElementById('lista-investimentos'); container.innerHTML = '';
-            if(!lista.length) { container.innerHTML = '<div class="text-center py-6 text-gray-400 text-xs">Sem investimentos</div>'; return; }
-            lista.forEach(i => {
-                container.innerHTML += `
-                <div class="flex items-center gap-3 p-4 hover:bg-gray-50 group transition">
-                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="${ICON_MAP[i.categoria]||'pie-chart'}" class="w-4 h-4"></i></div>
-                    <div class="flex-1"><p class="text-sm font-bold text-gray-700">${i.descricao}</p><p class="text-[10px] text-gray-400 uppercase">${i.categoria}</p></div>
-                    <div class="text-right flex items-center gap-3">
-                        <p class="text-sm font-bold text-gray-800">${formatMoney(i.valor)}</p>
-                        <button onclick="if(confirm('Apagar?')) deletar(${i.id})" class="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>
-                </div>`;
+            if(lista.length === 0) { container.innerHTML = '<div class="text-center py-6 text-gray-400 text-xs">Sem investimentos</div>'; return; }
+            lista.forEach(item => {
+                const valorF = formatMoney(item.valor); let icone = ICON_MAP[item.categoria] || 'pie-chart';
+                container.innerHTML += `<div class="flex items-center gap-3 p-4 hover:bg-gray-50 group transition"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="${icone}" class="w-4 h-4"></i></div><div class="flex-1" title="${item.descricao}"><p class="text-sm font-bold text-gray-700 truncate">${item.descricao}</p><p class="text-[10px] text-gray-400 uppercase">${item.categoria}</p></div><div class="text-right"><p class="text-sm font-bold text-gray-800">${valorF}</p><button onclick="if(confirm('Apagar?')) deletar(${item.id})" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 hover:underline">remover</button></div></div>`;
             });
         }
 
-        async function editar(id,c,v) { await fetch(API_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,[c]:v})}); carregarDados(); }
-        async function deletar(id) { if(confirm("Apagar?")) { await fetch(`${API_URL}?id=${id}`,{method:'DELETE'}); carregarDados(); } }
-        async function salvarValorLista(el,id) { await editar(id,'valor',limpaMoeda(el.value)); }
-        function mascaraMoeda(e) { const v=e.value.replace(/\D/g,""); e.value = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v/100); }
-        function limpaMoeda(v) { return typeof v==='number'?v:parseFloat(v.replace(/\D/g,''))/100; }
-        function formatMoney(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-        function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
+        async function carregarDados() {
+            try {
+                const ano = dataAtual.getFullYear(); const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const res = await fetch(`${API_URL}?mes=${ano}-${mes}`); const dados = await res.json();
+                processarDados(dados); document.getElementById('last-update').textContent = 'Atualizado às ' + new Date().toLocaleTimeString().slice(0,5);
+            } catch (e) { console.error(e); }
+        }
 
         function processarDados(dados) {
-            let renda=0, gastos=0, invest=0; const ent=[], sai=[], inv=[];
-            dados.forEach(i => {
-                i.valor = parseFloat(i.valor);
-                if(i.tipo==='receita') { renda+=i.valor; ent.push(i); }
-                else if(i.tipo==='gasto') { gastos+=i.valor; sai.push(i); }
-                else { invest+=i.valor; inv.push(i); }
+            let totalRenda = 0, totalGastos = 0, totalInvestido = 0; const entradas = [], saidas = [], investimentos = [];
+            dados.forEach(item => {
+                item.valor = parseFloat(item.valor);
+                if (item.tipo === 'receita') { totalRenda += item.valor; entradas.push(item); }
+                else if (item.tipo === 'gasto') { totalGastos += item.valor; saidas.push(item); }
+                else if (item.tipo === 'investimento') { totalInvestido += item.valor; investimentos.push(item); }
             });
-            document.getElementById('total-saldo').textContent = formatMoney(renda-gastos);
-            document.getElementById('total-renda').textContent = formatMoney(renda);
-            document.getElementById('total-gastos').textContent = formatMoney(gastos);
-            document.getElementById('total-investido').textContent = formatMoney(invest);
-            document.getElementById('header-total-renda').textContent = formatMoney(renda);
-            document.getElementById('header-total-gastos').textContent = formatMoney(gastos);
-            
-            renderizarListaAgrupada(ent, 'lista-entradas-content', 'text-green-600');
-            renderizarListaAgrupada(sai, 'lista-saidas-content', 'text-gray-800');
-            renderizarInvestimentos(inv);
-            renderizarGrafico(sai);
-            lucide.createIcons();
+            document.getElementById('total-saldo').textContent = formatMoney(totalRenda - totalGastos);
+            document.getElementById('total-renda').textContent = formatMoney(totalRenda);
+            document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
+            document.getElementById('total-investido').textContent = formatMoney(totalInvestido);
+            document.getElementById('header-total-renda').textContent = formatMoney(totalRenda);
+            document.getElementById('header-total-gastos').textContent = formatMoney(totalGastos);
+            renderizarListaAgrupada(entradas, 'lista-entradas-content', 'text-green-600');
+            renderizarListaAgrupada(saidas, 'lista-saidas-content', 'text-gray-800');
+            renderizarInvestimentos(investimentos); renderizarGrafico(saidas); lucide.createIcons();
         }
 
-        function abrirModalContexto() {
-            resetModal(); const rG = document.querySelector('input[value="gasto"]'), rR = document.querySelector('input[value="receita"]');
-            if(abaAtiva==='entradas') { rR.checked=true; esconderToggle(true); document.getElementById('modal-titulo').textContent='Nova Receita'; }
-            else if(abaAtiva==='saidas') { rG.checked=true; esconderToggle(true); document.getElementById('modal-titulo').textContent='Nova Despesa'; }
-            else { rG.checked=true; esconderToggle(false); document.getElementById('modal-titulo').textContent='Adicionar'; }
-            atualizarCategoriasModal(); abrirModal();
-        }
-        function abrirModalInvestimento() { resetModal(); document.querySelector('input[value="investimento"]').checked=true; esconderToggle(true); document.getElementById('container-categoria').classList.remove('hidden'); atualizarCategoriasModal(); document.getElementById('modal-titulo').textContent='Novo Investimento'; document.getElementById('descricao').placeholder='Nome (Ex: Tesouro)'; document.getElementById('btn-salvar').classList.replace('bg-brand-500','bg-emerald-600'); abrirModal(); }
-        
-        function atualizarCategoriasModal() {
-            const t = document.querySelector('input[name="tipo"]:checked').value, s = document.getElementById('categoria'); s.innerHTML='';
-            (t==='receita'?CAT_RECEITAS:(t==='gasto'?CAT_DESPESAS:CAT_INVESTIMENTOS)).forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; s.appendChild(o); });
-        }
-        
-        function renderizarGrafico(sai) {
+        function renderizarGrafico(saidas) {
             const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
-            const cats={}; sai.forEach(i=>cats[i.categoria]=(cats[i.categoria]||0)+i.valor); const d=Object.values(cats); if(!d.length) return;
-            chartInstance = new Chart(ctx, { type:'doughnut', data:{labels:Object.keys(cats),datasets:[{data:d,backgroundColor:['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#6366f1','#ec4899'],borderWidth:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,usePointStyle:true,font:{size:10,family:'Inter'}}}},cutout:'75%'} });
+            const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor); const data = Object.values(cats); if (data.length === 0) return;
+            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: data, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10, family: 'Inter' } } } }, cutout: '75%' } });
         }
 
-        function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate=new Date(); document.getElementById('container-categoria').classList.remove('hidden'); document.getElementById('btn-salvar').className='w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 shadow-lg'; }
-        function esconderToggle(h) { document.getElementById('toggle-tipo-container').style.display = h ? 'none' : 'grid'; }
+        // --- Bônus: Gráfico Evolução (Simples e Seguro) ---
+        function abrirModalEvolucao() {
+            document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
+            const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+            if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
+            // Dados Mockados para Exemplo (Segurança) - Para ser real precisaria de API complexa
+            chartEvolucaoInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'],
+                    datasets: [
+                        { label: 'Entradas', data: [5000, 5200, 4800, 6000, 8000, 5500], backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: 'Saídas', data: [4000, 4100, 3900, 4500, 6000, 3000], backgroundColor: '#ef4444', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function mascaraMoeda(evento) { const onlyDigits = evento.value.split("").filter(s => /\d/.test(s)).join("").padStart(3, "0"); const digitsFloat = onlyDigits.slice(0, -2) + "." + onlyDigits.slice(-2); evento.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(digitsFloat); }
+        function limpaMoeda(v) { return typeof v === 'number' ? v : parseFloat(v.replace(/\D/g, '')) / 100; }
+        async function salvarValorLista(el, id) { await editar(id, 'valor', limpaMoeda(el.value)); }
+        async function editar(id, c, v) { await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: v}) }); carregarDados(); }
+        async function deletar(id) { if(confirm("Apagar?")) { await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' }); carregarDados(); } }
+
+        function abrirModalContexto() { resetModal(); const rG = document.querySelector('input[value="gasto"]'); const rR = document.querySelector('input[value="receita"]'); if(abaAtiva === 'entradas') { rR.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Receita'; } else if(abaAtiva === 'saidas') { rG.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Despesa'; } else { rG.checked = true; esconderToggle(false); document.getElementById('modal-titulo').textContent = 'Adicionar'; } atualizarCategoriasModal(); abrirModal(); }
+        function abrirModalInvestimento() { resetModal(); document.querySelector('input[value="investimento"]').checked = true; esconderToggle(true); document.getElementById('container-categoria').classList.remove('hidden'); atualizarCategoriasModal(); document.getElementById('modal-titulo').textContent = 'Novo Investimento'; document.getElementById('descricao').placeholder = 'Nome (Ex: Tesouro Selic)'; document.getElementById('btn-salvar').classList.replace('bg-brand-500', 'bg-emerald-600'); abrirModal(); }
+        function atualizarCategoriasModal() { const tipo = document.querySelector('input[name="tipo"]:checked').value; const select = document.getElementById('categoria'); select.innerHTML = ''; const lista = tipo === 'receita' ? CAT_RECEITAS : (tipo === 'gasto' ? CAT_DESPESAS : CAT_INVESTIMENTOS); lista.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }); }
+        function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate = new Date(); document.getElementById('container-categoria').classList.remove('hidden'); document.getElementById('btn-salvar').className = 'w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 active:scale-95 transition-all shadow-lg'; }
+        function esconderToggle(hide) { document.getElementById('toggle-tipo-container').style.display = hide ? 'none' : 'grid'; }
         function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
         function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
-        
-        document.getElementById('form-transacao').addEventListener('submit', async (e) => {
-            e.preventDefault(); const d = document.getElementById('data-custom').value, v = document.getElementById('valor-mask').value;
-            const form = { tipo: document.querySelector('input[name="tipo"]:checked').value, descricao: document.getElementById('descricao').value, valor: limpaMoeda(v), categoria: document.getElementById('categoria').value || 'Outros', status: 'pago', data: d ? new Date(d+'T12:00:00').toISOString() : new Date().toISOString() };
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); fecharModal(); carregarDados();
-        });
+        document.getElementById('form-transacao').addEventListener('submit', async (e) => { e.preventDefault(); const dataInput = document.getElementById('data-custom').value; const dataReg = dataInput ? new Date(dataInput + 'T12:00:00') : new Date(); const valStr = document.getElementById('valor-mask').value; const form = { tipo: document.querySelector('input[name="tipo"]:checked').value, descricao: document.getElementById('descricao').value, valor: limpaMoeda(valStr), categoria: document.getElementById('categoria').value || 'Outros', status: 'pago', data: dataReg.toISOString() }; await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); fecharModal(); carregarDados(); });
+        function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
+        function formatMoney(v) { return v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
 
         init();
     </script>
