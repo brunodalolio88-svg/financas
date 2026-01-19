@@ -1,3 +1,4 @@
+// Atualizando conexao com o banco
 // functions/api/financas.js
 export async function onRequest(context) {
   const { request, env } = context;
