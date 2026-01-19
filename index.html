@@ -6,98 +6,167 @@
     <title>Finanças Kynto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        body { -webkit-tap-highlight-color: transparent; }
+        body { -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .input-editavel { background: transparent; border: 1px solid transparent; width: 100%; transition: all 0.2s; border-radius: 4px; padding: 2px 4px; }
         .input-editavel:focus { background: white; border-color: #cbd5e1; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
         .piscar-salvo { animation: flashGreen 1s ease-out; }
         @keyframes flashGreen { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
+        /* Animação suave para o Modal */
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 pb-24">
+<body class="bg-slate-50 text-slate-800 pb-32">
 
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-20">
-        <div class="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800">
-            <button onclick="mudarMes(-1)" class="p-2 hover:bg-slate-700 rounded-full"><i data-lucide="chevron-left"></i></button>
-            <div class="text-center">
-                <h2 id="mes-titulo" class="text-lg font-bold capitalize">Janeiro 2026</h2>
-                <div class="text-xs text-slate-400" id="last-update">Carregando...</div>
+    <header class="bg-slate-900 text-white shadow-lg rounded-b-3xl sticky top-0 z-20 pb-6">
+        <div class="flex justify-between items-center p-4 border-b border-slate-800">
+            <button onclick="mudarMes(-1)" class="p-2 hover:bg-slate-700 rounded-full transition-colors"><i data-lucide="chevron-left"></i></button>
+            <div class="text-center cursor-pointer" onclick="resetarParaHoje()">
+                <h2 id="mes-titulo" class="text-lg font-bold capitalize tracking-wide">Carregando...</h2>
+                <div class="text-[10px] text-slate-400 font-mono" id="last-update">...</div>
             </div>
-            <button onclick="mudarMes(1)" class="p-2 hover:bg-slate-700 rounded-full"><i data-lucide="chevron-right"></i></button>
+            <button onclick="mudarMes(1)" class="p-2 hover:bg-slate-700 rounded-full transition-colors"><i data-lucide="chevron-right"></i></button>
         </div>
 
-        <div class="max-w-4xl mx-auto flex justify-between items-center p-4">
-            <div>
-                <p class="text-xs text-slate-400 uppercase tracking-wider">Saldo Atual</p>
-                <h2 id="total-saldo" class="text-3xl font-bold mt-1">R$ 0,00</h2>
+        <div class="px-6 pt-6 pb-2">
+            <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">Saldo Disponível</p>
+            <h2 id="total-saldo" class="text-4xl font-bold tracking-tight">R$ 0,00</h2>
+            
+            <div class="mt-4">
+                <div class="flex justify-between text-xs mb-1 text-slate-300">
+                    <span>Consumido da Renda</span>
+                    <span id="progresso-texto">0%</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div id="barra-progresso" class="bg-blue-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+    <main class="max-w-4xl mx-auto px-4 -mt-4">
         
-        <section class="bg-green-50/50 rounded-2xl p-4 border border-green-100 min-h-[300px]">
-            <header class="flex justify-between items-center mb-4 pb-2 border-b border-green-200">
-                <div class="flex items-center gap-2 text-green-800 font-bold">
-                    <i data-lucide="arrow-up-circle" class="w-5 h-5"></i>
-                    <h2>ENTRADAS</h2>
+        <div class="grid grid-cols-2 gap-3 mb-6 relative z-30">
+            <div class="bg-white p-4 rounded-2xl shadow-md border border-slate-100 flex flex-col justify-between">
+                <div class="flex items-center gap-2 text-green-600 mb-1">
+                    <div class="p-1.5 bg-green-100 rounded-full"><i data-lucide="arrow-up" class="w-4 h-4"></i></div>
+                    <span class="text-xs font-bold uppercase">Entradas</span>
                 </div>
-                <span id="total-renda" class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-bold">R$ 0,00</span>
-            </header>
-            <div id="lista-receitas" class="space-y-3"></div>
-        </section>
+                <span id="total-renda" class="text-xl font-bold text-slate-800">R$ 0,00</span>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-md border border-slate-100 flex flex-col justify-between">
+                <div class="flex items-center gap-2 text-red-500 mb-1">
+                    <div class="p-1.5 bg-red-100 rounded-full"><i data-lucide="arrow-down" class="w-4 h-4"></i></div>
+                    <span class="text-xs font-bold uppercase">Saídas</span>
+                </div>
+                <span id="total-gastos" class="text-xl font-bold text-slate-800">R$ 0,00</span>
+            </div>
+        </div>
 
-        <section class="bg-red-50/50 rounded-2xl p-4 border border-red-100 min-h-[300px]">
-            <header class="flex justify-between items-center mb-4 pb-2 border-b border-red-200">
-                <div class="flex items-center gap-2 text-red-800 font-bold">
-                    <i data-lucide="arrow-down-circle" class="w-5 h-5"></i>
-                    <h2>SAÍDAS</h2>
-                </div>
-                <span id="total-gastos" class="bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-bold">R$ 0,00</span>
-            </header>
-            <div id="lista-gastos" class="space-y-3"></div>
-        </section>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6">
+            <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400"></i> Distribuição de Gastos
+            </h3>
+            <div class="h-48 relative w-full flex justify-center">
+                <canvas id="graficoGastos"></canvas>
+            </div>
+        </div>
+
+        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">Extrato do Mês</h3>
+        
+        <div id="lista-transacoes" class="space-y-3">
+            </div>
+
     </main>
 
-    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-xl z-30 transition-transform active:scale-95">
+    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white w-16 h-16 rounded-full shadow-xl shadow-blue-600/30 z-40 transition-transform active:scale-90 flex items-center justify-center">
         <i data-lucide="plus" class="w-8 h-8"></i>
     </button>
 
-    <div id="modal" class="fixed inset-0 bg-black/60 hidden items-end sm:items-center justify-center z-50 p-4">
-        <div class="bg-white w-full sm:max-w-md p-6 rounded-2xl shadow-2xl animate-slide-up">
+    <div id="modal" class="fixed inset-0 bg-slate-900/80 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white w-full sm:max-w-md p-6 rounded-t-3xl sm:rounded-3xl shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Lançar em <span id="modal-mes" class="capitalize text-blue-600"></span></h2>
-                <button onclick="fecharModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Novo Lançamento</h2>
+                    <p class="text-xs text-slate-400" id="modal-mes-subtitulo">Em Janeiro 2026</p>
+                </div>
+                <button onclick="fecharModal()" class="bg-slate-100 p-2 rounded-full text-slate-500 hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form id="form-transacao" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
+
+            <form id="form-transacao" class="space-y-5">
+                <div class="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-xl">
                     <label class="cursor-pointer">
                         <input type="radio" name="tipo" value="receita" class="peer sr-only" checked>
-                        <div class="p-3 text-center border rounded-xl peer-checked:bg-green-100 peer-checked:border-green-500 peer-checked:text-green-800 font-bold">Receita</div>
+                        <div class="py-2.5 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div>
                     </label>
                     <label class="cursor-pointer">
                         <input type="radio" name="tipo" value="gasto" class="peer sr-only">
-                        <div class="p-3 text-center border rounded-xl peer-checked:bg-red-100 peer-checked:border-red-500 peer-checked:text-red-800 font-bold">Gasto</div>
+                        <div class="py-2.5 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Gasto</div>
                     </label>
                 </div>
-                <input type="text" id="descricao" placeholder="Descrição" class="w-full p-3 border rounded-xl bg-slate-50" required>
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" class="w-full p-3 border rounded-xl bg-slate-50" required>
-                    <select id="categoria" class="w-full p-3 border rounded-xl bg-slate-50">
-                        <option value="Fixa">Fixa</option>
-                        <option value="Variável">Variável</option>
-                        <option value="Renda">Renda</option>
-                    </select>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Descrição</label>
+                    <input type="text" id="descricao" placeholder="Ex: Mercado, Uber..." class="w-full mt-1 p-4 text-lg bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all" required>
                 </div>
-                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">Salvar</button>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Valor</label>
+                        <input type="number" id="valor" step="0.01" placeholder="0,00" class="w-full mt-1 p-4 text-lg bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Categoria</label>
+                        <select id="categoria" class="w-full mt-1 p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all h-[62px]">
+                            <option value="Fixa">🏠 Fixa</option>
+                            <option value="Variável">🍔 Variável</option>
+                            <option value="Apartamento">🏢 Apartamento</option>
+                            <option value="Renda">💰 Renda</option>
+                            <option value="Despesas">💸 Despesas</option>
+                            <option value="Lazer">🎉 Lazer</option>
+                            <option value="Transporte">🚗 Transporte</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 active:scale-95 transition-all shadow-lg shadow-blue-600/20">
+                    Confirmar Lançamento
+                </button>
             </form>
         </div>
     </div>
 
     <script>
         const API_URL = '/api/financas';
-        let dataAtual = new Date(); 
+        let dataAtual = new Date();
+        let chartInstance = null;
+
+        // --- Configuração de Ícones ---
+        const ICON_MAP = {
+            'Renda': 'banknote',
+            'Apartamento': 'building-2',
+            'Fixa': 'zap',
+            'Conta Fixa': 'zap',
+            'Variável': 'shopping-cart',
+            'Despesas': 'credit-card',
+            'Lazer': 'party-popper',
+            'Transporte': 'car-front',
+            'Saúde': 'heart-pulse',
+            'default': 'tag'
+        };
+
+        function getIcone(categoria) {
+            // Tenta achar direto, ou busca parcial (ex: "Conta Fixa" acha "Fixa")
+            if (ICON_MAP[categoria]) return ICON_MAP[categoria];
+            for (let chave in ICON_MAP) {
+                if (categoria.includes(chave)) return ICON_MAP[chave];
+            }
+            return ICON_MAP['default'];
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             atualizarTituloMes();
@@ -109,82 +178,167 @@
             atualizarTituloMes();
             carregarDados();
         }
+        
+        function resetarParaHoje() {
+            dataAtual = new Date();
+            atualizarTituloMes();
+            carregarDados();
+        }
 
         function atualizarTituloMes() {
             const options = { month: 'long', year: 'numeric' };
             const textoMes = dataAtual.toLocaleDateString('pt-BR', options);
             document.getElementById('mes-titulo').textContent = textoMes;
-            document.getElementById('modal-mes').textContent = textoMes;
-        }
-
-        function getMesFormatadoAPI() {
-            const ano = dataAtual.getFullYear();
-            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-            return `${ano}-${mes}`;
+            document.getElementById('modal-mes-subtitulo').textContent = 'Em ' + textoMes;
         }
 
         async function carregarDados() {
             try {
-                const mesString = getMesFormatadoAPI();
-                const res = await fetch(`${API_URL}?mes=${mesString}`);
+                const ano = dataAtual.getFullYear();
+                const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const res = await fetch(`${API_URL}?mes=${ano}-${mes}`);
                 const dados = await res.json();
-                renderizarTudo(dados);
-                document.getElementById('last-update').textContent = 'Atualizado às ' + new Date().toLocaleTimeString().slice(0,5);
+                
+                renderizarLista(dados);
+                renderizarGrafico(dados);
+                
+                document.getElementById('last-update').textContent = 'Sync: ' + new Date().toLocaleTimeString().slice(0,5);
             } catch (erro) { console.error(erro); }
         }
 
-        function renderizarTudo(dados) {
-            const receitasContainer = document.getElementById('lista-receitas');
-            const gastosContainer = document.getElementById('lista-gastos');
-            receitasContainer.innerHTML = '';
-            gastosContainer.innerHTML = '';
-
+        function renderizarLista(dados) {
+            const container = document.getElementById('lista-transacoes');
+            container.innerHTML = '';
+            
             let totalRenda = 0, totalGastos = 0;
 
             if (dados.length === 0) {
-                const msgVazia = '<div class="text-center text-slate-400 py-8 text-sm">Nenhum lançamento neste mês.</div>';
-                receitasContainer.innerHTML = msgVazia;
-                gastosContainer.innerHTML = msgVazia;
+                container.innerHTML = `
+                    <div class="text-center py-12 opacity-50 flex flex-col items-center">
+                        <i data-lucide="clipboard-list" class="w-12 h-12 mb-2 text-slate-300"></i>
+                        <p class="text-sm">Sem lançamentos neste mês.</p>
+                    </div>`;
             }
 
-            dados.forEach(item => {
-                const isPago = item.status === 'pago';
-                const valor = parseFloat(item.valor);
-                
-                if (item.tipo === 'receita') totalRenda += valor;
-                else totalGastos += valor;
+            // Ordenar: Pendentes primeiro, depois pagos, depois por data
+            dados.sort((a, b) => (a.status === 'pendente' ? -1 : 1));
 
-                const cardHTML = `
-                    <div id="card-${item.id}" class="bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 group hover:shadow-md transition-all">
-                        <button onclick="editarItem(${item.id}, 'status', '${isPago ? 'pendente' : 'pago'}')" 
-                            class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${isPago ? (item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600') : 'bg-slate-100 text-slate-400'}">
-                            <i data-lucide="${isPago ? 'check' : 'clock'}" class="w-4 h-4"></i>
-                        </button>
-                        <div class="flex-1 min-w-0">
-                            <input type="text" value="${item.descricao}" onchange="editarItem(${item.id}, 'descricao', this.value)" class="input-editavel font-bold text-slate-700 text-sm mb-1 truncate">
-                            <div class="text-xs text-slate-400 uppercase font-medium">${item.categoria}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="relative">
-                                <span class="text-xs absolute left-0 top-1.5 font-bold ${item.tipo==='receita' ? 'text-green-600':'text-red-500'}">R$</span>
-                                <input type="number" step="0.01" value="${valor}" onchange="editarItem(${item.id}, 'valor', this.value)" class="input-editavel text-right font-bold w-24 pl-6 ${item.tipo==='receita' ? 'text-green-600':'text-red-500'}">
-                            </div>
-                            <button onclick="deletarItem(${item.id})" class="text-xs text-red-300 hover:text-red-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Excluir</button>
+            dados.forEach(item => {
+                const isReceita = item.tipo === 'receita';
+                const valor = parseFloat(item.valor);
+                const isPago = item.status === 'pago';
+
+                if (isReceita) totalRenda += valor; else totalGastos += valor;
+
+                const icone = getIcone(item.categoria);
+                const corIcone = isReceita ? 'text-green-600 bg-green-50' : 'text-slate-600 bg-slate-50';
+                const corValor = isReceita ? 'text-green-600' : 'text-slate-800';
+
+                const html = `
+                <div id="card-${item.id}" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 transition-all hover:shadow-md">
+                    
+                    <div class="w-12 h-12 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${icone}" class="w-6 h-6"></i>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <input type="text" value="${item.descricao}" onchange="editarItem(${item.id}, 'descricao', this.value)" 
+                            class="input-editavel font-bold text-slate-700 truncate text-base mb-0.5">
+                        
+                        <div class="flex items-center gap-2">
+                             <input type="text" value="${item.categoria}" onchange="editarItem(${item.id}, 'categoria', this.value)" 
+                                class="input-editavel text-xs text-slate-400 font-medium w-auto">
                         </div>
                     </div>
-                `;
-                if (item.tipo === 'receita') receitasContainer.innerHTML += cardHTML;
-                else gastosContainer.innerHTML += cardHTML;
+
+                    <div class="text-right flex flex-col items-end gap-1">
+                        <div class="relative">
+                            <input type="number" step="0.01" value="${valor}" onchange="editarItem(${item.id}, 'valor', this.value)" 
+                                class="input-editavel text-right font-bold w-24 ${corValor}">
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mt-1">
+                            <button onclick="deletarItem(${item.id})" class="text-red-200 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="editarItem(${item.id}, 'status', '${isPago ? 'pendente' : 'pago'}')" 
+                                class="flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium transition-colors ${isPago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-600'}">
+                                ${isPago ? 'Pago' : 'Pendente'}
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+                
+                container.innerHTML += html;
             });
 
+            // Atualiza Dashboard
             document.getElementById('total-renda').textContent = formatMoney(totalRenda);
             document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
+            
             const saldo = totalRenda - totalGastos;
             document.getElementById('total-saldo').textContent = formatMoney(saldo);
-            document.getElementById('total-saldo').className = `text-3xl font-bold mt-1 ${saldo < 0 ? 'text-red-400' : 'text-white'}`;
+            document.getElementById('total-saldo').className = `text-4xl font-bold tracking-tight ${saldo < 0 ? 'text-red-300' : 'text-white'}`;
+
+            // Atualiza Barra de Progresso
+            const percentual = totalRenda > 0 ? (totalGastos / totalRenda) * 100 : 0;
+            const bar = document.getElementById('barra-progresso');
+            bar.style.width = `${Math.min(percentual, 100)}%`;
+            bar.className = `h-2 rounded-full transition-all duration-1000 ${percentual > 90 ? 'bg-red-500' : (percentual > 60 ? 'bg-yellow-400' : 'bg-blue-400')}`;
+            document.getElementById('progresso-texto').textContent = percentual.toFixed(0) + '%';
+
             lucide.createIcons();
         }
 
+        // --- Gráfico Chart.js ---
+        function renderizarGrafico(dados) {
+            const gastos = dados.filter(d => d.tipo === 'gasto');
+            
+            // Agrupar por categoria
+            const categorias = {};
+            gastos.forEach(g => {
+                if(!categorias[g.categoria]) categorias[g.categoria] = 0;
+                categorias[g.categoria] += parseFloat(g.valor);
+            });
+
+            const labels = Object.keys(categorias);
+            const dataValues = Object.values(categorias);
+            const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1'];
+
+            const ctx = document.getElementById('graficoGastos').getContext('2d');
+            
+            if (chartInstance) chartInstance.destroy();
+
+            // Se não tem dados, desenha um vazio elegante
+            if (gastos.length === 0) {
+                // Oculta o gráfico se não tiver gastos
+                document.getElementById('graficoGastos').parentElement.parentElement.classList.add('hidden');
+                return;
+            } else {
+                document.getElementById('graficoGastos').parentElement.parentElement.classList.remove('hidden');
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } }
+                    },
+                    cutout: '70%', // Rosca mais fina e moderna
+                }
+            });
+        }
+
+        // --- Funções de API (Iguais) ---
         async function editarItem(id, campo, valor) {
             const card = document.getElementById(`card-${id}`);
             if(card) card.classList.add('piscar-salvo');
@@ -192,12 +346,15 @@
 
             const payload = { id: id };
             payload[campo] = (campo === 'valor') ? parseFloat(valor) : valor;
-            await fetch(API_URL, { method: 'PUT', body: JSON.stringify(payload) });
-            carregarDados();
+            
+            try {
+                await fetch(API_URL, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                carregarDados();
+            } catch(e) { console.error(e); }
         }
 
         async function deletarItem(id) {
-            if(!confirm("Apagar lançamento?")) return;
+            if(!confirm("Tem certeza que quer apagar?")) return;
             await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             carregarDados();
         }
@@ -222,8 +379,14 @@
         });
 
         function formatMoney(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-        function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
-        function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
+        function abrirModal() { 
+            const m = document.getElementById('modal'); 
+            m.classList.remove('hidden'); m.classList.add('flex'); 
+        }
+        function fecharModal() { 
+            const m = document.getElementById('modal'); 
+            m.classList.add('hidden'); m.classList.remove('flex'); 
+        }
     </script>
 </body>
 </html>
