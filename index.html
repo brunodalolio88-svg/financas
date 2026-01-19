@@ -6,7 +6,9 @@
     <title>Finanças Bruno & Nathalia</title>
     
     <script>
-        if (!localStorage.getItem('usuario_logado')) { window.location.href = '/login.html'; }
+        if (!localStorage.getItem('usuario_logado')) {
+            window.location.href = '/login.html';
+        }
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,37 +18,58 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { brand: { 500: '#10b981', 600: '#059669', dark: '#064e3b' } }
+                    colors: {
+                        brand: {
+                            500: '#10b981', // Verde Organizze
+                            600: '#059669',
+                            dark: '#064e3b'
+                        }
+                    }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-font-smoothing: antialiased; }
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
         /* Abas */
         .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 600; transition: all 0.2s; cursor: pointer; }
-        .nav-item.active { color: white; font-weight: 800; }
+        .nav-item:hover { color: white; }
+        .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
         
-        /* Input Limpo */
-        .input-clean { background: transparent; outline: none; width: 100%; border-bottom: 1px solid transparent; transition: border 0.2s; color: inherit; font-weight: inherit; padding: 2px 0; }
-        .input-clean:focus { border-bottom: 2px solid #10b981; }
+        /* MODO FANTASMA (Edição Limpa) */
+        .input-invisible { 
+            background: transparent !important; 
+            width: 100%; 
+            outline: none !important; 
+            border: 1px solid transparent !important; 
+            border-bottom: 1px solid transparent !important;
+            border-radius: 0 !important; 
+            padding: 0 !important;
+            transition: all 0.2s; 
+            text-overflow: ellipsis; 
+            cursor: pointer;
+        }
+        .input-invisible:focus { 
+            cursor: text;
+            border-bottom: 2px solid #10b981 !important;
+            color: #000 !important;
+        }
+        
+        .piscar-salvo { animation: flash 0.5s ease-out; }
+        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: transparent; } }
 
-        /* Animações */
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* PC Layout */
+        /* --- OTIMIZAÇÃO PC --- */
         @media (min-width: 1024px) {
-            main { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
+            main { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
             body.pc-resumo #view-resumo { display: block !important; }
             body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
             body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
             body:not(.pc-resumo) main { display: block; max-width: 60rem; margin: 2rem auto; }
-            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
             .mobile-header { display: none !important; }
             .pc-header { display: flex !important; }
         }
@@ -54,13 +77,13 @@
 </head>
 <body class="text-gray-700 pb-24 md:pb-10 pc-resumo">
 
-    <header class="bg-brand-500 shadow-md sticky top-0 z-40">
+    <header class="bg-brand-500 shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-2 text-white">
                     <div class="bg-white/20 p-2 rounded-lg"><i data-lucide="wallet" class="w-6 h-6"></i></div>
-                    <div class="leading-tight">
-                        <h1 class="font-bold text-lg">Bruno & Nathalia</h1>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Bruno & Nathalia</h1>
                         <p class="text-[10px] opacity-80 uppercase tracking-wider">Gestão Financeira</p>
                     </div>
                 </div>
@@ -72,6 +95,7 @@
                         </div>
                         <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
+                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white p-1 hidden md:block" title="Evolução"><i data-lucide="bar-chart-big" class="w-5 h-5"></i></button>
                     <button onclick="logout()" class="text-white/70 hover:text-white p-1" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
@@ -91,7 +115,7 @@
                         <h2 class="text-xl font-bold text-gray-800">Olá, <span id="nome-usuario">...</span>! 👋</h2>
                         <p class="text-xs text-gray-400" id="last-update">Atualizando...</p>
                     </div>
-                    <button onclick="abrirModalEvolucao()" class="text-gray-400 hover:text-brand-500"><i data-lucide="bar-chart-2" class="w-6 h-6"></i></button>
+                    <button onclick="abrirModalEvolucao()" class="text-gray-400 hover:text-brand-500 md:hidden"><i data-lucide="bar-chart-2" class="w-6 h-6"></i></button>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mt-2">
                     <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receitas</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
@@ -121,7 +145,7 @@
 
         <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
             <div id="view-entradas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-20 z-10">
+                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-0 z-10">
                     <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
                     <span id="header-total-renda" class="text-sm font-bold text-green-600">R$ 0,00</span>
                 </div>
@@ -133,7 +157,7 @@
             </div>
 
             <div id="view-saidas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-20 z-10">
+                <div class="mobile-header flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm sticky top-0 z-10">
                     <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
                     <span id="header-total-gastos" class="text-sm font-bold text-red-600">R$ 0,00</span>
                 </div>
@@ -188,14 +212,16 @@
         let chartEvolucaoInstance = null;
         let abaAtiva = 'resumo';
 
+        // Novas Categorias Completas
         const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
+        
         const ICON_MAP = {
             'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
-            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 'Manutenção Casa': 'hammer', 
-            'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Internet': 'wifi', 'Lazer': 'coffee', 'Alimentação': 'shopping-cart', 
-            'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
+            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
+            'Manutenção Casa': 'hammer', 'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Internet': 'wifi', 'Lazer': 'coffee', 
+            'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
         };
 
         async function init() {
@@ -229,24 +255,23 @@
                 itens.forEach(i => {
                     const icone = ICON_MAP[i.categoria] || 'circle-dollar-sign';
                     const corBg = i.tipo==='receita'?'bg-green-100 text-green-600':'bg-red-50 text-red-500';
-                    const valor = formatMoney(i.valor);
-                    // LISTA CORRIGIDA: Sem sobreposição, botões ao lado
+                    // FIX: Padding PR-14 para não sobrepor
                     html += `
-                    <div class="group flex items-center p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 gap-3">
+                    <div class="group flex items-center p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 gap-3 relative">
                         <div class="w-10 h-10 rounded-full ${corBg} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
                         
-                        <div class="flex-1 min-w-0">
-                            <input value="${i.descricao}" onchange="editar(${i.id},'descricao',this.value)" class="input-clean text-sm font-bold text-gray-700 truncate" title="${i.descricao}">
+                        <div class="flex-1 min-w-0" title="${i.descricao}">
+                            <input value="${i.descricao}" onchange="editar(${i.id},'descricao',this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate w-full">
                             <div class="flex items-center gap-2 mt-0.5">
                                 <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${i.categoria}</span>
                                 ${i.status!=='pago'?'<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>':''}
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <input type="text" inputmode="numeric" value="${valor}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this,${i.id})" class="input-clean text-right font-bold ${corValor} w-24 text-sm">
-                            <div class="flex opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity gap-1">
-                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-200 rounded text-gray-400"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
+                        <div class="relative">
+                            <input type="text" inputmode="numeric" value="${formatMoney(i.valor)}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this,${i.id})" class="input-invisible text-right font-bold ${corValor} w-32 pr-14 text-sm">
+                            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm rounded-l-lg">
+                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-400"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
                                 <button onclick="deletar(${i.id})" class="p-1.5 hover:bg-red-50 rounded text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </div>
@@ -272,7 +297,7 @@
             });
         }
 
-        // Funções Auxiliares (Iguais)
+        // Utils
         async function editar(id,c,v) { await fetch(API_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,[c]:v})}); carregarDados(); }
         async function deletar(id) { if(confirm("Apagar?")) { await fetch(`${API_URL}?id=${id}`,{method:'DELETE'}); carregarDados(); } }
         async function salvarValorLista(el,id) { await editar(id,'valor',limpaMoeda(el.value)); }
@@ -281,7 +306,6 @@
         function formatMoney(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
         function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
 
-        // Core do app
         function processarDados(dados) {
             let renda=0, gastos=0, invest=0; const ent=[], sai=[], inv=[];
             dados.forEach(i => {
@@ -304,7 +328,6 @@
             lucide.createIcons();
         }
 
-        // Modais e Gráficos
         function abrirModalContexto() {
             resetModal(); const rG = document.querySelector('input[value="gasto"]'), rR = document.querySelector('input[value="receita"]');
             if(abaAtiva==='entradas') { rR.checked=true; esconderToggle(true); document.getElementById('modal-titulo').textContent='Nova Receita'; }
@@ -318,19 +341,20 @@
             const t = document.querySelector('input[name="tipo"]:checked').value, s = document.getElementById('categoria'); s.innerHTML='';
             (t==='receita'?CAT_RECEITAS:(t==='gasto'?CAT_DESPESAS:CAT_INVESTIMENTOS)).forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; s.appendChild(o); });
         }
+        
         function abrirModalEvolucao() {
             document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
             const ctx = document.getElementById('graficoEvolucao').getContext('2d');
             if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
             chartEvolucaoInstance = new Chart(ctx, { type: 'bar', data: { labels: ['Ago','Set','Out','Nov','Dez','Jan'], datasets: [{label:'Entradas',data:[5000,5200,4800,6000,8000,5500],backgroundColor:'#10b981',borderRadius:4},{label:'Saídas',data:[4000,4100,3900,4500,6000,3000],backgroundColor:'#ef4444',borderRadius:4}] }, options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}} });
         }
+        
         function renderizarGrafico(sai) {
             const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
             const cats={}; sai.forEach(i=>cats[i.categoria]=(cats[i.categoria]||0)+i.valor); const d=Object.values(cats); if(!d.length) return;
             chartInstance = new Chart(ctx, { type:'doughnut', data:{labels:Object.keys(cats),datasets:[{data:d,backgroundColor:['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#6366f1','#ec4899'],borderWidth:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,usePointStyle:true,font:{size:10,family:'Inter'}}}},cutout:'75%'} });
         }
 
-        // Utils UI
         function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate=new Date(); document.getElementById('container-categoria').classList.remove('hidden'); document.getElementById('btn-salvar').className='w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 shadow-lg'; }
         function esconderToggle(h) { document.getElementById('toggle-tipo-container').style.display = h ? 'none' : 'grid'; }
         function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
