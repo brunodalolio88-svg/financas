@@ -8,199 +8,195 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; }
-        .card-valor { font-variant-numeric: tabular-nums; }
+        /* Remove setinhas do input number */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-editavel { background: transparent; border: 1px solid transparent; width: 100%; transition: all 0.2s; border-radius: 4px; padding: 2px 4px; }
+        .input-editavel:focus { background: white; border-color: #cbd5e1; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .piscar-salvo { animation: flashGreen 1s ease-out; }
+        @keyframes flashGreen { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 pb-24">
+<body class="bg-slate-50 text-slate-800 pb-24">
 
-    <header class="bg-blue-900 text-white p-6 rounded-b-3xl shadow-lg sticky top-0 z-10">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-xl font-bold tracking-tight">Finanças Kynto</h1>
-            <div class="text-xs opacity-70" id="last-update">Atualizando...</div>
-        </div>
-
-        <div class="text-center mb-2">
-            <p class="text-sm opacity-80">Saldo Disponível (Recursos)</p>
-            <h2 id="total-saldo" class="text-4xl font-bold mt-1 card-valor">R$ 0,00</h2>
-        </div>
-
-        <div class="flex gap-4 mt-6">
-            <div class="flex-1 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="arrow-up-circle" class="w-4 h-4 text-green-400"></i>
-                    <span class="text-xs font-medium opacity-90">Renda</span>
-                </div>
-                <p id="total-renda" class="text-lg font-semibold card-valor">R$ 0,00</p>
+    <header class="bg-slate-900 text-white p-4 sticky top-0 z-20 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="font-bold text-lg">Finanças Kynto</h1>
+                <div class="text-xs text-slate-400" id="last-update">Atualizando...</div>
             </div>
-            <div class="flex-1 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="arrow-down-circle" class="w-4 h-4 text-red-400"></i>
-                    <span class="text-xs font-medium opacity-90">Gastos</span>
-                </div>
-                <p id="total-gastos" class="text-lg font-semibold card-valor">R$ 0,00</p>
+            <div class="text-right">
+                <p class="text-xs text-slate-400 uppercase tracking-wider">Saldo em Caixa</p>
+                <h2 id="total-saldo" class="text-2xl font-bold">R$ 0,00</h2>
             </div>
         </div>
     </header>
 
-    <main class="px-4 mt-6 max-w-2xl mx-auto">
-        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Movimentações</h3>
-        <div id="lista-transacoes" class="space-y-3">
-            <div class="text-center py-10 text-slate-400">Carregando dados...</div>
-        </div>
+    <main class="max-w-6xl mx-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+        
+        <section class="bg-green-50/50 rounded-2xl p-4 border border-green-100 min-h-[300px]">
+            <header class="flex justify-between items-center mb-4 pb-2 border-b border-green-200">
+                <div class="flex items-center gap-2 text-green-800 font-bold">
+                    <i data-lucide="arrow-up-circle" class="w-5 h-5"></i>
+                    <h2>ENTRADAS</h2>
+                </div>
+                <span id="total-renda" class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-bold">R$ 0,00</span>
+            </header>
+            <div id="lista-receitas" class="space-y-3">
+                </div>
+        </section>
+
+        <section class="bg-red-50/50 rounded-2xl p-4 border border-red-100 min-h-[300px]">
+            <header class="flex justify-between items-center mb-4 pb-2 border-b border-red-200">
+                <div class="flex items-center gap-2 text-red-800 font-bold">
+                    <i data-lucide="arrow-down-circle" class="w-5 h-5"></i>
+                    <h2>SAÍDAS</h2>
+                </div>
+                <span id="total-gastos" class="bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-bold">R$ 0,00</span>
+            </header>
+            <div id="lista-gastos" class="space-y-3">
+                </div>
+        </section>
+
     </main>
 
-    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 active:scale-95 transition-all z-20">
+    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-xl z-30 transition-transform active:scale-95">
         <i data-lucide="plus" class="w-8 h-8"></i>
     </button>
 
-    <div id="modal" class="fixed inset-0 bg-black/60 hidden items-end sm:items-center justify-center z-50 transition-opacity">
-        <div class="bg-white w-full sm:max-w-md p-6 rounded-t-3xl sm:rounded-2xl shadow-2xl animate-slide-up">
+    <div id="modal" class="fixed inset-0 bg-black/60 hidden items-end sm:items-center justify-center z-50 p-4">
+        <div class="bg-white w-full sm:max-w-md p-6 rounded-2xl shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Nova Movimentação</h2>
-                <button onclick="fecharModal()" class="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
-                    <i data-lucide="x" class="w-5 h-5 text-slate-600"></i>
-                </button>
+                <h2 class="text-xl font-bold">Novo Lançamento</h2>
+                <button onclick="fecharModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
             </div>
-
             <form id="form-transacao" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <label class="cursor-pointer">
                         <input type="radio" name="tipo" value="receita" class="peer sr-only" checked>
-                        <div class="p-3 text-center border-2 border-slate-200 rounded-xl peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:text-green-700 font-medium transition-all">
-                            Receita
-                        </div>
+                        <div class="p-3 text-center border rounded-xl peer-checked:bg-green-100 peer-checked:border-green-500 peer-checked:text-green-800 font-bold">Receita</div>
                     </label>
                     <label class="cursor-pointer">
                         <input type="radio" name="tipo" value="gasto" class="peer sr-only">
-                        <div class="p-3 text-center border-2 border-slate-200 rounded-xl peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 font-medium transition-all">
-                            Gasto
-                        </div>
+                        <div class="p-3 text-center border rounded-xl peer-checked:bg-red-100 peer-checked:border-red-500 peer-checked:text-red-800 font-bold">Gasto</div>
                     </label>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Descrição</label>
-                    <input type="text" id="descricao" placeholder="Ex: Salário Bruno, Condomínio..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500" required>
-                </div>
-
+                <input type="text" id="descricao" placeholder="Descrição (ex: Salário, Luz)" class="w-full p-3 border rounded-xl bg-slate-50" required>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Valor (R$)</label>
-                        <input type="number" id="valor" step="0.01" placeholder="0,00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Categoria</label>
-                        <select id="categoria" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
-                            <option value="Fixa">Conta Fixa</option>
-                            <option value="Salário">Salário</option>
-                            <option value="Despesas">Despesas</option>
-                            <option value="Apartamento">Apartamento</option>
-                            <option value="Reembolso">Reembolso</option>
-                        </select>
-                    </div>
+                    <input type="number" id="valor" step="0.01" placeholder="Valor (R$)" class="w-full p-3 border rounded-xl bg-slate-50" required>
+                    <select id="categoria" class="w-full p-3 border rounded-xl bg-slate-50">
+                        <option value="Fixa">Fixa</option>
+                        <option value="Variável">Variável</option>
+                        <option value="Renda">Renda</option>
+                    </select>
                 </div>
-
-                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <input type="checkbox" id="pago" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
-                    <label for="pago" class="text-slate-700 font-medium select-none">Pagamento já realizado?</label>
-                </div>
-
-                <button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition-colors shadow-lg shadow-blue-900/20">
-                    Salvar
-                </button>
+                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">Salvar</button>
             </form>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
         const API_URL = '/api/financas';
-        
-        // Carregar dados ao iniciar
+        let dadosLocais = []; // Cache local para acesso rápido
+
         document.addEventListener('DOMContentLoaded', carregarDados);
 
         async function carregarDados() {
             try {
                 const res = await fetch(API_URL);
-                const dados = await res.json();
-                renderizarLista(dados);
-                calcularTotais(dados);
+                dadosLocais = await res.json();
+                renderizarTudo();
                 document.getElementById('last-update').textContent = 'Atualizado: ' + new Date().toLocaleTimeString().slice(0,5);
-            } catch (erro) {
-                console.error("Erro ao carregar:", erro);
-            }
+            } catch (erro) { console.error(erro); }
         }
 
-        function renderizarLista(itens) {
-            const container = document.getElementById('lista-transacoes');
-            container.innerHTML = '';
+        function renderizarTudo() {
+            const receitasContainer = document.getElementById('lista-receitas');
+            const gastosContainer = document.getElementById('lista-gastos');
+            receitasContainer.innerHTML = '';
+            gastosContainer.innerHTML = '';
 
-            if (itens.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 text-slate-400">Nenhuma transação encontrada.</div>';
-                return;
-            }
+            let totalRenda = 0, totalGastos = 0;
 
-            itens.forEach(item => {
-                const isReceita = item.tipo === 'receita';
-                const valorFormatado = formatarMoeda(item.valor);
+            dadosLocais.forEach(item => {
                 const isPago = item.status === 'pago';
+                const valor = parseFloat(item.valor);
                 
-                const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center transition-all hover:shadow-md';
-                
-                card.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <button onclick="alternarStatus(${item.id}, '${isPago ? 'pendente' : 'pago'}')" 
-                            class="w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isPago ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-500'}">
-                            <i data-lucide="${isPago ? 'check' : 'clock'}" class="w-5 h-5"></i>
+                if (item.tipo === 'receita') totalRenda += valor;
+                else totalGastos += valor;
+
+                const cardHTML = `
+                    <div id="card-${item.id}" class="bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 group hover:shadow-md transition-all">
+                        <button onclick="editarItem(${item.id}, 'status', '${isPago ? 'pendente' : 'pago'}')" 
+                            class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${isPago ? (item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600') : 'bg-slate-100 text-slate-400'}">
+                            <i data-lucide="${isPago ? 'check' : 'clock'}" class="w-4 h-4"></i>
                         </button>
-                        <div>
-                            <h4 class="font-bold text-slate-800">${item.descricao}</h4>
-                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">${item.categoria}</p>
+
+                        <div class="flex-1 min-w-0">
+                            <input type="text" value="${item.descricao}" 
+                                onchange="editarItem(${item.id}, 'descricao', this.value)"
+                                class="input-editavel font-bold text-slate-700 text-sm mb-1 truncate">
+                            
+                            <div class="flex items-center text-xs text-slate-400">
+                                <span class="uppercase font-medium mr-2">${item.categoria}</span>
+                            </div>
+                        </div>
+
+                        <div class="text-right">
+                            <div class="relative">
+                                <span class="text-xs absolute left-0 top-1.5 font-bold ${item.tipo==='receita' ? 'text-green-600':'text-red-500'}">R$</span>
+                                <input type="number" step="0.01" value="${valor}" 
+                                    onchange="editarItem(${item.id}, 'valor', this.value)"
+                                    class="input-editavel text-right font-bold w-24 pl-6 ${item.tipo==='receita' ? 'text-green-600':'text-red-500'}">
+                            </div>
+                            <button onclick="deletarItem(${item.id})" class="text-xs text-red-300 hover:text-red-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Excluir</button>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="font-bold ${isReceita ? 'text-green-600' : 'text-slate-800'}">${isReceita ? '+' : '-'} ${valorFormatado}</p>
-                        <button onclick="deletarItem(${item.id})" class="text-xs text-red-300 hover:text-red-500 mt-1">Excluir</button>
-                    </div>
                 `;
-                container.appendChild(card);
+
+                if (item.tipo === 'receita') receitasContainer.innerHTML += cardHTML;
+                else gastosContainer.innerHTML += cardHTML;
             });
+
+            // Atualiza Totais
+            document.getElementById('total-renda').textContent = formatMoney(totalRenda);
+            document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
+            const saldo = totalRenda - totalGastos;
+            document.getElementById('total-saldo').textContent = formatMoney(saldo);
+            document.getElementById('total-saldo').className = `text-2xl font-bold ${saldo < 0 ? 'text-red-400' : 'text-green-400'}`;
+            
             lucide.createIcons();
         }
 
-        function calcularTotais(itens) {
-            let renda = 0;
-            let gastos = 0;
+        // Função Genérica para Salvar qualquer edição (Status, Texto ou Valor)
+        async function editarItem(id, campo, valor) {
+            // Feedback visual imediato
+            const card = document.getElementById(`card-${id}`);
+            if(card) card.classList.add('piscar-salvo');
+            setTimeout(() => card?.classList.remove('piscar-salvo'), 1000);
 
-            itens.forEach(item => {
-                const valor = parseFloat(item.valor);
-                if (item.tipo === 'receita') renda += valor;
-                else if (item.tipo === 'gasto') gastos += valor;
-            });
+            // Monta o objeto parcial para envio
+            const payload = { id: id };
+            payload[campo] = valor; 
 
-            document.getElementById('total-renda').textContent = formatarMoeda(renda);
-            document.getElementById('total-gastos').textContent = formatarMoeda(gastos);
-            
-            const saldo = renda - gastos;
-            const elSaldo = document.getElementById('total-saldo');
-            elSaldo.textContent = formatarMoeda(saldo);
-            elSaldo.className = `text-4xl font-bold mt-1 card-valor ${saldo < 0 ? 'text-red-300' : 'text-white'}`;
+            // Se for valor, garante que é numero
+            if(campo === 'valor') payload[campo] = parseFloat(valor);
+
+            try {
+                await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                // Recarrega em background para garantir consistência
+                carregarDados();
+            } catch (e) {
+                alert('Erro ao salvar. Verifique sua conexão.');
+            }
         }
 
-        // Ações do Usuário
         async function deletarItem(id) {
-            if(!confirm("Tem certeza que deseja apagar?")) return;
+            if(!confirm("Apagar lançamento?")) return;
             await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
-            carregarDados();
-        }
-
-        async function alternarStatus(id, novoStatus) {
-            await fetch(API_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, status: novoStatus })
-            });
             carregarDados();
         }
 
@@ -211,36 +207,17 @@
                 descricao: document.getElementById('descricao').value,
                 valor: parseFloat(document.getElementById('valor').value),
                 categoria: document.getElementById('categoria').value,
-                status: document.getElementById('pago').checked ? 'pago' : 'pendente'
+                status: 'pago' // Padrão ao criar
             };
-
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(formData) });
             fecharModal();
             e.target.reset();
             carregarDados();
         });
 
-        // Utils
-        function formatarMoeda(valor) {
-            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function abrirModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function fecharModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+        function formatMoney(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
+        function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
     </script>
 </body>
 </html>
