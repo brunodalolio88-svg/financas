@@ -41,34 +41,39 @@
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
         
-        .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; text-overflow: ellipsis; }
-        .input-invisible:focus { background: white; border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); padding: 2px 4px; position: relative; z-index: 10; }
+        /* --- CORREÇÃO DA EDIÇÃO (MODO FANTASMA) --- */
+        .input-invisible { 
+            background: transparent; 
+            width: 100%; 
+            outline: none; 
+            border: 1px solid transparent; 
+            border-bottom: 1px solid transparent; /* Reserva espaço */
+            border-radius: 0; 
+            transition: all 0.2s; 
+            text-overflow: ellipsis; 
+            cursor: text;
+        }
+        /* Quando clica, apenas sublinha (sem caixa branca cobrindo) */
+        .input-invisible:focus { 
+            background: transparent; 
+            border-color: transparent;
+            border-bottom: 2px solid #10b981; /* Sublinhado Verde */
+            padding: 0; 
+            box-shadow: none;
+            color: #000;
+        }
         
         .piscar-salvo { animation: flash 0.5s ease-out; }
-        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
+        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: transparent; } }
 
-        /* --- OTIMIZAÇÃO PC (LAYOUT PERFEITO) --- */
+        /* --- OTIMIZAÇÃO PC --- */
         @media (min-width: 1024px) {
-            main { 
-                display: grid; 
-                grid-template-columns: 360px 1fr; 
-                gap: 2rem; 
-                align-items: start; 
-            }
+            main { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
             body.pc-resumo #view-resumo { display: block !important; }
-            body.pc-resumo #lists-wrapper { 
-                display: grid !important; 
-                grid-template-columns: 1fr 1fr; 
-                gap: 1.5rem; 
-            }
+            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
             body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
-            body:not(.pc-resumo) main {
-                display: block; max-width: 56rem; margin: 2rem auto;
-            }
-            #view-entradas, #view-saidas {
-                background: white; border-radius: 1rem; padding: 1.5rem; 
-                border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            }
+            body:not(.pc-resumo) main { display: block; max-width: 56rem; margin: 2rem auto; }
+            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
             .mobile-header { display: none !important; }
             .pc-header { display: flex !important; }
         }
@@ -95,14 +100,8 @@
                         </div>
                         <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
-                    
-                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white hidden md:block" title="Ver Evolução">
-                        <i data-lucide="bar-chart-big" class="w-5 h-5"></i>
-                    </button>
-
-                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair">
-                        <i data-lucide="log-out" class="w-5 h-5"></i>
-                    </button>
+                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white hidden md:block" title="Ver Evolução"><i data-lucide="bar-chart-big" class="w-5 h-5"></i></button>
+                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
 
@@ -122,9 +121,7 @@
                         <h2 class="text-xl font-bold text-gray-800">Boa tarde, <span id="nome-usuario">...</span>! ⛅</h2>
                         <p class="text-xs text-gray-400" id="last-update">Sincronizando...</p>
                     </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="abrirModalEvolucao()">
-                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i>
-                    </div>
+                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="abrirModalEvolucao()"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
                 </div>
                 <div class="flex gap-8 mt-2">
                     <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receita</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
@@ -181,16 +178,11 @@
         </div>
     </main>
 
-    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90">
-        <i data-lucide="plus" class="w-7 h-7"></i>
-    </button>
+    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
 
     <div id="modal" class="fixed inset-0 bg-gray-900/50 hidden items-end md:items-center justify-center z-50 transition-opacity backdrop-blur-sm">
         <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2>
-                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
+            <div class="flex justify-between items-center mb-6"><h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2><button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <form id="form-transacao" class="space-y-5">
                 <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
                     <label class="cursor-pointer"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div></label>
@@ -210,12 +202,9 @@
 
     <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50 transition-opacity backdrop-blur-sm">
         <div class="bg-white w-full max-w-lg mx-4 rounded-2xl p-6 shadow-2xl animate-slide-up">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-gray-800">Evolução Recente</h2>
-                <button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
+            <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-gray-800">Evolução Recente</h2><button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
-            <p class="text-xs text-center text-gray-400 mt-4">Comparativo dos últimos meses (Simulado para Demonstração)</p>
+            <p class="text-xs text-center text-gray-400 mt-4">Comparativo dos últimos meses (Simulado)</p>
         </div>
     </div>
 
@@ -226,12 +215,10 @@
         let chartEvolucaoInstance = null;
         let abaAtiva = 'resumo';
 
-        // --- NOVAS CATEGORIAS ATUALIZADAS ---
         const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
 
-        // --- NOVOS ÍCONES MAPEADOS ---
         const ICON_MAP = {
             'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
             'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
@@ -267,7 +254,6 @@
             document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
         }
 
-        // --- Renderização de Listas com Tooltip (Melhoria de Leitura) ---
         function renderizarListaAgrupada(lista, containerId, corValor) {
             const container = document.getElementById(containerId); container.innerHTML = '';
             if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm font-medium">Tudo limpo por aqui</p></div>`; return; }
@@ -276,7 +262,6 @@
                 let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
                 itens.forEach(item => {
                     let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign'; let corIcone = item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-500'; const isPago = item.status === 'pago'; const valorF = formatMoney(item.valor);
-                    // ADDED: title="${item.descricao}" nos containers principais e inputs para leitura fácil
                     html += `<div class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
                         <div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
                         <div class="flex-1 min-w-0" title="${item.descricao}">
@@ -330,12 +315,10 @@
             chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: data, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10, family: 'Inter' } } } }, cutout: '75%' } });
         }
 
-        // --- Bônus: Gráfico Evolução (Simples e Seguro) ---
         function abrirModalEvolucao() {
             document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
             const ctx = document.getElementById('graficoEvolucao').getContext('2d');
             if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
-            // Dados Mockados para Exemplo (Segurança) - Para ser real precisaria de API complexa
             chartEvolucaoInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
