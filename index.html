@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças Kynto</title>
+    <title>Planilha Financeira Bruno e Nathalia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        /* Remove setinhas padrão do navegador */
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
         .hide-scroll::-webkit-scrollbar { display: none; }
         .tab-active { color: #0f172a; border-bottom: 3px solid #0f172a; font-weight: 800; }
         .tab-inactive { color: #94a3b8; font-weight: 600; }
-        .input-invisible { background: transparent; width: 100%; outline: none; }
+        
+        /* Input Invisível mas com estilo de texto */
+        .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; }
+        .input-invisible:focus { background: white; border-color: #cbd5e1; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); padding: 2px 4px; }
+        
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
         
-        /* Ajustes para PC */
+        /* Responsividade Avançada */
         @media (min-width: 768px) {
             .mobile-tabs { display: none; }
-            .desktop-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
+            .desktop-grid { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; align-items: start; }
             .desktop-view-all { display: block !important; }
         }
     </style>
@@ -31,10 +38,14 @@
         <div class="flex justify-between items-center px-4 py-3 bg-slate-900 text-white">
             <button onclick="mudarMes(-1)" class="p-1 hover:bg-slate-700 rounded"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
             <div class="flex flex-col items-center cursor-pointer" onclick="resetarHoje()">
-                <span id="mes-titulo" class="text-sm font-bold uppercase tracking-widest">Janeiro 2026</span>
-                <span id="last-update" class="text-[10px] text-slate-400 opacity-80">Sync...</span>
+                <span id="mes-titulo" class="text-sm font-bold uppercase tracking-widest">JANEIRO 2026</span>
+                <span id="last-update" class="text-[10px] text-slate-400 opacity-80 font-mono">Atualizando...</span>
             </div>
             <button onclick="mudarMes(1)" class="p-1 hover:bg-slate-700 rounded"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="bg-slate-100 px-4 py-2 text-center border-b border-slate-200 md:hidden">
+            <h1 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Planilha Bruno & Nathalia</h1>
         </div>
 
         <nav class="flex text-sm border-b border-slate-100 mobile-tabs bg-white">
@@ -48,6 +59,11 @@
 
         <div id="view-resumo" class="space-y-6 desktop-view-all">
             
+            <div class="hidden md:block mb-4">
+                <h1 class="text-2xl font-bold text-slate-800">Planilha Bruno & Nathalia</h1>
+                <p class="text-sm text-slate-400">Controle financeiro familiar</p>
+            </div>
+
             <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
                 <p class="text-xs text-slate-400 font-bold uppercase mb-1">Saldo em Caixa</p>
                 <h1 id="total-saldo" class="text-4xl font-extrabold tracking-tight">R$ 0,00</h1>
@@ -69,23 +85,20 @@
                 <div class="absolute right-0 top-0 p-4 opacity-10">
                     <i data-lucide="trending-up" class="w-24 h-24"></i>
                 </div>
-                
                 <div class="flex justify-between items-start relative z-10">
                     <div>
-                        <p class="text-xs text-indigo-200 font-bold uppercase mb-1">Total Aportado (Mês)</p>
+                        <p class="text-xs text-indigo-200 font-bold uppercase mb-1">Investido (Mês)</p>
                         <h2 id="total-investido" class="text-3xl font-extrabold">R$ 0,00</h2>
                     </div>
-                    <button onclick="abrirModalInvestimento()" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded-xl transition-colors shadow-lg shadow-indigo-900/20">
+                    <button onclick="abrirModalInvestimento()" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded-xl transition-colors shadow-lg">
                         <i data-lucide="plus" class="w-6 h-6 text-white"></i>
                     </button>
                 </div>
-
-                <div id="lista-investimentos" class="mt-4 space-y-2 relative z-10 max-h-32 overflow-y-auto hide-scroll">
-                    </div>
+                <div id="lista-investimentos" class="mt-4 space-y-2 relative z-10 max-h-32 overflow-y-auto hide-scroll"></div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Gastos por Categoria</h3>
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Top Categorias</h3>
                 <div class="h-48 relative flex justify-center">
                     <canvas id="graficoGastos"></canvas>
                 </div>
@@ -94,17 +107,17 @@
 
         <div class="space-y-6">
             <div id="view-entradas" class="hidden desktop-view-all">
-                <div class="flex items-center gap-2 mb-3 px-1">
+                <div class="flex items-center gap-2 mb-3 px-1 border-b pb-2 border-slate-100">
                     <div class="p-1 bg-green-100 rounded text-green-700"><i data-lucide="arrow-up" class="w-4 h-4"></i></div>
-                    <h3 class="text-sm font-bold uppercase text-slate-600">Minhas Receitas</h3>
+                    <h3 class="text-sm font-bold uppercase text-slate-600">Entradas (Salários)</h3>
                 </div>
                 <div id="lista-entradas-content" class="space-y-4 min-h-[100px]"></div>
             </div>
 
             <div id="view-saidas" class="hidden desktop-view-all">
-                <div class="flex items-center gap-2 mb-3 px-1">
+                <div class="flex items-center gap-2 mb-3 px-1 border-b pb-2 border-slate-100">
                     <div class="p-1 bg-red-100 rounded text-red-700"><i data-lucide="arrow-down" class="w-4 h-4"></i></div>
-                    <h3 class="text-sm font-bold uppercase text-slate-600">Minhas Despesas</h3>
+                    <h3 class="text-sm font-bold uppercase text-slate-600">Saídas (Despesas)</h3>
                 </div>
                 <div id="lista-saidas-content" class="space-y-4 min-h-[100px]"></div>
             </div>
@@ -133,19 +146,18 @@
                         <div class="py-3 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div>
                     </label>
                 </div>
-                
                 <input type="radio" name="tipo" value="investimento" class="hidden">
 
                 <div>
-                    <input type="text" id="descricao" placeholder="Descrição" class="w-full text-lg font-medium border-b-2 border-slate-100 py-3 focus:outline-none focus:border-blue-500 bg-transparent transition-colors" required>
+                    <input type="text" id="descricao" placeholder="Descrição" class="w-full text-lg font-medium border-b-2 border-slate-100 py-3 focus:outline-none focus:border-blue-500 bg-transparent" required>
                 </div>
 
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="text-[10px] font-bold text-slate-400 uppercase">Valor</label>
-                        <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" class="w-full text-xl font-bold border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent" required>
+                        <input type="text" inputmode="numeric" id="valor-mask" placeholder="R$ 0,00" onkeyup="mascaraMoeda(this)" class="w-full text-xl font-bold border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent text-slate-800" required>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1" id="box-data">
                         <label class="text-[10px] font-bold text-slate-400 uppercase">Data</label>
                         <input type="date" id="data-custom" class="w-full text-lg font-medium border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent text-slate-600">
                     </div>
@@ -170,11 +182,15 @@
         let chartInstance = null;
         let abaAtiva = 'resumo';
 
-        const CAT_RECEITAS = ['Renda', '13º Salário', 'Férias', 'Reembolso', 'Outros'];
+        // --- Configurações ---
+        const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Luz', 'Gás', 'Condomínio', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Outros'];
+        
         const ICON_MAP = {
-            'Renda': 'wallet', 'Cartão': 'credit-card', 'Gasolina': 'fuel', 'Luz': 'lightbulb',
-            'Gás': 'flame', 'Condomínio': 'building', 'Internet': 'wifi', 'Lazer': 'party-popper', 'investimento': 'trending-up'
+            'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw',
+            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Luz': 'lightbulb',
+            'Gás': 'flame', 'Condomínio': 'building', 'Internet': 'wifi', 'Lazer': 'party-popper', 
+            'Alimentação': 'utensils', 'Saúde': 'heart-pulse', 'Outros': 'more-horizontal', 'investimento': 'trending-up'
         };
 
         function init() {
@@ -183,6 +199,40 @@
             if(window.innerWidth >= 768) abaAtiva = 'pc-mode';
         }
 
+        // --- MÁSCARA DE MOEDA (O Segredo) ---
+        function mascaraMoeda(evento) {
+            const onlyDigits = evento.value.split("").filter(s => /\d/.test(s)).join("").padStart(3, "0");
+            const digitsFloat = onlyDigits.slice(0, -2) + "." + onlyDigits.slice(-2);
+            evento.value = maskCurrency(digitsFloat);
+        }
+
+        function maskCurrency(valor, locale = 'pt-BR', currency = 'BRL') {
+            return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(valor);
+        }
+
+        function limpaMoeda(valorStr) {
+            // Transforma "R$ 1.200,50" em float 1200.50
+            if(typeof valorStr === 'number') return valorStr;
+            return parseFloat(valorStr.replace(/[^\d,]/g, '').replace(',', '.').slice(0,-2) + '.' + valorStr.slice(-2));
+        }
+
+        // --- Lógica de Edição na Lista com Máscara ---
+        // Quando foca, limpa formatação para editar. Quando sai, formata e salva.
+        function focarValor(el) {
+            // Remove R$ e deixa só numeros para o mobile keyboard ajudar (opcional)
+            // Aqui mantemos texto pois o usuario quer ver a mascara editando
+        }
+
+        function alterarValorLista(el, id) {
+            mascaraMoeda(el); // Aplica mascara enquanto digita
+        }
+
+        async function salvarValorLista(el, id) {
+            const valorFloat = limpaMoeda(el.value);
+            await editar(id, 'valor', valorFloat);
+        }
+
+        // --- Navegação ---
         function mudarAba(aba) {
             abaAtiva = aba;
             ['resumo', 'entradas', 'saidas'].forEach(v => {
@@ -195,49 +245,40 @@
             document.getElementById(`tab-${aba}`).classList.remove('tab-inactive');
         }
 
+        // --- Modais ---
         function abrirModalContexto() {
             resetModal();
             const radioGasto = document.querySelector('input[value="gasto"]');
             const radioReceita = document.querySelector('input[value="receita"]');
 
             if (abaAtiva === 'entradas') {
-                radioReceita.checked = true;
-                esconderToggle(true);
-                document.getElementById('modal-titulo').textContent = 'Nova Receita';
+                radioReceita.checked = true; esconderToggle(true);
+                document.getElementById('modal-titulo').textContent = 'Novo Salário';
             } else if (abaAtiva === 'saidas') {
-                radioGasto.checked = true;
-                esconderToggle(true);
+                radioGasto.checked = true; esconderToggle(true);
                 document.getElementById('modal-titulo').textContent = 'Nova Despesa';
             } else {
-                radioGasto.checked = true;
-                esconderToggle(false);
+                radioGasto.checked = true; esconderToggle(false);
                 document.getElementById('modal-titulo').textContent = 'Adicionar';
             }
-            atualizarCategoriasModal();
-            abrirModal();
+            atualizarCategoriasModal(); abrirModal();
         }
 
-        // Função específica para o botão do Box de Investimentos
         function abrirModalInvestimento() {
             resetModal();
             document.querySelector('input[value="investimento"]').checked = true;
-            
-            // Esconde toggle de Receita/Despesa e Categoria (não precisa pra investimento)
             esconderToggle(true);
             document.getElementById('container-categoria').classList.add('hidden');
-            
-            // Ajusta visual
             document.getElementById('modal-titulo').textContent = 'Novo Investimento';
-            document.getElementById('descricao').placeholder = 'Investimento em: (Ex: CDB, Ações)';
+            document.getElementById('descricao').placeholder = 'Investimento em (ex: CDB)';
             document.getElementById('btn-salvar').className = 'w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-500 shadow-lg';
-            
             abrirModal();
         }
 
         function resetModal() {
             document.getElementById('form-transacao').reset();
-            // Data padrão: Hoje
             document.getElementById('data-custom').valueAsDate = new Date();
+            document.getElementById('valor-mask').value = ''; 
             document.getElementById('container-categoria').classList.remove('hidden');
             document.getElementById('btn-salvar').className = 'w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 shadow-lg';
             document.getElementById('descricao').placeholder = 'Descrição';
@@ -247,7 +288,6 @@
             const el = document.getElementById('toggle-tipo-container');
             if(esconder) el.classList.add('hidden'); else el.classList.remove('hidden');
         }
-
         function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
         function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
 
@@ -255,8 +295,7 @@
             const tipo = document.querySelector('input[name="tipo"]:checked').value;
             const select = document.getElementById('categoria');
             select.innerHTML = '';
-            if (tipo === 'investimento') return; // Sem categoria para investimento
-
+            if (tipo === 'investimento') return;
             const lista = tipo === 'receita' ? CAT_RECEITAS : CAT_DESPESAS;
             lista.forEach(cat => {
                 const opt = document.createElement('option');
@@ -264,6 +303,7 @@
             });
         }
 
+        // --- Core ---
         async function carregarDados() {
             try {
                 const ano = dataAtual.getFullYear();
@@ -271,7 +311,10 @@
                 const res = await fetch(`${API_URL}?mes=${ano}-${mes}`);
                 const dados = await res.json();
                 processarDados(dados);
-                document.getElementById('last-update').textContent = 'Sync: ' + new Date().toLocaleTimeString().slice(0,5);
+                
+                // DATA E HORA
+                const agora = new Date();
+                document.getElementById('last-update').textContent = 'Atualizado em ' + agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR').slice(0,5);
             } catch (e) { console.error(e); }
         }
 
@@ -301,20 +344,17 @@
         function renderizarInvestimentos(lista) {
             const container = document.getElementById('lista-investimentos');
             container.innerHTML = '';
-            
             if(lista.length === 0) return;
-
             lista.forEach(item => {
                 const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
                 container.innerHTML += `
-                    <div class="flex justify-between items-center text-sm p-2 hover:bg-indigo-500/20 rounded cursor-pointer group" onclick="if(confirm('Apagar investimento?')) deletar(${item.id})">
+                    <div class="flex justify-between items-center text-sm p-2 hover:bg-indigo-500/20 rounded cursor-pointer group" onclick="if(confirm('Apagar?')) deletar(${item.id})">
                         <div class="flex items-center gap-3">
                              <span class="text-indigo-200 font-mono text-xs opacity-70">${dataFormatada}</span>
                              <span class="font-bold text-white truncate max-w-[120px]">${item.descricao}</span>
                         </div>
                         <span class="font-bold text-white">${formatMoney(item.valor)}</span>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -332,16 +372,31 @@
             for (const [data, itens] of Object.entries(grupos)) {
                 let html = `<div class="mb-4"><h3 class="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">${data}</h3><div class="bg-white rounded-xl shadow-sm border border-slate-100 divide-y divide-slate-50 overflow-hidden">`;
                 itens.forEach(item => {
-                    const icone = ICON_MAP[item.categoria] || 'circle';
+                    // Ícone com fallback seguro
+                    let iconeNome = ICON_MAP[item.categoria];
+                    if (!iconeNome) {
+                        // Tenta achar por palavra chave (ex: "Salário Bruno" acha "Salário")
+                        const chaves = Object.keys(ICON_MAP);
+                        const match = chaves.find(chave => item.categoria.includes(chave));
+                        iconeNome = match ? ICON_MAP[match] : 'circle-dollar-sign';
+                    }
+                    
                     const isPago = item.status === 'pago';
+                    // Renderiza input com máscara
+                    const valorMascarado = formatMoney(item.valor); 
+
                     html += `<div id="card-${item.id}" class="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors group">
-                        <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-4 h-4"></i></div>
+                        <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="${iconeNome}" class="w-4 h-4"></i></div>
                         <div class="flex-1 min-w-0">
-                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-slate-700 truncate cursor-pointer hover:text-blue-600">
+                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-slate-700 truncate">
                             <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">${item.categoria}</div>
                         </div>
                         <div class="text-right">
-                            <input type="number" step="0.01" value="${item.valor}" onchange="editar(${item.id}, 'valor', this.value)" class="input-invisible text-right text-sm font-bold ${corValor} w-24 cursor-pointer hover:bg-slate-100 rounded px-1">
+                            <input type="text" inputmode="numeric" value="${valorMascarado}" 
+                                onkeyup="alterarValorLista(this, ${item.id})" 
+                                onchange="salvarValorLista(this, ${item.id})"
+                                class="input-invisible text-right text-sm font-bold ${corValor} w-28 cursor-pointer hover:bg-slate-100 rounded px-1">
+                            
                             <div class="flex items-center justify-end gap-2 mt-1">
                                 <button onclick="deletar(${item.id})" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-opacity"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                 <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="text-[9px] px-1.5 py-0.5 rounded ${isPago?'bg-green-100 text-green-700':'bg-orange-100 text-orange-600'} font-bold">${isPago ? 'PAGO' : 'PEND.'}</button>
@@ -357,10 +412,11 @@
             const ctx = document.getElementById('graficoGastos').getContext('2d');
             if(chartInstance) chartInstance.destroy();
             const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
-            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, cutout: '70%' } });
+            const cores = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
+            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: cores, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, cutout: '70%' } });
         }
 
-        // Funções Auxiliares
+        // Utils e API
         function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); }
         function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); }
         function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
@@ -368,28 +424,28 @@
         async function editar(id, c, v) {
             const card = document.getElementById(`card-${id}`);
             if(card) card.classList.add('piscar-salvo'); setTimeout(() => card?.classList.remove('piscar-salvo'), 500);
-            await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: c==='valor'?parseFloat(v):v}) });
+            await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: v}) });
             carregarDados();
         }
 
         async function deletar(id) {
+            if(!confirm("Tem certeza?")) return;
             await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             carregarDados();
         }
 
         document.getElementById('form-transacao').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Pega data do input customizado
             const dataInput = document.getElementById('data-custom').value;
-            // Cria data mantendo o horário para não dar fuso errado
             const dataReg = dataInput ? new Date(dataInput + 'T12:00:00') : new Date();
+            const valStr = document.getElementById('valor-mask').value;
+            const valFloat = limpaMoeda(valStr);
 
             const form = {
                 tipo: document.querySelector('input[name="tipo"]:checked').value,
                 descricao: document.getElementById('descricao').value,
-                valor: parseFloat(document.getElementById('valor').value),
-                categoria: document.getElementById('categoria').value || 'Aporte', // Default para investimento
+                valor: valFloat,
+                categoria: document.getElementById('categoria').value || 'Aporte',
                 status: 'pago', 
                 data: dataReg.toISOString()
             };
