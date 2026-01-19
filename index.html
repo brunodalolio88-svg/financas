@@ -12,7 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 500: '#10b981', 600: '#059669', dark: '#064e3b' }
+                        brand: {
+                            500: '#10b981', // Verde Organizze
+                            600: '#059669',
+                            dark: '#064e3b'
+                        }
                     }
                 }
             }
@@ -20,27 +24,56 @@
     </script>
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f3f4f6; }
+        
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* Abas */
         .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 500; transition: all 0.2s; cursor: pointer; }
         .nav-item:hover { color: white; }
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
+        
         .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; }
         .input-invisible:focus { background: white; border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); padding: 2px 4px; }
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
 
-        /* OTIMIZAÇÃO PC */
+        /* --- RESPONSIVIDADE PC (DASHBOARD) --- */
         @media (min-width: 1024px) {
-            main { display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; align-items: start; }
-            body.pc-resumo #view-resumo { display: block !important; }
-            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { 
-                display: block !important; background: white; border-radius: 0.75rem; padding: 1rem; 
-                border: 1px solid #f3f4f6; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            /* Coluna Esquerda Fixa | Direita Fluida */
+            main { 
+                display: grid; 
+                grid-template-columns: 360px 1fr; 
+                gap: 2rem; 
+                align-items: start; 
             }
-            body.pc-resumo .mobile-list-header { display: none; }
+            
+            /* Na aba Resumo, força mostrar tudo */
+            body.pc-resumo #view-resumo { display: block !important; }
+            
+            /* Organiza as listas lado a lado no PC */
+            body.pc-resumo #lists-wrapper { 
+                display: grid !important; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 1.5rem; 
+            }
+            
+            /* Exibe as listas como Cards no PC */
+            body.pc-resumo #view-entradas, 
+            body.pc-resumo #view-saidas { 
+                display: block !important; 
+                background: white;
+                border-radius: 1rem;
+                padding: 1.5rem;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+                height: fit-content;
+            }
+
+            /* Esconde cabeçalhos mobile no PC */
+            body.pc-resumo .mobile-header { display: none; }
+            body.pc-resumo .pc-header { display: flex; }
         }
     </style>
 </head>
@@ -56,6 +89,7 @@
                         <p class="text-[10px] opacity-80 uppercase tracking-wider">Gestão Financeira</p>
                     </div>
                 </div>
+
                 <div class="flex items-center bg-brand-600/50 rounded-lg p-1">
                     <button onclick="mudarMes(-1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                     <div class="px-4 text-center cursor-pointer" onclick="resetarHoje()">
@@ -64,6 +98,7 @@
                     <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                 </div>
             </div>
+
             <nav class="flex gap-6 mt-2 overflow-x-auto hide-scroll">
                 <button onclick="mudarAba('resumo')" id="tab-resumo" class="nav-item active">Visão Geral</button>
                 <button onclick="mudarAba('entradas')" id="tab-entradas" class="nav-item">Entradas</button>
@@ -73,10 +108,15 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 mt-6">
+
         <div id="view-resumo" class="animate-fade-in space-y-6">
+            
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
                 <div class="flex justify-between items-start mb-4">
-                    <div><h2 class="text-xl font-bold text-gray-800">Boa tarde! ⛅</h2><p class="text-xs text-gray-400" id="last-update">Sync...</p></div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Boa tarde! ⛅</h2>
+                        <p class="text-xs text-gray-400" id="last-update">Sync...</p>
+                    </div>
                     <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
                 </div>
                 <div class="flex gap-8 mt-2">
@@ -85,11 +125,13 @@
                     <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Despesa</p><p id="total-gastos" class="text-lg font-bold text-red-500">R$ 0,00</p></div>
                 </div>
             </div>
+
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-center border-l-4 border-l-brand-500">
                 <div class="flex items-center gap-2 mb-2"><div class="w-2 h-8 bg-brand-500 rounded-full"></div><p class="text-sm font-bold text-gray-500 uppercase">Saldo Geral</p></div>
                 <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
-                <p class="text-xs text-gray-400 mt-2">Saldo acumulado em contas</p>
+                <p class="text-xs text-gray-400 mt-2">Saldo acumulado</p>
             </div>
+
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                     <h3 class="font-bold text-gray-700">Investimentos</h3>
@@ -98,6 +140,7 @@
                 <div class="p-4 bg-emerald-50/50 border-b border-emerald-100"><p class="text-xs text-emerald-600 font-bold uppercase">Acumulado</p><p id="total-investido" class="text-2xl font-bold text-emerald-700">R$ 0,00</p></div>
                 <div id="lista-investimentos" class="divide-y divide-gray-50 max-h-[300px] overflow-y-auto"></div>
             </div>
+
             <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
                 <h3 class="font-bold text-gray-700 mb-4 text-sm">Por Categoria</h3>
                 <div class="h-48 relative flex justify-center"><canvas id="graficoGastos"></canvas></div>
@@ -105,24 +148,44 @@
         </div>
 
         <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
+            
             <div id="view-entradas" class="hidden">
-                 <div class="mobile-list-header flex justify-between items-center mb-3"><h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3><span id="header-total-renda" class="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">R$ 0,00</span></div>
-                <div class="hidden lg:flex justify-between items-center mb-4 pb-2 border-b border-gray-100"><h3 class="font-bold text-gray-700 text-lg">Entradas</h3><span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">RECEITAS</span></div>
+                <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
+                    <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
+                    <span id="header-total-renda" class="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">R$ 0,00</span>
+                </div>
+                <div class="pc-header hidden justify-between items-center mb-6 pb-2 border-b border-gray-100">
+                    <h3 class="font-bold text-xl text-gray-700">Entradas</h3>
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase tracking-wide">Receitas</span>
+                </div>
                 <div id="lista-entradas-content" class="space-y-3"></div>
             </div>
+
             <div id="view-saidas" class="hidden">
-                <div class="mobile-list-header flex justify-between items-center mb-3"><h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3><span id="header-total-gastos" class="text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded">R$ 0,00</span></div>
-                 <div class="hidden lg:flex justify-between items-center mb-4 pb-2 border-b border-gray-100"><h3 class="font-bold text-gray-700 text-lg">Saídas</h3><span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">DESPESAS</span></div>
+                <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
+                    <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
+                    <span id="header-total-gastos" class="text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded">R$ 0,00</span>
+                </div>
+                <div class="pc-header hidden justify-between items-center mb-6 pb-2 border-b border-gray-100">
+                    <h3 class="font-bold text-xl text-gray-700">Saídas</h3>
+                    <span class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full uppercase tracking-wide">Despesas</span>
+                </div>
                 <div id="lista-saidas-content" class="space-y-3"></div>
             </div>
+
         </div>
     </main>
 
-    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90"><i data-lucide="plus" class="w-7 h-7"></i></button>
+    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90">
+        <i data-lucide="plus" class="w-7 h-7"></i>
+    </button>
 
     <div id="modal" class="fixed inset-0 bg-gray-900/50 hidden items-end md:items-center justify-center z-50 transition-opacity backdrop-blur-sm">
         <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-            <div class="flex justify-between items-center mb-6"><h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2><button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2>
+                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
             <form id="form-transacao" class="space-y-5">
                 <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
                     <label class="cursor-pointer"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div></label>
@@ -152,93 +215,51 @@
         const ICON_MAP = {'Salário': 'wallet', '13º Salário': 'gift', 'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Luz': 'zap', 'Gás': 'flame', 'Condomínio': 'home', 'Internet': 'wifi', 'Lazer': 'coffee', 'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'};
 
         async function init() {
-            // Lógica de Persistência na Nuvem
             try {
-                // Tenta carregar configuração do servidor
                 const res = await fetch(`${API_URL}?tipo=config`);
                 const config = await res.json();
-                
                 if (config && config.ultimo_mes) {
-                    // Se existe um mês salvo, usa ele
                     const [ano, mes] = config.ultimo_mes.split('-');
-                    // Pequeno ajuste: Date usa mês 0-11
                     dataAtual = new Date(ano, mes - 1, 1);
-                } else {
-                    // Se não, usa mês atual (padrão)
-                    dataAtual = new Date();
-                }
-            } catch (e) {
-                console.error("Erro ao carregar config, usando data atual", e);
-                dataAtual = new Date();
-            }
-
+                } else { dataAtual = new Date(); }
+            } catch (e) { dataAtual = new Date(); }
             atualizarTituloMes();
             carregarDados();
         }
 
-        // --- Navegação e Persistência ---
         async function mudarMes(d) {
             dataAtual.setMonth(dataAtual.getMonth() + d);
-            atualizarTituloMes();
-            carregarDados();
-            salvarMesNoBanco(); // Salva a escolha na nuvem
+            atualizarTituloMes(); carregarDados(); salvarMesNoBanco();
         }
-
-        async function resetarHoje() {
-            dataAtual = new Date();
-            atualizarTituloMes();
-            carregarDados();
-            salvarMesNoBanco();
-        }
-
-        // Função que salva no banco onde você parou
+        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
         async function salvarMesNoBanco() {
-            const ano = dataAtual.getFullYear();
-            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-            const mesFormatado = `${ano}-${mes}`;
-            
-            try {
-                await fetch(`${API_URL}?tipo=config`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ ultimo_mes: mesFormatado })
-                });
-            } catch(e) { console.error("Erro ao salvar progresso", e); }
+            const mesFormatado = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, '0')}`;
+            try { await fetch(`${API_URL}?tipo=config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ultimo_mes: mesFormatado }) }); } catch(e) {}
         }
 
         function mudarAba(aba) {
             abaAtiva = aba;
             const body = document.body;
             if(aba === 'resumo') body.classList.add('pc-resumo'); else body.classList.remove('pc-resumo');
-            ['resumo', 'entradas', 'saidas'].forEach(v => {
-                document.getElementById(`view-${v}`).classList.add('hidden');
-                document.getElementById(`tab-${v}`).classList.remove('active');
-            });
-            document.getElementById(`view-${aba}`).classList.remove('hidden');
-            document.getElementById(`tab-${aba}`).classList.add('active');
+            ['resumo', 'entradas', 'saidas'].forEach(v => { document.getElementById(`view-${v}`).classList.add('hidden'); document.getElementById(`tab-${v}`).classList.remove('active'); });
+            document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
         }
 
-        // --- Renderização ---
         function renderizarListaAgrupada(lista, containerId, corValor) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
+            const container = document.getElementById(containerId); container.innerHTML = '';
             if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm font-medium">Tudo limpo por aqui</p></div>`; return; }
-            const grupos = {};
-            lista.forEach(item => { const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); if(!grupos[dk]) grupos[dk] = []; grupos[dk].push(item); });
+            const grupos = {}; lista.forEach(item => { const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); if(!grupos[dk]) grupos[dk] = []; grupos[dk].push(item); });
             for (const [data, itens] of Object.entries(grupos)) {
                 let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
                 itens.forEach(item => {
                     let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign'; let corIcone = item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-500'; const isPago = item.status === 'pago'; const valorF = formatMoney(item.valor);
                     html += `<div class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative"><div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div><div class="flex-1 min-w-0"><input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate"><div class="flex items-center gap-2"><span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div></div><div class="text-right"><input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-28"><div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-md rounded-lg p-1 flex gap-1 border border-gray-100"><button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-500"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button><button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`;
-                });
-                html += `</div></div>`;
-                container.innerHTML += html;
+                }); html += `</div></div>`; container.innerHTML += html;
             }
         }
 
         function renderizarInvestimentos(lista) {
-            const container = document.getElementById('lista-investimentos');
-            container.innerHTML = '';
+            const container = document.getElementById('lista-investimentos'); container.innerHTML = '';
             if(lista.length === 0) { container.innerHTML = '<div class="text-center py-6 text-gray-400 text-xs">Sem investimentos</div>'; return; }
             lista.forEach(item => {
                 const valorF = formatMoney(item.valor); let icone = ICON_MAP[item.categoria] || 'pie-chart';
@@ -246,21 +267,16 @@
             });
         }
 
-        // --- Core ---
         async function carregarDados() {
             try {
-                const ano = dataAtual.getFullYear();
-                const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-                const res = await fetch(`${API_URL}?mes=${ano}-${mes}`);
-                const dados = await res.json();
-                processarDados(dados);
-                document.getElementById('last-update').textContent = 'Atualizado às ' + new Date().toLocaleTimeString().slice(0,5);
+                const ano = dataAtual.getFullYear(); const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const res = await fetch(`${API_URL}?mes=${ano}-${mes}`); const dados = await res.json();
+                processarDados(dados); document.getElementById('last-update').textContent = 'Atualizado às ' + new Date().toLocaleTimeString().slice(0,5);
             } catch (e) { console.error(e); }
         }
 
         function processarDados(dados) {
-            let totalRenda = 0, totalGastos = 0, totalInvestido = 0;
-            const entradas = [], saidas = [], investimentos = [];
+            let totalRenda = 0, totalGastos = 0, totalInvestido = 0; const entradas = [], saidas = [], investimentos = [];
             dados.forEach(item => {
                 item.valor = parseFloat(item.valor);
                 if (item.tipo === 'receita') { totalRenda += item.valor; entradas.push(item); }
@@ -275,16 +291,12 @@
             document.getElementById('header-total-gastos').textContent = formatMoney(totalGastos);
             renderizarListaAgrupada(entradas, 'lista-entradas-content', 'text-green-600');
             renderizarListaAgrupada(saidas, 'lista-saidas-content', 'text-gray-800');
-            renderizarInvestimentos(investimentos);
-            renderizarGrafico(saidas);
-            lucide.createIcons();
+            renderizarInvestimentos(investimentos); renderizarGrafico(saidas); lucide.createIcons();
         }
 
         function renderizarGrafico(saidas) {
-            const ctx = document.getElementById('graficoGastos').getContext('2d');
-            if(chartInstance) chartInstance.destroy();
-            const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
-            const data = Object.values(cats); if (data.length === 0) return;
+            const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
+            const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor); const data = Object.values(cats); if (data.length === 0) return;
             chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: data, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10, family: 'Inter' } } } }, cutout: '75%' } });
         }
 
@@ -294,13 +306,7 @@
         async function editar(id, c, v) { await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: v}) }); carregarDados(); }
         async function deletar(id) { if(confirm("Apagar?")) { await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' }); carregarDados(); } }
 
-        function abrirModalContexto() {
-            resetModal(); const rG = document.querySelector('input[value="gasto"]'); const rR = document.querySelector('input[value="receita"]');
-            if(abaAtiva === 'entradas') { rR.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Receita'; }
-            else if(abaAtiva === 'saidas') { rG.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Despesa'; }
-            else { rG.checked = true; esconderToggle(false); document.getElementById('modal-titulo').textContent = 'Adicionar'; }
-            atualizarCategoriasModal(); abrirModal();
-        }
+        function abrirModalContexto() { resetModal(); const rG = document.querySelector('input[value="gasto"]'); const rR = document.querySelector('input[value="receita"]'); if(abaAtiva === 'entradas') { rR.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Receita'; } else if(abaAtiva === 'saidas') { rG.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Despesa'; } else { rG.checked = true; esconderToggle(false); document.getElementById('modal-titulo').textContent = 'Adicionar'; } atualizarCategoriasModal(); abrirModal(); }
         function abrirModalInvestimento() { resetModal(); document.querySelector('input[value="investimento"]').checked = true; esconderToggle(true); document.getElementById('container-categoria').classList.remove('hidden'); atualizarCategoriasModal(); document.getElementById('modal-titulo').textContent = 'Novo Investimento'; document.getElementById('descricao').placeholder = 'Nome (Ex: Tesouro Selic)'; document.getElementById('btn-salvar').classList.replace('bg-brand-500', 'bg-emerald-600'); abrirModal(); }
         function atualizarCategoriasModal() { const tipo = document.querySelector('input[name="tipo"]:checked').value; const select = document.getElementById('categoria'); select.innerHTML = ''; const lista = tipo === 'receita' ? CAT_RECEITAS : (tipo === 'gasto' ? CAT_DESPESAS : CAT_INVESTIMENTOS); lista.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }); }
         function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate = new Date(); document.getElementById('container-categoria').classList.remove('hidden'); document.getElementById('btn-salvar').className = 'w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 active:scale-95 transition-all shadow-lg'; }
