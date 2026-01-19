@@ -1,305 +1,300 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças Bruno & Nathalia</title>
-    
-    <script>
-        if (!localStorage.getItem('usuario_logado')) {
-            window.location.href = '/login.html';
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Finanças Bruno & Nathalia</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#10b981',
-                            600: '#059669',
-                            dark: '#064e3b'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        
-        .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 500; transition: all 0.2s; cursor: pointer; }
-        .nav-item:hover { color: white; }
-        .nav-item.active { color: white; font-weight: 700; }
-        .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
-        
-        /* MODO FANTASMA - EDIÇÃO LIMPA */
-        .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; }
-        .input-invisible:focus { background: white; border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); padding: 2px 4px; }
-        
-        /* GARANTE QUE O TEXTO NÃO CORTE NO MOBILE */
-        .text-wrap-safe { white-space: normal; word-break: break-word; line-height: 1.2; }
+<script>
+if (!localStorage.getItem('usuario_logado')) {
+  window.location.href = '/login.html';
+}
+</script>
 
-        @media (min-width: 1024px) {
-            main { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; align-items: start; }
-            body.pc-resumo #view-resumo { display: block !important; }
-            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
-            body:not(.pc-resumo) main { display: block; max-width: 60rem; margin: 2rem auto; }
-            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-            .mobile-header { display: none !important; }
-            .pc-header { display: flex !important; }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          500: '#10b981',
+          600: '#059669',
+          dark: '#064e3b'
         }
-    </style>
+      }
+    }
+  }
+}
+</script>
+
+<style>
+body {
+  -webkit-tap-highlight-color: transparent;
+  font-family: Inter, system-ui, sans-serif;
+  background:#f3f4f6;
+}
+
+.hide-scroll::-webkit-scrollbar { display:none }
+
+.skeleton {
+  background: linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 37%,#f3f4f6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 0 }
+  100% { background-position: -100% 0 }
+}
+
+.input-invisible {
+  background:transparent;
+  border:none;
+  width:100%;
+  cursor:pointer;
+}
+.input-invisible:focus {
+  outline:none;
+  border-bottom:2px solid #10b981;
+  cursor:text;
+}
+
+.edit-hint::after {
+  content:'✏️';
+  opacity:0;
+  margin-left:6px;
+  font-size:11px;
+  transition:.2s;
+}
+.group:hover .edit-hint::after { opacity:.4 }
+
+.nav-item {
+  padding:.5rem 1rem;
+  color:rgba(255,255,255,.8);
+  font-weight:600;
+}
+.nav-item.active {
+  color:white;
+  font-weight:700;
+  border-bottom:3px solid white;
+}
+</style>
 </head>
-<body class="text-gray-700 pb-24 md:pb-10 pc-resumo">
 
-    <header class="bg-brand-500 shadow-lg sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2 text-white">
-                    <div class="bg-white/20 p-2 rounded-lg"><i data-lucide="wallet" class="w-6 h-6"></i></div>
-                    <div>
-                        <h1 class="font-bold text-lg leading-tight">Bruno & Nathalia</h1>
-                        <p class="text-[10px] opacity-80 uppercase tracking-wider">Gestão Financeira</p>
-                    </div>
-                </div>
-                <div class="flex gap-4 items-center">
-                    <div class="flex items-center bg-brand-600/50 rounded-lg p-1">
-                        <button onclick="mudarMes(-1)" class="p-1 hover:bg-brand-500 rounded text-white transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-                        <div class="px-2 text-center cursor-pointer min-w-[100px]" onclick="resetarHoje()">
-                            <span id="mes-titulo" class="text-xs font-bold text-white capitalize">Carregando...</span>
-                        </div>
-                        <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
-                    </div>
-                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-            <nav class="flex gap-6 mt-2 overflow-x-auto hide-scroll">
-                <button onclick="mudarAba('resumo')" id="tab-resumo" class="nav-item active">Visão Geral</button>
-                <button onclick="mudarAba('entradas')" id="tab-entradas" class="nav-item">Entradas</button>
-                <button onclick="mudarAba('saidas')" id="tab-saidas" class="nav-item">Saídas</button>
-            </nav>
+<body class="text-gray-700 pb-24 md:pb-10 pc-resumo" role="application">
+
+<!-- TOAST -->
+<div id="toast" class="fixed top-4 right-4 hidden px-4 py-2 rounded-lg text-sm shadow-lg z-50"></div>
+
+<header class="bg-brand-500 sticky top-0 z-30 shadow">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-3 text-white">
+        <div class="bg-white/20 p-2 rounded-lg"><i data-lucide="wallet"></i></div>
+        <div>
+          <h1 class="font-bold text-lg">Bruno & Nathalia</h1>
+          <p class="text-[10px] uppercase opacity-80">Gestão Financeira</p>
         </div>
-    </header>
+      </div>
 
-    <main class="max-w-7xl mx-auto px-4 mt-6">
-        <div id="view-resumo" class="animate-fade-in space-y-6">
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-800">Olá, <span id="nome-usuario">...</span>! ⛅</h2>
-                        <p class="text-xs text-gray-400" id="last-update">Sincronizando...</p>
-                    </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="abrirModalEvolucao()"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
-                </div>
-                <div class="flex gap-8 mt-2">
-                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receita</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
-                    <div class="w-px bg-gray-100"></div>
-                    <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Despesa</p><p id="total-gastos" class="text-lg font-bold text-red-500">R$ 0,00</p></div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-center border-l-4 border-l-brand-500">
-                <div class="flex items-center gap-2 mb-2"><div class="w-2 h-8 bg-brand-500 rounded-full"></div><p class="text-sm font-bold text-gray-500 uppercase">Saldo Geral</p></div>
-                <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                    <h3 class="font-bold text-gray-700">Investimentos</h3>
-                    <button onclick="abrirModalInvestimento()" class="text-brand-600 hover:bg-brand-50 p-1.5 rounded-full transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
-                </div>
-                <div class="p-4 bg-emerald-50/50 border-b border-emerald-100"><p class="text-xs text-emerald-600 font-bold uppercase">Acumulado</p><p id="total-investido" class="text-2xl font-bold text-emerald-700">R$ 0,00</p></div>
-                <div id="lista-investimentos" class="divide-y divide-gray-50 max-h-[300px] overflow-y-auto"></div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <h3 class="font-bold text-gray-700 mb-4 text-sm text-center">Distribuição</h3>
-                <div class="h-48 relative flex justify-center"><canvas id="graficoGastos"></canvas></div>
-            </div>
-        </div>
-
-        <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
-            <div id="view-entradas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
-                    <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
-                    <span id="header-total-renda" class="text-sm font-bold text-green-600">R$ 0,00</span>
-                </div>
-                <div id="lista-entradas-content" class="space-y-3"></div>
-            </div>
-            <div id="view-saidas" class="hidden h-full">
-                <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
-                    <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
-                    <span id="header-total-gastos" class="text-sm font-bold text-red-600">R$ 0,00</span>
-                </div>
-                <div id="lista-saidas-content" class="space-y-3"></div>
-            </div>
-        </div>
-    </main>
-
-    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg z-40 active:scale-90 flex items-center justify-center transition-transform hover:rotate-90">
-        <i data-lucide="plus" class="w-7 h-7"></i>
-    </button>
-
-    <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg mx-4 rounded-2xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-gray-800">Evolução Recente</h2><button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-            <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
-        </div>
+      <div class="flex gap-2">
+        <button onclick="mudarMes(-1)" class="text-white/80 hover:text-white"><i data-lucide="chevron-left"></i></button>
+        <span id="mes-titulo" class="text-white font-bold text-sm cursor-pointer" onclick="resetarHoje()">...</span>
+        <button onclick="mudarMes(1)" class="text-white/80 hover:text-white"><i data-lucide="chevron-right"></i></button>
+        <button onclick="logout()" class="text-white/80 hover:text-white"><i data-lucide="log-out"></i></button>
+      </div>
     </div>
 
-    <div id="modal" class="fixed inset-0 bg-gray-900/50 hidden items-end md:items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2>
-                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form id="form-transacao" class="space-y-5">
-                <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
-                    <label class="cursor-pointer"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div></label>
-                    <label class="cursor-pointer"><input type="radio" name="tipo" value="gasto" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div></label>
-                </div>
-                <input type="radio" name="tipo" value="investimento" class="hidden" onchange="atualizarCategoriasModal()">
-                <input type="text" id="descricao" placeholder="Descrição" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-500" required>
-                <div class="flex gap-4">
-                    <input type="text" inputmode="numeric" id="valor-mask" placeholder="R$ 0,00" onkeyup="mascaraMoeda(this)" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold" required>
-                    <input type="date" id="data-custom" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm">
-                </div>
-                <select id="categoria" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"></select>
-                <button type="submit" id="btn-salvar" class="w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 shadow-lg">Salvar Lançamento</button>
-            </form>
-        </div>
-    </div>
+    <nav class="flex gap-4 mt-2 overflow-x-auto hide-scroll">
+      <button id="tab-resumo" class="nav-item active" onclick="mudarAba('resumo')">Visão Geral</button>
+      <button id="tab-entradas" class="nav-item" onclick="mudarAba('entradas')">Entradas</button>
+      <button id="tab-saidas" class="nav-item" onclick="mudarAba('saidas')">Saídas</button>
+    </nav>
+  </div>
+</header>
 
-    <script>
-        const API_URL = '/api/financas';
-        let dataAtual = new Date();
-        let chartInstance = null;
-        let chartEvolucaoInstance = null;
-        let abaAtiva = 'resumo';
+<main class="max-w-7xl mx-auto px-4 mt-6">
 
-        const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
-        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Governo', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
-        const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
+<!-- SKELETON -->
+<div id="skeleton-resumo" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="h-24 rounded-xl skeleton"></div>
+  <div class="h-24 rounded-xl skeleton"></div>
+  <div class="h-24 rounded-xl skeleton"></div>
+</div>
 
-        const ICON_MAP = {
-            'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
-            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
-            'Manutenção Casa': 'hammer', 'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Governo': 'landmark', 'Internet': 'wifi', 'Lazer': 'coffee', 
-            'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
-        };
+<!-- RESUMO -->
+<div id="view-resumo" class="hidden space-y-6">
 
-        async function init() {
-            document.getElementById('nome-usuario').textContent = localStorage.getItem('usuario_nome') || 'Usuário';
-            try {
-                const res = await fetch(`${API_URL}?tipo=config`);
-                const config = await res.json();
-                if (config?.ultimo_mes) {
-                    const [ano, mes] = config.ultimo_mes.split('-');
-                    dataAtual = new Date(ano, mes - 1, 1);
-                }
-            } catch (e) {}
-            atualizarTituloMes(); carregarDados();
-        }
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="bg-white rounded-xl p-5 shadow">
+    <p class="text-xs uppercase text-gray-400">Receitas</p>
+    <p id="total-renda" class="text-2xl font-bold text-green-600">R$ 0,00</p>
+  </div>
+  <div class="bg-white rounded-xl p-5 shadow">
+    <p class="text-xs uppercase text-gray-400">Despesas</p>
+    <p id="total-gastos" class="text-2xl font-bold text-red-600">R$ 0,00</p>
+  </div>
+  <div class="bg-white rounded-xl p-5 shadow border-l-4 border-brand-500">
+    <p class="text-xs uppercase text-gray-400">Saldo</p>
+    <p id="total-saldo" class="text-3xl font-extrabold">R$ 0,00</p>
+  </div>
+</div>
 
-        function logout() { localStorage.removeItem('usuario_logado'); window.location.href = '/login.html'; }
-        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
-        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
-        async function salvarMesNoBanco() { const mesF = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, '0')}`; try { await fetch(`${API_URL}?tipo=config`, { method: 'POST', body: JSON.stringify({ ultimo_mes: mesF }) }); } catch(e) {} }
+<div class="bg-white rounded-xl p-6 shadow">
+  <h3 class="font-bold mb-3">Distribuição de Gastos</h3>
+  <div class="h-64"><canvas id="graficoGastos"></canvas></div>
+</div>
 
-        function mudarAba(aba) {
-            abaAtiva = aba; document.body.classList.toggle('pc-resumo', aba === 'resumo');
-            ['resumo', 'entradas', 'saidas'].forEach(v => { document.getElementById(`view-${v}`).classList.add('hidden'); document.getElementById(`tab-${v}`).classList.remove('active'); });
-            document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
-        }
+</div>
 
-        function renderizarListaAgrupada(lista, containerId, corValor) {
-            const container = document.getElementById(containerId); container.innerHTML = '';
-            if(lista.length === 0) { container.innerHTML = '<div class="py-10 text-center opacity-50 text-sm">Tudo limpo!</div>'; return; }
-            const grupos = {}; lista.forEach(item => { const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); (grupos[dk] = grupos[dk] || []).push(item); });
-            
-            for (const [data, itens] of Object.entries(grupos)) {
-                let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase bg-gray-200 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
-                itens.forEach(item => {
-                    let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign';
-                    html += `<div class="group flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-50 last:border-0 relative">
-                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
-                        <div class="flex-1 min-w-0">
-                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-700 text-wrap-safe">
-                            <div class="text-[10px] text-gray-400 uppercase font-bold">${item.categoria}</div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" inputmode="numeric" value="${formatMoney(item.valor)}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-24">
-                            <div class="flex items-center gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="editar(${item.id}, 'status', '${item.status==='pago'?'pendente':'pago'}')" class="p-1 hover:bg-gray-100 rounded"><i data-lucide="${item.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4 text-gray-400"></i></button>
-                                <button onclick="deletar(${item.id})" class="p-1 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-                container.innerHTML += html + `</div></div>`;
-            }
-        }
+<!-- LISTAS -->
+<div id="view-entradas" class="hidden">
+  <div id="lista-entradas-content" class="space-y-3"></div>
+</div>
 
-        async function carregarDados() {
-            try {
-                const ano = dataAtual.getFullYear(); const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-                const res = await fetch(`${API_URL}?mes=${ano}-${mes}`); const dados = await res.json();
-                processarDados(dados);
-            } catch (e) {}
-        }
+<div id="view-saidas" class="hidden">
+  <div id="lista-saidas-content" class="space-y-3"></div>
+</div>
 
-        function processarDados(dados) {
-            let renda=0, gastos=0, invest=0; const ent=[], sai=[], inv=[];
-            dados.forEach(i => { i.valor = parseFloat(i.valor); if(i.tipo==='receita') { renda+=i.valor; ent.push(i); } else if(i.tipo==='gasto') { gastos+=i.valor; sai.push(i); } else { invest+=i.valor; inv.push(i); } });
-            document.getElementById('total-saldo').textContent = formatMoney(renda - gastos);
-            document.getElementById('total-renda').textContent = formatMoney(renda);
-            document.getElementById('total-gastos').textContent = formatMoney(gastos);
-            document.getElementById('total-investido').textContent = formatMoney(invest);
-            document.getElementById('header-total-renda').textContent = formatMoney(renda);
-            document.getElementById('header-total-gastos').textContent = formatMoney(gastos);
-            renderizarListaAgrupada(ent, 'lista-entradas-content', 'text-green-600');
-            renderizarListaAgrupada(sai, 'lista-saidas-content', 'text-red-500');
-            renderizarInvestimentos(inv); renderizarGrafico(sai); lucide.createIcons();
-        }
+</main>
 
-        function renderizarInvestimentos(lista) {
-            const container = document.getElementById('lista-investimentos'); container.innerHTML = '';
-            lista.forEach(i => { container.innerHTML += `<div class="p-4 flex justify-between items-center"><div><div class="text-sm font-bold text-gray-700">${i.descricao}</div><div class="text-[10px] text-gray-400 uppercase">${i.categoria}</div></div><div class="text-sm font-bold text-gray-800">${formatMoney(i.valor)}</div></div>`; });
-        }
+<!-- FAB -->
+<button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center active:scale-95">
+  <i data-lucide="plus"></i>
+</button>
 
-        function renderizarGrafico(sai) {
-            const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
-            const cats = {}; sai.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
-            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } });
-        }
+<script>
+const API_URL='/api/financas';
+let abaAtiva='resumo';
+let dataAtual=new Date();
+let chartInstance=null;
 
-        function abrirModalEvolucao() {
-            document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
-            const ctx = document.getElementById('graficoEvolucao').getContext('2d'); if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
-            chartEvolucaoInstance = new Chart(ctx, { type: 'bar', data: { labels: ['Set', 'Out', 'Nov', 'Dez', 'Jan'], datasets: [{ label: 'Receitas', data: [4000, 4500, 4800, 6000, 5500], backgroundColor: '#10b981' }, { label: 'Despesas', data: [3500, 3800, 4000, 5500, 4200], backgroundColor: '#ef4444' }] }, options: { responsive: true, maintainAspectRatio: false } });
-        }
+function toast(msg,ok=true){
+ const t=document.getElementById('toast');
+ t.textContent=msg;
+ t.className=`fixed top-4 right-4 px-4 py-2 rounded-lg text-sm shadow-lg z-50 ${ok?'bg-green-600':'bg-red-600'}`;
+ t.classList.remove('hidden');
+ setTimeout(()=>t.classList.add('hidden'),2000);
+}
 
-        function mascaraMoeda(e) { let v = e.value.replace(/\D/g, ""); v = (v / 100).toFixed(2).replace(".", ","); e.value = "R$ " + v.replace(/\d(?=(\d{3})+,)/g, "$&."); }
-        function limpaMoeda(v) { return typeof v === 'number' ? v : parseFloat(v.replace(/[R$\s.]/g, "").replace(",", ".")); }
-        async function salvarValorLista(el, id) { await editar(id, 'valor', limpaMoeda(el.value)); }
-        async function editar(id, c, v) { await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: v}) }); carregarDados(); }
-        async function deletar(id) { if(confirm("Apagar?")) { await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' }); carregarDados(); } }
+function mostrarLoading(show){
+ document.getElementById('skeleton-resumo').style.display=show?'grid':'none';
+ document.getElementById('view-resumo').style.display=show?'none':'block';
+}
 
-        function abrirModalContexto() { resetModal(); atualizarCategoriasModal(); document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
-        function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
-        function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate = new Date(); }
-        function atualizarCategoriasModal() { const tipo = document.querySelector('input[name="tipo"]:checked').value; const sel = document.getElementById('categoria'); sel.innerHTML = ''; (tipo === 'receita' ? CAT_RECEITAS : CAT_DESPESAS).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); }); }
-        
-        document.getElementById('form-transacao').addEventListener('submit', async (e) => { e.preventDefault(); const form = { tipo: document.querySelector('input[name="tipo"]:checked').value, descricao: document.getElementById('descricao').value, valor: limpaMoeda(document.getElementById('valor-mask').value), categoria: document.getElementById('categoria').value, status: 'pago', data: new Date(document.getElementById('data-custom').value + 'T12:00:00').toISOString() }; await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); fecharModal(); carregarDados(); });
-        function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
-        function formatMoney(v) { return v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
+function logout(){
+ localStorage.removeItem('usuario_logado');
+ location.href='/login.html';
+}
 
-        init();
-    </script>
+function mudarAba(a){
+ abaAtiva=a;
+ ['resumo','entradas','saidas'].forEach(v=>{
+   document.getElementById('view-'+v).classList.add('hidden');
+   document.getElementById('tab-'+v).classList.remove('active');
+ });
+ document.getElementById('view-'+a).classList.remove('hidden');
+ document.getElementById('tab-'+a).classList.add('active');
+}
+
+async function carregarDados(){
+ mostrarLoading(true);
+ const r=await fetch(API_URL);
+ const d=await r.json();
+ processarDados(d);
+ mostrarLoading(false);
+}
+
+function formatMoney(v){
+ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function processarDados(dados){
+ let renda=0,gastos=0;
+ const ent=[],sai=[];
+ dados.forEach(i=>{
+   i.valor=parseFloat(i.valor);
+   if(i.tipo==='receita'){renda+=i.valor;ent.push(i);}
+   if(i.tipo==='gasto'){gastos+=i.valor;sai.push(i);}
+ });
+ document.getElementById('total-renda').textContent=formatMoney(renda);
+ document.getElementById('total-gastos').textContent=formatMoney(gastos);
+ document.getElementById('total-saldo').textContent=formatMoney(renda-gastos);
+ renderizarLista(ent,'lista-entradas-content','text-green-600');
+ renderizarLista(sai,'lista-saidas-content','text-gray-800');
+ renderizarGrafico(sai);
+ lucide.createIcons();
+}
+
+function renderizarLista(lista,container,cor){
+ const c=document.getElementById(container);
+ c.innerHTML='';
+ if(!lista.length){
+   c.innerHTML='<div class="text-center text-gray-400 py-10">Tudo limpo ✨</div>';
+   return;
+ }
+ lista.forEach(i=>{
+   c.innerHTML+=`
+   <div class="bg-white rounded-xl p-4 shadow flex justify-between items-center group">
+     <input class="input-invisible edit-hint font-bold ${cor}" value="${i.descricao}" onchange="editar(${i.id},this.value)">
+     <span class="font-bold ${cor}">${formatMoney(i.valor)}</span>
+   </div>`;
+ });
+}
+
+async function editar(id,val){
+ await fetch(API_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,descricao:val})});
+ toast('Salvo');
+ carregarDados();
+}
+
+function renderizarGrafico(sai){
+ if(chartInstance) chartInstance.destroy();
+ const cats={};
+ sai.forEach(i=>cats[i.categoria]=(cats[i.categoria]||0)+i.valor);
+ const ctx=document.getElementById('graficoGastos').getContext('2d');
+ chartInstance=new Chart(ctx,{
+   type:'doughnut',
+   data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats)}]},
+   options:{plugins:{legend:{position:window.innerWidth<768?'bottom':'right'}}}
+ });
+}
+
+function atualizarTituloMes(){
+ document.getElementById('mes-titulo').textContent=
+  dataAtual.toLocaleDateString('pt-BR',{month:'short',year:'numeric'});
+}
+
+function mudarMes(d){
+ dataAtual.setMonth(dataAtual.getMonth()+d);
+ atualizarTituloMes();
+ carregarDados();
+}
+
+function resetarHoje(){
+ dataAtual=new Date();
+ atualizarTituloMes();
+ carregarDados();
+}
+
+// Swipe mobile
+let startX=0;
+document.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+ const diff=e.changedTouches[0].clientX-startX;
+ if(Math.abs(diff)<80)return;
+ if(diff<0 && abaAtiva==='resumo') mudarAba('entradas');
+ else if(diff<0 && abaAtiva==='entradas') mudarAba('saidas');
+ else if(diff>0 && abaAtiva==='saidas') mudarAba('entradas');
+ else if(diff>0 && abaAtiva==='entradas') mudarAba('resumo');
+});
+
+atualizarTituloMes();
+carregarDados();
+</script>
+
 </body>
 </html>
