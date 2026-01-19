@@ -1,174 +1,348 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Finanças Bruno & Nathalia</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanças Bruno & Nathalia</title>
+    
+    <script>
+        if (!localStorage.getItem('usuario_logado')) {
+            window.location.href = '/login.html';
+        }
+    </script>
 
-<script>
-if (!localStorage.getItem('usuario_logado')) {
-    window.location.href = '/login.html';
-}
-</script>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                brand: {
-                    500: '#10b981',
-                    600: '#059669',
-                    dark: '#064e3b'
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#10b981', // Verde Organizze
+                            600: '#059669',
+                            dark: '#064e3b'
+                        }
+                    }
                 }
             }
         }
-    }
-}
-</script>
+    </script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* Estilos das Abas */
+        .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 500; transition: all 0.2s; cursor: pointer; white-space: nowrap; }
+        .nav-item:hover { color: white; }
+        .nav-item.active { color: white; font-weight: 700; }
+        .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
+        
+        /* MODO FANTASMA (Edição Limpa) */
+        .input-invisible { background: transparent !important; width: 100%; outline: none !important; border: 1px solid transparent !important; border-bottom: 1px solid transparent !important; border-radius: 0 !important; transition: all 0.2s; }
+        .input-invisible:focus { border-bottom: 2px solid #10b981 !important; color: #000 !important; }
+        
+        /* Ajuste de Texto para não cortar */
+        .text-wrap-description { white-space: normal; word-break: break-word; line-height: 1.25; }
 
-<style>
-body {
-    -webkit-tap-highlight-color: transparent;
-    font-family: 'Inter', system-ui, sans-serif;
-    background-color: #f3f4f6;
-}
+        /* Animação */
+        .piscar-salvo { animation: flash 0.5s ease-out; }
+        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: transparent; } }
 
-/* ================= UX ================= */
-
-/* Skeleton discreto (mantém layout) */
-.skeleton {
-    background: linear-gradient(
-        90deg,
-        rgba(0,0,0,0.04) 25%,
-        rgba(0,0,0,0.08) 37%,
-        rgba(0,0,0,0.04) 63%
-    );
-    background-size: 400% 100%;
-    animation: shimmer 1.2s ease infinite;
-}
-@keyframes shimmer {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
-}
-
-/* Toast */
-#toast {
-    transition: opacity .2s, transform .2s;
-}
-
-/* Input invisível com foco mais claro */
-.input-invisible:focus {
-    border-bottom: 2px solid #10b981 !important;
-}
-
-/* Pisca salvo (já existia, mantido) */
-.piscar-salvo {
-    animation: flash 0.5s ease-out;
-}
-@keyframes flash {
-    0% { background-color: #dcfce7; }
-    100% { background-color: transparent; }
-}
-
-/* ================= /UX ================= */
-</style>
+        /* --- OTIMIZAÇÃO PC --- */
+        @media (min-width: 1024px) {
+            main { display: grid; grid-template-columns: 400px 1fr; gap: 2.5rem; align-items: start; max-width: 1200px !important; }
+            body.pc-resumo #view-resumo { display: block !important; }
+            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
+            body:not(.pc-resumo) main { display: block; max-width: 56rem; margin: 2rem auto; }
+            #view-entradas, #view-saidas { background: white; border-radius: 1.25rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+            .mobile-header { display: none !important; }
+            .pc-header { display: flex !important; }
+        }
+    </style>
 </head>
+<body class="text-gray-700 pb-24 md:pb-10 pc-resumo">
 
-<body class="text-gray-700 pb-24 md:pb-10 pc-resumo" role="application">
+    <header class="bg-brand-500 shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3 text-white overflow-hidden">
+                    <div class="bg-white/20 p-2 rounded-lg flex-shrink-0"><i data-lucide="wallet" class="w-6 h-6"></i></div>
+                    <div class="min-w-0">
+                        <h1 class="font-bold text-base md:text-lg leading-tight truncate">Bruno & Nathalia</h1>
+                        <p class="text-[10px] opacity-80 uppercase tracking-wider truncate">Gestão Financeira</p>
+                    </div>
+                </div>
 
-<!-- TOAST UX -->
-<div id="toast"
-     class="fixed top-4 right-4 z-50 hidden bg-gray-900 text-white px-4 py-2 rounded-lg text-sm shadow-lg">
-</div>
+                <div class="flex gap-2 items-center">
+                    <div class="flex items-center bg-brand-600/50 rounded-lg p-0.5">
+                        <button onclick="mudarMes(-1)" class="p-1.5 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <div class="px-2 text-center cursor-pointer min-w-[90px]" onclick="resetarHoje()">
+                            <span id="mes-titulo" class="text-xs font-bold text-white uppercase tracking-wide">...</span>
+                        </div>
+                        <button onclick="mudarMes(1)" class="p-1.5 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                    </div>
+                    
+                    <button onclick="logout()" class="text-white/70 hover:text-white p-1.5" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                </div>
+            </div>
 
-<header class="bg-brand-500 shadow-lg sticky top-0 z-30">
-    <!-- HEADER ORIGINAL INTACTO -->
-    <!-- (sem alterações visuais) -->
-    <!-- ... -->
-</header>
+            <nav class="flex gap-4 mt-1 overflow-x-auto hide-scroll pb-1">
+                <button onclick="mudarAba('resumo')" id="tab-resumo" class="nav-item active">Visão Geral</button>
+                <button onclick="mudarAba('entradas')" id="tab-entradas" class="nav-item">Entradas</button>
+                <button onclick="mudarAba('saidas')" id="tab-saidas" class="nav-item">Saídas</button>
+            </nav>
+        </div>
+    </header>
 
-<main class="max-w-7xl mx-auto px-4 mt-6">
+    <main class="max-w-7xl mx-auto px-4 mt-6">
+        
+        <div id="view-resumo" class="animate-fade-in space-y-6">
+            
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Boa tarde! ⛅</h2>
+                        <p class="text-xs text-gray-400" id="last-update">Sincronizando...</p>
+                    </div>
+                    <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 cursor-pointer hover:bg-gray-100 transition" onclick="abrirModalEvolucao()">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-brand-500"></i>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-green-50/50 p-4 rounded-xl border border-green-100/50">
+                        <p class="text-[10px] text-green-600 uppercase font-bold mb-1">Receitas</p>
+                        <p id="total-renda" class="text-lg font-bold text-green-600">R$ 0,00</p>
+                    </div>
+                    <div class="bg-red-50/50 p-4 rounded-xl border border-red-100/50">
+                        <p class="text-[10px] text-red-600 uppercase font-bold mb-1">Despesas</p>
+                        <p id="total-gastos" class="text-lg font-bold text-red-600">R$ 0,00</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 border-l-4 border-l-brand-500">
+                <div class="flex items-center gap-2 mb-1">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Saldo em Caixa</p>
+                </div>
+                <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
+            </div>
 
-<!-- SKELETON UX (oculto após load) -->
-<div id="skeleton-wrapper" class="space-y-6">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="h-24 rounded-xl skeleton"></div>
-        <div class="h-24 rounded-xl skeleton"></div>
-        <div class="h-24 rounded-xl skeleton"></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="font-bold text-gray-700 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-gray-400"></i> Investimentos</h3>
+                    <button onclick="abrirModalInvestimento()" class="text-brand-600 hover:bg-brand-50 p-1.5 rounded-full transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                </div>
+                <div class="p-4 bg-emerald-50/30 border-b border-emerald-100/50">
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Total Aplicado</p>
+                    <p id="total-investido" class="text-2xl font-bold text-emerald-700">R$ 0,00</p>
+                </div>
+                <div id="lista-investimentos" class="divide-y divide-gray-50 max-h-[250px] overflow-y-auto"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-6 text-sm text-center">Distribuição por Categoria</h3>
+                <div class="h-48 relative flex justify-center"><canvas id="graficoGastos"></canvas></div>
+            </div>
+        </div>
+
+        <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
+            <div id="view-entradas" class="hidden h-full">
+                <div class="mobile-header flex justify-between items-center mb-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm sticky top-0 z-10">
+                    <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
+                    <span id="header-total-renda" class="text-sm font-bold text-green-600">R$ 0,00</span>
+                </div>
+                <div id="lista-entradas-content" class="space-y-3"></div>
+            </div>
+
+            <div id="view-saidas" class="hidden h-full">
+                <div class="mobile-header flex justify-between items-center mb-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm sticky top-0 z-10">
+                    <h3 class="font-bold text-gray-700 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
+                    <span id="header-total-gastos" class="text-sm font-bold text-red-600">R$ 0,00</span>
+                </div>
+                <div id="lista-saidas-content" class="space-y-3"></div>
+            </div>
+        </div>
+    </main>
+
+    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 z-40 flex items-center justify-center transition-all active:scale-90">
+        <i data-lucide="plus" class="w-7 h-7"></i>
+    </button>
+
+    <div id="modal" class="fixed inset-0 bg-gray-900/60 hidden items-end md:items-center justify-center z-50 backdrop-blur-sm transition-all">
+        <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Adicionar</h2>
+                <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="form-transacao" class="space-y-5">
+                <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl" id="toggle-tipo-container">
+                    <label class="cursor-pointer"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div></label>
+                    <label class="cursor-pointer"><input type="radio" name="tipo" value="gasto" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-2.5 text-center rounded-lg text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div></label>
+                </div>
+                <input type="radio" name="tipo" value="investimento" class="hidden" onchange="atualizarCategoriasModal()">
+                <div class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i data-lucide="type" class="w-4 h-4"></i></div><input type="text" id="descricao" placeholder="Descrição" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-500 outline-none" required></div>
+                <div class="flex gap-3">
+                    <div class="relative flex-1"><div class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><span class="text-xs font-bold">R$</span></div><input type="text" inputmode="numeric" id="valor-mask" placeholder="0,00" onkeyup="mascaraMoeda(this)" class="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-500 outline-none font-bold" required></div>
+                    <div class="relative w-40"><input type="date" id="data-custom" class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-500 outline-none text-sm"></div>
+                </div>
+                <div id="container-categoria" class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i data-lucide="tag" class="w-4 h-4"></i></div><select id="categoria" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-500 outline-none appearance-none bg-transparent"></select><div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div></div>
+                <button type="submit" id="btn-salvar" class="w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 shadow-lg">Salvar</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- SEU CONTEÚDO ORIGINAL -->
-<div id="app-content" class="hidden">
-    <!-- TODO O HTML ORIGINAL DE RESUMO / LISTAS / MODAIS -->
-    <!-- (NÃO ALTERADO VISUALMENTE) -->
-</div>
+    <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg mx-4 rounded-2xl p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-gray-800">Evolução de Fluxo</h2><button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
+            <p class="text-[10px] text-center text-gray-400 mt-4 italic">* Gráfico ilustrativo do fluxo mensal</p>
+        </div>
+    </div>
 
-</main>
+    <script>
+        const API_URL = '/api/financas';
+        let dataAtual = new Date();
+        let chartInstance = null;
+        let chartEvolucaoInstance = null;
+        let abaAtiva = 'resumo';
 
-<!-- BOTÃO + (UX: vibração) -->
-<button onclick="abrirModalContexto()"
-        class="fixed bottom-6 right-6 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full shadow-lg z-40 active:scale-95">
-    <i data-lucide="plus"></i>
-</button>
+        const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
+        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
+        const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
 
-<script>
-const API_URL = '/api/financas';
-let carregando = true;
+        const ICON_MAP = {
+            'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
+            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
+            'Manutenção Casa': 'hammer', 'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Internet': 'wifi', 'Lazer': 'coffee', 
+            'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
+        };
 
-/* ================= UX ================= */
+        async function init() {
+            document.getElementById('nome-usuario').textContent = localStorage.getItem('usuario_nome') || 'Usuário';
+            try {
+                const res = await fetch(`${API_URL}?tipo=config`);
+                const config = await res.json();
+                if (config?.ultimo_mes) {
+                    const [ano, mes] = config.ultimo_mes.split('-');
+                    dataAtual = new Date(ano, mes - 1, 1);
+                } else { dataAtual = new Date(); }
+            } catch (e) { dataAtual = new Date(); }
+            atualizarTituloMes();
+            carregarDados();
+        }
 
-function toast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.remove('hidden');
-    t.style.opacity = '1';
-    t.style.transform = 'translateY(0)';
-    setTimeout(() => {
-        t.style.opacity = '0';
-        t.style.transform = 'translateY(-5px)';
-        setTimeout(() => t.classList.add('hidden'), 200);
-    }, 1800);
-}
+        function logout() { localStorage.removeItem('usuario_logado'); window.location.href = '/login.html'; }
+        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
+        async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
+        async function salvarMesNoBanco() { const mesF = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, '0')}`; try { await fetch(`${API_URL}?tipo=config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ultimo_mes: mesF }) }); } catch(e) {} }
 
-function mostrarSkeleton(show) {
-    document.getElementById('skeleton-wrapper').style.display = show ? 'block' : 'none';
-    document.getElementById('app-content').style.display = show ? 'none' : 'block';
-}
+        function mudarAba(aba) {
+            abaAtiva = aba;
+            document.body.classList.toggle('pc-resumo', aba === 'resumo');
+            ['resumo', 'entradas', 'saidas'].forEach(v => { document.getElementById(`view-${v}`).classList.add('hidden'); document.getElementById(`tab-${v}`).classList.remove('active'); });
+            document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
+        }
 
-/* ================= /UX ================= */
+        function renderizarListaAgrupada(lista, containerId, corValor) {
+            const container = document.getElementById(containerId); container.innerHTML = '';
+            if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-12 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm font-medium">Nenhum lançamento</p></div>`; return; }
+            const grupos = {}; lista.forEach(item => { const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); if(!grupos[dk]) grupos[dk] = []; grupos[dk].push(item); });
+            for (const [data, itens] of Object.entries(grupos)) {
+                let html = `<div class="mb-5"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">`;
+                itens.forEach(item => {
+                    let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign'; let corIcone = item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-500'; const isPago = item.status === 'pago'; const valorF = formatMoney(item.valor);
+                    html += `<div class="group flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                        <div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
+                        <div class="flex-1 min-w-0" title="${item.descricao}">
+                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-800 text-wrap-description w-full">
+                            <div class="flex items-center gap-2 mt-1"><span class="text-[9px] text-gray-400 uppercase font-black tracking-widest">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div>
+                        </div>
+                        <div class="text-right flex flex-col items-end gap-1.5">
+                            <input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-extrabold ${corValor} w-24 text-sm">
+                            <div class="flex items-center gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-400"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
+                                <button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </div></div>`;
+                }); html += `</div></div>`; container.innerHTML += html;
+            }
+        }
 
-async function carregarDados() {
-    mostrarSkeleton(true);
-    const res = await fetch(API_URL);
-    const dados = await res.json();
-    processarDados(dados);
-    mostrarSkeleton(false);
-}
+        function renderizarInvestimentos(lista) {
+            const container = document.getElementById('lista-investimentos'); container.innerHTML = '';
+            if(lista.length === 0) { container.innerHTML = '<div class="text-center py-6 text-gray-400 text-[10px] font-medium uppercase tracking-widest">Sem ativos registrados</div>'; return; }
+            lista.forEach(item => {
+                const valorF = formatMoney(item.valor); let icone = ICON_MAP[item.categoria] || 'pie-chart';
+                container.innerHTML += `<div class="flex items-center gap-3 p-4 hover:bg-gray-50 group transition"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="${icone}" class="w-4 h-4"></i></div><div class="flex-1" title="${item.descricao}"><p class="text-sm font-bold text-gray-700 truncate">${item.descricao}</p><p class="text-[9px] text-gray-400 uppercase font-bold">${item.categoria}</p></div><div class="text-right"><p class="text-sm font-bold text-gray-800">${valorF}</p><button onclick="if(confirm('Apagar?')) deletar(${item.id})" class="text-[10px] text-red-400 opacity-0 group-hover:opacity-100 hover:underline">remover</button></div></div>`;
+            });
+        }
 
-async function editar(id, campo, valor) {
-    await fetch(API_URL, {
-        method: 'PUT',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ id, [campo]: valor })
-    });
-    toast('Salvo');
-}
+        async function carregarDados() {
+            try {
+                const ano = dataAtual.getFullYear(); const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const res = await fetch(`${API_URL}?mes=${ano}-${mes}`); const dados = await res.json();
+                processarDados(dados); document.getElementById('last-update').textContent = 'Atualizado às ' + new Date().toLocaleTimeString().slice(0,5);
+            } catch (e) { console.error(e); }
+        }
 
-function abrirModalContexto() {
-    if (navigator.vibrate) navigator.vibrate(20); // UX
-    // função original continua
-}
+        function processarDados(dados) {
+            let totalRenda = 0, totalGastos = 0, totalInvestido = 0; const entradas = [], saidas = [], investimentos = [];
+            dados.forEach(item => {
+                item.valor = parseFloat(item.valor);
+                if (item.tipo === 'receita') { totalRenda += item.valor; entradas.push(item); }
+                else if (item.tipo === 'gasto') { totalGastos += item.valor; saidas.push(item); }
+                else if (item.tipo === 'investimento') { totalInvestido += item.valor; investimentos.push(item); }
+            });
+            document.getElementById('total-saldo').textContent = formatMoney(totalRenda - totalGastos);
+            document.getElementById('total-renda').textContent = formatMoney(totalRenda);
+            document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
+            document.getElementById('total-investido').textContent = formatMoney(totalInvestido);
+            document.getElementById('header-total-renda').textContent = formatMoney(totalRenda);
+            document.getElementById('header-total-gastos').textContent = formatMoney(totalGastos);
+            renderizarListaAgrupada(entradas, 'lista-entradas-content', 'text-green-600');
+            renderizarListaAgrupada(saidas, 'lista-saidas-content', 'text-red-500');
+            renderizarInvestimentos(investimentos); renderizarGrafico(saidas); lucide.createIcons();
+        }
 
-/* INICIALIZAÇÃO */
-carregarDados();
-lucide.createIcons();
-</script>
+        function renderizarGrafico(saidas) {
+            const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
+            const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor); const data = Object.values(cats); if (data.length === 0) return;
+            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: data, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '80%' } });
+        }
 
+        function abrirModalEvolucao() {
+            document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
+            const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+            if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
+            chartEvolucaoInstance = new Chart(ctx, { type: 'bar', data: { labels: ['Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'], datasets: [{ label: 'Receitas', data: [5000, 5200, 4800, 6000, 8000, 5500], backgroundColor: '#10b981', borderRadius: 6 }, { label: 'Despesas', data: [4000, 4100, 3900, 4500, 6000, 3000], backgroundColor: '#ef4444', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10 } } } } } });
+        }
+
+        function mascaraMoeda(evento) { const onlyDigits = evento.value.split("").filter(s => /\d/.test(s)).join("").padStart(3, "0"); const digitsFloat = onlyDigits.slice(0, -2) + "." + onlyDigits.slice(-2); evento.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(digitsFloat); }
+        function limpaMoeda(v) { return typeof v === 'number' ? v : parseFloat(v.replace(/\D/g, '')) / 100; }
+        async function salvarValorLista(el, id) { await editar(id, 'valor', limpaMoeda(el.value)); }
+        async function editar(id, c, v) { await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: v}) }); carregarDados(); }
+        async function deletar(id) { if(confirm("Apagar lançamento?")) { await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' }); carregarDados(); } }
+
+        function abrirModalContexto() { resetModal(); const rG = document.querySelector('input[value="gasto"]'); const rR = document.querySelector('input[value="receita"]'); if(abaAtiva === 'entradas') { rR.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Receita'; } else if(abaAtiva === 'saidas') { rG.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Despesa'; } else { rG.checked = true; esconderToggle(false); document.getElementById('modal-titulo').textContent = 'Adicionar'; } atualizarCategoriasModal(); abrirModal(); }
+        function abrirModalInvestimento() { resetModal(); document.querySelector('input[value="investimento"]').checked = true; esconderToggle(true); document.getElementById('container-categoria').classList.remove('hidden'); atualizarCategoriasModal(); document.getElementById('modal-titulo').textContent = 'Novo Investimento'; document.getElementById('descricao').placeholder = 'Nome do Ativo'; document.getElementById('btn-salvar').classList.replace('bg-brand-500', 'bg-emerald-600'); abrirModal(); }
+        function atualizarCategoriasModal() { const tipo = document.querySelector('input[name="tipo"]:checked').value; const select = document.getElementById('categoria'); select.innerHTML = ''; const lista = tipo === 'receita' ? CAT_RECEITAS : (tipo === 'gasto' ? CAT_DESPESAS : CAT_INVESTIMENTOS); lista.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }); }
+        function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate = new Date(); document.getElementById('container-categoria').classList.remove('hidden'); document.getElementById('btn-salvar').className = 'w-full bg-brand-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-600 active:scale-95 transition-all shadow-lg'; }
+        function esconderToggle(hide) { document.getElementById('toggle-tipo-container').style.display = hide ? 'none' : 'grid'; }
+        function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
+        function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
+        document.getElementById('form-transacao').addEventListener('submit', async (e) => { e.preventDefault(); const dataInput = document.getElementById('data-custom').value; const dataReg = dataInput ? new Date(dataInput + 'T12:00:00') : new Date(); const valStr = document.getElementById('valor-mask').value; const form = { tipo: document.querySelector('input[name="tipo"]:checked').value, descricao: document.getElementById('descricao').value, valor: limpaMoeda(valStr), categoria: document.getElementById('categoria').value || 'Outros', status: 'pago', data: dataReg.toISOString() }; await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); fecharModal(); carregarDados(); });
+        function atualizarTituloMes() { 
+            const formato = window.innerWidth < 640 ? { month: 'short', year: '2-digit' } : { month: 'long', year: 'numeric' };
+            document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', formato); 
+        }
+        function formatMoney(v) { return v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
+
+        init();
+    </script>
 </body>
 </html>
