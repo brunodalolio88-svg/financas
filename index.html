@@ -11,124 +11,130 @@
         body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .tab-active { color: #1e293b; border-bottom: 2px solid #1e293b; font-weight: 700; }
-        .tab-inactive { color: #94a3b8; font-weight: 500; }
+        .tab-active { color: #0f172a; border-bottom: 3px solid #0f172a; font-weight: 800; }
+        .tab-inactive { color: #94a3b8; font-weight: 600; }
         .input-invisible { background: transparent; width: 100%; outline: none; }
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
+        
+        /* Ajustes para PC */
+        @media (min-width: 768px) {
+            .mobile-tabs { display: none; } /* Esconde abas no PC */
+            .desktop-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
+            .desktop-view-all { display: block !important; } /* Mostra tudo no PC */
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 pb-28">
+<body class="bg-slate-50 text-slate-800 pb-28 md:pb-0">
 
-    <header class="bg-white sticky top-0 z-30 shadow-sm">
+    <header class="bg-white sticky top-0 z-30 shadow-sm border-b border-slate-200">
         <div class="flex justify-between items-center px-4 py-3 bg-slate-900 text-white">
-            <button onclick="mudarMes(-1)" class="p-1"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+            <button onclick="mudarMes(-1)" class="p-1 hover:bg-slate-700 rounded"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
             <div class="flex flex-col items-center cursor-pointer" onclick="resetarHoje()">
                 <span id="mes-titulo" class="text-sm font-bold uppercase tracking-widest">Janeiro 2026</span>
-                <span id="last-update" class="text-[10px] text-slate-400 opacity-80">Atualizando...</span>
+                <span id="last-update" class="text-[10px] text-slate-400 opacity-80">Sync...</span>
             </div>
-            <button onclick="mudarMes(1)" class="p-1"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+            <button onclick="mudarMes(1)" class="p-1 hover:bg-slate-700 rounded"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
         </div>
 
-        <div class="px-5 py-4 border-b border-slate-100">
-            <p class="text-xs text-slate-400 font-bold uppercase">Saldo em Caixa</p>
-            <h1 id="total-saldo" class="text-3xl font-extrabold text-slate-900 mt-1">R$ 0,00</h1>
-            
-            <div class="mt-3 flex items-center gap-2">
-                <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div id="barra-progresso" class="h-full bg-blue-500 w-0 transition-all duration-1000"></div>
-                </div>
-                <span id="progresso-texto" class="text-[10px] font-bold text-slate-400">0%</span>
-            </div>
-        </div>
-
-        <nav class="flex text-sm border-b border-slate-100">
+        <nav class="flex text-sm border-b border-slate-100 mobile-tabs bg-white">
             <button onclick="mudarAba('resumo')" id="tab-resumo" class="flex-1 py-3 text-center tab-active transition-all">Resumo</button>
             <button onclick="mudarAba('entradas')" id="tab-entradas" class="flex-1 py-3 text-center tab-inactive transition-all text-green-600">Entradas</button>
             <button onclick="mudarAba('saidas')" id="tab-saidas" class="flex-1 py-3 text-center tab-inactive transition-all text-red-600">Saídas</button>
         </nav>
     </header>
 
-    <main class="max-w-md mx-auto px-4 mt-4">
+    <main class="max-w-7xl mx-auto px-4 mt-6 desktop-grid">
 
-        <div id="view-resumo" class="space-y-6">
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-green-50 p-4 rounded-xl border border-green-100">
-                    <span class="text-xs font-bold text-green-600 uppercase">Receita</span>
-                    <p id="total-renda" class="text-lg font-bold text-slate-800 mt-1">R$ 0,00</p>
-                </div>
-                <div class="bg-red-50 p-4 rounded-xl border border-red-100">
-                    <span class="text-xs font-bold text-red-600 uppercase">Despesa</span>
-                    <p id="total-gastos" class="text-lg font-bold text-slate-800 mt-1">R$ 0,00</p>
+        <div id="view-resumo" class="space-y-6 desktop-view-all">
+            
+            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
+                <p class="text-xs text-slate-400 font-bold uppercase mb-1">Saldo Líquido</p>
+                <h1 id="total-saldo" class="text-4xl font-extrabold tracking-tight">R$ 0,00</h1>
+                
+                <div class="mt-4 pt-4 border-t border-slate-800 flex gap-4">
+                    <div>
+                        <span class="text-[10px] text-green-400 uppercase font-bold">Entrou</span>
+                        <p id="total-renda" class="font-bold text-lg">R$ 0,00</p>
+                    </div>
+                    <div class="w-px bg-slate-800"></div>
+                    <div>
+                        <span class="text-[10px] text-red-400 uppercase font-bold">Saiu</span>
+                        <p id="total-gastos" class="font-bold text-lg">R$ 0,00</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Para onde foi o dinheiro?</h3>
-                <div class="h-40 relative flex justify-center">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Gastos por Categoria</h3>
+                <div class="h-48 relative flex justify-center">
                     <canvas id="graficoGastos"></canvas>
                 </div>
             </div>
+        </div>
 
-            <div>
-                <h3 class="text-xs font-bold text-slate-400 uppercase mb-2 pl-1">Últimas Movimentações</h3>
-                <div id="lista-resumo" class="space-y-2">
-                    </div>
-                <button onclick="mudarAba('saidas')" class="w-full py-3 text-xs text-blue-600 font-bold mt-2">Ver extrato completo</button>
+        <div class="space-y-6">
+            
+            <div id="view-entradas" class="hidden desktop-view-all">
+                <div class="flex items-center gap-2 mb-3 px-1">
+                    <div class="p-1 bg-green-100 rounded text-green-700"><i data-lucide="arrow-up" class="w-4 h-4"></i></div>
+                    <h3 class="text-sm font-bold uppercase text-slate-600">Minhas Receitas</h3>
+                </div>
+                <div id="lista-entradas-content" class="space-y-4 min-h-[100px]"></div>
+            </div>
+
+            <div id="view-saidas" class="hidden desktop-view-all">
+                <div class="flex items-center gap-2 mb-3 px-1">
+                    <div class="p-1 bg-red-100 rounded text-red-700"><i data-lucide="arrow-down" class="w-4 h-4"></i></div>
+                    <h3 class="text-sm font-bold uppercase text-slate-600">Minhas Despesas</h3>
+                </div>
+                <div id="lista-saidas-content" class="space-y-4 min-h-[100px]"></div>
             </div>
         </div>
 
-        <div id="view-entradas" class="hidden space-y-4">
-            </div>
-
-        <div id="view-saidas" class="hidden space-y-4">
-            </div>
-
     </main>
 
-    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-slate-900 text-white w-14 h-14 rounded-full shadow-lg shadow-slate-900/40 z-40 active:scale-90 flex items-center justify-center transition-transform">
-        <i data-lucide="plus" class="w-7 h-7"></i>
+    <button onclick="abrirModalContexto()" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 bg-blue-600 hover:bg-blue-700 text-white w-16 h-16 rounded-full shadow-xl shadow-blue-600/30 z-40 active:scale-90 flex items-center justify-center transition-transform">
+        <i data-lucide="plus" class="w-8 h-8"></i>
     </button>
 
-    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-end z-50 transition-opacity backdrop-blur-sm">
-        <div class="bg-white w-full rounded-t-3xl p-6 shadow-2xl">
+    <div id="modal" class="fixed inset-0 bg-slate-900/60 hidden items-end md:items-center justify-center z-50 transition-opacity backdrop-blur-sm">
+        <div class="bg-white w-full md:max-w-md md:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-bold">Novo Lançamento</h2>
-                <button onclick="fecharModal()" class="bg-slate-100 p-2 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h2 id="modal-titulo" class="text-xl font-bold text-slate-800">Adicionar</h2>
+                <button onclick="fecharModal()" class="bg-slate-100 p-2 rounded-full hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5 text-slate-500"></i></button>
             </div>
 
-            <form id="form-transacao" class="space-y-4">
-                <div class="flex bg-slate-100 p-1 rounded-xl">
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="tipo" value="receita" class="peer sr-only" checked>
+            <form id="form-transacao" class="space-y-5">
+                <div class="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-xl" id="toggle-tipo-container">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()">
                         <div class="py-3 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all">Receita</div>
                     </label>
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="tipo" value="gasto" class="peer sr-only">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="tipo" value="gasto" class="peer sr-only" onchange="atualizarCategoriasModal()">
                         <div class="py-3 text-center rounded-lg text-sm font-bold text-slate-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all">Despesa</div>
                     </label>
                 </div>
 
-                <input type="text" id="descricao" placeholder="O que foi?" class="w-full text-lg font-medium border-b border-slate-200 py-3 focus:outline-none focus:border-slate-800 bg-transparent" required>
-                
+                <div>
+                    <input type="text" id="descricao" placeholder="Descrição (ex: Mercado)" class="w-full text-lg font-medium border-b-2 border-slate-100 py-3 focus:outline-none focus:border-blue-500 bg-transparent transition-colors" required>
+                </div>
+
                 <div class="flex gap-4">
                     <div class="flex-1">
-                        <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" class="w-full text-lg font-medium border-b border-slate-200 py-3 focus:outline-none focus:border-slate-800 bg-transparent" required>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Valor</label>
+                        <input type="number" id="valor" step="0.01" placeholder="R$ 0,00" class="w-full text-xl font-bold border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent" required>
                     </div>
-                    <div class="flex-1">
-                        <select id="categoria" class="w-full text-lg font-medium border-b border-slate-200 py-3 focus:outline-none focus:border-slate-800 bg-transparent h-[52px]">
-                            <option value="Fixa">🏠 Fixa</option>
-                            <option value="Variável">🍔 Variável</option>
-                            <option value="Renda">💰 Renda</option>
-                            <option value="Transporte">🚗 Transp.</option>
-                            <option value="Lazer">🎉 Lazer</option>
-                        </select>
+                    <div class="flex-[1.5]">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Categoria</label>
+                        <select id="categoria" class="w-full text-lg font-medium border-b-2 border-slate-100 py-2 focus:outline-none focus:border-blue-500 bg-transparent h-[46px]">
+                            </select>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg mt-4 active:scale-95 transition-transform">
-                    Salvar
+                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 active:scale-95 transition-all shadow-lg">
+                    Confirmar
                 </button>
             </form>
         </div>
@@ -138,47 +144,85 @@
         const API_URL = '/api/financas';
         let dataAtual = new Date();
         let chartInstance = null;
-        let dadosCache = [];
+        let abaAtiva = 'resumo'; // Controle da aba
 
-        // Ícones inteligentes
+        // --- Configuração das Categorias ---
+        const CAT_RECEITAS = ['Renda', '13º Salário', 'Férias', 'Reembolso', 'Outros'];
+        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Luz', 'Gás', 'Condomínio', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Outros'];
+
         const ICON_MAP = {
-            'Renda': 'wallet', 'Apartamento': 'building', 'Fixa': 'zap', 
-            'Variável': 'shopping-bag', 'Lazer': 'beer', 'Transporte': 'car', 'default': 'circle-dollar-sign'
+            'Renda': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw',
+            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Luz': 'lightbulb',
+            'Gás': 'flame', 'Condomínio': 'building', 'Internet': 'wifi', 'Lazer': 'party-popper',
+            'Alimentação': 'utensils', 'Saúde': 'heart-pulse', 'Outros': 'more-horizontal'
         };
 
         function init() {
             atualizarTituloMes();
             carregarDados();
-            lucide.createIcons();
+            
+            // Detecta PC para ajustar visualização
+            if(window.innerWidth >= 768) abaAtiva = 'pc-mode';
         }
 
-        // --- Lógica de Abas ---
+        // --- Navegação ---
         function mudarAba(aba) {
-            // Esconde todas views
-            ['resumo', 'entradas', 'saidas'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-            // Remove active de todas tabs
-            ['resumo', 'entradas', 'saidas'].forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                el.classList.remove('tab-active');
-                el.classList.add('tab-inactive');
+            abaAtiva = aba;
+            
+            // Mobile: Esconde tudo e mostra só a aba
+            ['resumo', 'entradas', 'saidas'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                document.getElementById(`tab-${v}`).classList.remove('tab-active');
+                document.getElementById(`tab-${v}`).classList.add('tab-inactive');
             });
 
-            // Ativa a selecionada
             document.getElementById(`view-${aba}`).classList.remove('hidden');
-            const tabAtiva = document.getElementById(`tab-${aba}`);
-            tabAtiva.classList.add('tab-active');
-            tabAtiva.classList.remove('tab-inactive');
+            const tabEl = document.getElementById(`tab-${aba}`);
+            tabEl.classList.add('tab-active');
+            tabEl.classList.remove('tab-inactive');
         }
 
-        // --- Navegação Mês ---
-        function mudarMes(delta) {
-            dataAtual.setMonth(dataAtual.getMonth() + delta);
-            atualizarTituloMes();
-            carregarDados();
+        // --- Modal Inteligente ---
+        function abrirModalContexto() {
+            const modal = document.getElementById('modal');
+            const toggleContainer = document.getElementById('toggle-tipo-container');
+            const radioReceita = document.querySelector('input[value="receita"]');
+            const radioGasto = document.querySelector('input[value="gasto"]');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Lógica de Contexto
+            if (abaAtiva === 'entradas') {
+                radioReceita.checked = true;
+                toggleContainer.classList.add('hidden'); // Esconde opção de trocar
+                document.getElementById('modal-titulo').textContent = 'Nova Receita';
+            } else if (abaAtiva === 'saidas') {
+                radioGasto.checked = true;
+                toggleContainer.classList.add('hidden'); // Esconde opção de trocar
+                document.getElementById('modal-titulo').textContent = 'Nova Despesa';
+            } else {
+                // No resumo ou PC, mostra o toggle e padroniza Gasto (mais comum)
+                toggleContainer.classList.remove('hidden');
+                radioGasto.checked = true;
+                document.getElementById('modal-titulo').textContent = 'Adicionar';
+            }
+            
+            atualizarCategoriasModal();
         }
-        function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); }
-        function atualizarTituloMes() {
-            document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+        function atualizarCategoriasModal() {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const select = document.getElementById('categoria');
+            select.innerHTML = '';
+            
+            const lista = tipo === 'receita' ? CAT_RECEITAS : CAT_DESPESAS;
+            lista.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.appendChild(opt);
+            });
         }
 
         // --- Core ---
@@ -187,10 +231,9 @@
                 const ano = dataAtual.getFullYear();
                 const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
                 const res = await fetch(`${API_URL}?mes=${ano}-${mes}`);
-                dadosCache = await res.json();
-                
-                processarDados(dadosCache);
-                document.getElementById('last-update').textContent = 'Atualizado às ' + new Date().toLocaleTimeString().slice(0,5);
+                const dados = await res.json();
+                processarDados(dados);
+                document.getElementById('last-update').textContent = 'Sync: ' + new Date().toLocaleTimeString().slice(0,5);
             } catch (e) { console.error(e); }
         }
 
@@ -204,21 +247,14 @@
                 else { totalGastos += item.valor; saidas.push(item); }
             });
 
-            // Atualiza Header
+            // Totais
+            document.getElementById('total-saldo').textContent = formatMoney(totalRenda - totalGastos);
             document.getElementById('total-renda').textContent = formatMoney(totalRenda);
             document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
-            const saldo = totalRenda - totalGastos;
-            document.getElementById('total-saldo').textContent = formatMoney(saldo);
-            
-            // Barra Progresso
-            const pct = totalRenda ? (totalGastos/totalRenda)*100 : 0;
-            document.getElementById('barra-progresso').style.width = Math.min(pct, 100) + '%';
-            document.getElementById('progresso-texto').textContent = pct.toFixed(0) + '%';
 
             // Renderiza Listas
-            renderizarResumo(dados);
-            renderizarListaAgrupada(entradas, 'view-entradas', 'text-green-600');
-            renderizarListaAgrupada(saidas, 'view-saidas', 'text-slate-800');
+            renderizarListaAgrupada(entradas, 'lista-entradas-content', 'text-green-600');
+            renderizarListaAgrupada(saidas, 'lista-saidas-content', 'text-slate-800');
             
             // Gráfico
             renderizarGrafico(saidas);
@@ -230,71 +266,57 @@
             container.innerHTML = '';
 
             if(lista.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 text-slate-400 text-sm">Sem lançamentos</div>';
+                container.innerHTML = '<div class="text-center py-8 text-slate-300 text-sm italic">Nenhum lançamento</div>';
                 return;
             }
 
-            // Agrupar por Data
             const grupos = {};
             lista.forEach(item => {
-                const dataObj = new Date(item.data);
-                // Ajuste fuso se necessário, ou usar string simples
-                const dataKey = dataObj.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'long' });
+                const dataKey = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', weekday: 'short' });
                 if(!grupos[dataKey]) grupos[dataKey] = [];
                 grupos[dataKey].push(item);
             });
 
-            // Gerar HTML
             for (const [data, itens] of Object.entries(grupos)) {
-                let htmlGrupo = `<div class="mb-2">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase bg-slate-50 px-2 py-1 rounded mb-2 sticky top-0">${data}</h3>
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-50">`;
+                let html = `<div class="mb-4">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">${data}</h3>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 divide-y divide-slate-50 overflow-hidden">`;
                 
                 itens.forEach(item => {
-                    const icone = ICON_MAP[item.categoria] || ICON_MAP['default'];
+                    const icone = ICON_MAP[item.categoria] || 'circle';
                     const isPago = item.status === 'pago';
                     
-                    htmlGrupo += `
-                    <div id="card-${item.id}" class="p-3 flex items-center gap-3 active:bg-slate-50 transition-colors">
-                        <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
+                    html += `
+                    <div id="card-${item.id}" class="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors group">
+                        <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center flex-shrink-0">
                             <i data-lucide="${icone}" class="w-4 h-4"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-slate-700 truncate">
-                            <input value="${item.categoria}" onchange="editar(${item.id}, 'categoria', this.value)" class="input-invisible text-[10px] text-slate-400 uppercase font-bold">
+                            <input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" 
+                                class="input-invisible text-sm font-bold text-slate-700 truncate cursor-pointer hover:text-blue-600">
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">${item.categoria}</div>
                         </div>
                         <div class="text-right">
-                            <input type="number" step="0.01" value="${item.valor}" onchange="editar(${item.id}, 'valor', this.value)" class="input-invisible text-right text-sm font-bold ${corValor} w-20">
-                            <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="text-[10px] ${isPago?'text-green-500':'text-orange-400'} font-bold">
-                                ${isPago ? 'PAGO' : 'PENDENTE'}
-                            </button>
+                            <input type="number" step="0.01" value="${item.valor}" onchange="editar(${item.id}, 'valor', this.value)" 
+                                class="input-invisible text-right text-sm font-bold ${corValor} w-24 cursor-pointer hover:bg-slate-100 rounded px-1">
+                            
+                            <div class="flex items-center justify-end gap-2 mt-1">
+                                <button onclick="deletar(${item.id})" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-opacity">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                </button>
+                                <button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" 
+                                    class="text-[9px] px-1.5 py-0.5 rounded ${isPago?'bg-green-100 text-green-700':'bg-orange-100 text-orange-600'} font-bold">
+                                    ${isPago ? 'PAGO' : 'PEND.'}
+                                </button>
+                            </div>
                         </div>
-                        <button onclick="deletar(${item.id})" class="text-slate-300 hover:text-red-500 pl-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>`;
                 });
-
-                htmlGrupo += `</div></div>`;
-                container.innerHTML += htmlGrupo;
+                html += `</div></div>`;
+                container.innerHTML += html;
             }
         }
 
-        function renderizarResumo(lista) {
-            const container = document.getElementById('lista-resumo');
-            container.innerHTML = '';
-            // Pega os 5 últimos
-            const ultimos = [...lista].sort((a,b) => new Date(b.data) - new Date(a.data)).slice(0, 5);
-            
-            ultimos.forEach(item => {
-                const cor = item.tipo === 'receita' ? 'text-green-600' : 'text-slate-800';
-                container.innerHTML += `
-                <div class="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100 text-sm">
-                    <span class="font-bold text-slate-700 truncate max-w-[60%]">${item.descricao}</span>
-                    <span class="font-bold ${cor}">${formatMoney(item.valor)}</span>
-                </div>`;
-            });
-        }
-
-        // --- Gráfico e Utils ---
         function renderizarGrafico(saidas) {
             const ctx = document.getElementById('graficoGastos').getContext('2d');
             if(chartInstance) chartInstance.destroy();
@@ -302,30 +324,33 @@
             const cats = {};
             saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
             
+            // Cores personalizadas para o gráfico
+            const cores = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
+
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cats),
-                    datasets: [{ data: Object.values(cats), backgroundColor: ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6'], borderWidth: 0 }]
+                    datasets: [{ data: Object.values(cats), backgroundColor: cores, borderWidth: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '75%' }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, cutout: '70%' }
             });
         }
 
-        async function editar(id, campo, valor) {
+        // --- Funções Auxiliares ---
+        function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); }
+        function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); }
+        function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
+        
+        async function editar(id, c, v) {
             const card = document.getElementById(`card-${id}`);
-            if(card) card.classList.add('piscar-salvo');
-            setTimeout(() => card?.classList.remove('piscar-salvo'), 500);
-            
-            await fetch(API_URL, { 
-                method: 'PUT', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id, [campo]: campo==='valor'?parseFloat(valor):valor})
-            });
-            carregarDados(); // Recarrega para atualizar totais
+            if(card) card.classList.add('piscar-salvo'); setTimeout(() => card?.classList.remove('piscar-salvo'), 500);
+            await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, [c]: c==='valor'?parseFloat(v):v}) });
+            carregarDados();
         }
 
         async function deletar(id) {
-            if(!confirm("Apagar?")) return;
+            if(!confirm("Tem certeza?")) return;
             await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             carregarDados();
         }
@@ -345,9 +370,8 @@
         });
 
         function formatMoney(v) { return v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
-        function abrirModal() { document.getElementById('modal').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modal').classList.add('hidden'); }
-
+        function fecharModal() { document.getElementById('modal').classList.remove('flex'); document.getElementById('modal').classList.add('hidden'); }
+        
         init();
     </script>
 </body>
