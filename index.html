@@ -29,7 +29,7 @@
 
         <div class="max-w-4xl mx-auto flex justify-between items-center p-4">
             <div>
-                <p class="text-xs text-slate-400 uppercase tracking-wider">Resultado do Mês</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider">Saldo Atual</p>
                 <h2 id="total-saldo" class="text-3xl font-bold mt-1">R$ 0,00</h2>
             </div>
         </div>
@@ -97,9 +97,7 @@
 
     <script>
         const API_URL = '/api/financas';
-        
-        // Controle de Data Global
-        let dataAtual = new Date(); // Começa hoje
+        let dataAtual = new Date(); 
 
         document.addEventListener('DOMContentLoaded', () => {
             atualizarTituloMes();
@@ -107,10 +105,9 @@
         });
 
         function mudarMes(delta) {
-            // Adiciona ou subtrai meses da data atual
             dataAtual.setMonth(dataAtual.getMonth() + delta);
             atualizarTituloMes();
-            carregarDados(); // Recarrega os dados para o novo mês
+            carregarDados();
         }
 
         function atualizarTituloMes() {
@@ -121,7 +118,6 @@
         }
 
         function getMesFormatadoAPI() {
-            // Retorna formato YYYY-MM para enviar pro Backend
             const ano = dataAtual.getFullYear();
             const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
             return `${ano}-${mes}`;
@@ -129,7 +125,6 @@
 
         async function carregarDados() {
             try {
-                // Passa o mês selecionado na URL
                 const mesString = getMesFormatadoAPI();
                 const res = await fetch(`${API_URL}?mes=${mesString}`);
                 const dados = await res.json();
@@ -209,9 +204,6 @@
 
         document.getElementById('form-transacao').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Truque: Criamos uma data usando o Ano/Mes atual do navegador + dia atual
-            // Isso garante que o gasto caia no mês que você está visualizando na tela
             const dataRegistro = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), new Date().getDate(), 12, 0, 0);
 
             const formData = {
@@ -220,7 +212,7 @@
                 valor: parseFloat(document.getElementById('valor').value),
                 categoria: document.getElementById('categoria').value,
                 status: 'pago',
-                data: dataRegistro.toISOString() // Enviamos a data correta
+                data: dataRegistro.toISOString()
             };
             
             await fetch(API_URL, { method: 'POST', body: JSON.stringify(formData) });
