@@ -6,9 +6,8 @@
     <title>Finanças Bruno & Nathalia</title>
     
     <script>
-        // Mantendo verificação de login original
         if (!localStorage.getItem('usuario_logado')) {
-            // window.location.href = '/login.html'; // Descomentar em produção
+            // window.location.href = '/login.html'; 
         }
     </script>
 
@@ -23,13 +22,8 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         brand: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
-                        dark: { 900: '#111827', 800: '#1f2937' }
                     },
-                    animation: {
-                        'slide-up': 'slideUp 0.3s ease-out forwards',
-                        'fade-in': 'fadeIn 0.2s ease-out forwards',
-                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    },
+                    animation: { 'slide-up': 'slideUp 0.3s ease-out forwards', 'fade-in': 'fadeIn 0.3s ease-out forwards' },
                     keyframes: {
                         slideUp: { '0%': { transform: 'translateY(100%)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } }
@@ -42,46 +36,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { 
-            -webkit-tap-highlight-color: transparent; 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; /* Cinza super claro, mais moderno */
-        }
-        
-        /* Ocultar scrollbar mas manter funcionalidade */
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .skeleton { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* Estilo para Inputs Mobile */
-        .input-mobile {
-            font-size: 16px; /* Evita zoom no iOS */
-        }
-
-        /* Glassmorphism sutil */
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        /* Skeleton Loading Animation */
-        .skeleton {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 6px;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        /* Adaptação Desktop */
+        /* --- LAYOUT PC INTELIGENTE --- */
         @media (min-width: 1024px) {
-            body { padding-bottom: 0 !important; }
+            body { padding-bottom: 0 !important; overflow-y: scroll; }
             .bottom-nav { display: none !important; }
             .desktop-sidebar { display: block !important; }
-            main { margin-left: 280px; padding: 2rem; max-width: 1200px; }
+            main { margin-left: 280px; padding: 2rem; max-width: 1400px; }
+            
+            /* No PC, forçamos a exibição de tudo no Dashboard */
+            #view-resumo { display: block !important; }
+            .pc-container-listas { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+            #view-entradas, #view-saidas { display: block !important; height: auto; padding-bottom: 0; }
+            .mobile-header-list { display: none; } /* Esconde cabeçalho repetido da lista no PC */
         }
     </style>
 </head>
@@ -89,144 +60,132 @@
 
     <aside class="desktop-sidebar hidden fixed left-0 top-0 h-full w-72 bg-white border-r border-gray-100 p-6 z-50">
         <div class="flex items-center gap-3 mb-10 px-2">
-            <div class="bg-brand-500 p-2.5 rounded-xl shadow-lg shadow-brand-500/30 text-white">
-                <i data-lucide="wallet" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-lg text-gray-900 tracking-tight">Finanças</h1>
-                <p class="text-xs text-gray-400 font-medium">Bruno & Nathalia</p>
-            </div>
+            <div class="bg-brand-500 p-2.5 rounded-xl shadow-lg shadow-brand-500/30 text-white"><i data-lucide="wallet" class="w-6 h-6"></i></div>
+            <div><h1 class="font-bold text-lg text-gray-900 tracking-tight">Finanças</h1><p class="text-xs text-gray-400 font-medium">Bruno & Nathalia</p></div>
         </div>
-        
         <nav class="space-y-2">
-            <button onclick="mudarAba('resumo')" id="desk-tab-resumo" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-brand-50 text-brand-600">
-                <i data-lucide="layout-grid" class="w-5 h-5"></i> Visão Geral
-            </button>
-            <button onclick="mudarAba('entradas')" id="desk-tab-entradas" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 text-sm font-medium transition-all">
-                <i data-lucide="arrow-up-circle" class="w-5 h-5"></i> Entradas
-            </button>
-            <button onclick="mudarAba('saidas')" id="desk-tab-saidas" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 text-sm font-medium transition-all">
-                <i data-lucide="arrow-down-circle" class="w-5 h-5"></i> Saídas
-            </button>
+            <button onclick="mudarAba('resumo')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-brand-50 text-brand-600 transition-all"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
+            <div class="pt-4"><p class="px-4 text-xs font-bold text-gray-400 uppercase mb-2">Ações Rápidas</p>
+            <button onclick="abrirModalContexto('receita')" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 text-sm font-medium transition-all"><i data-lucide="plus-circle" class="w-4 h-4 text-green-500"></i> Nova Receita</button>
+            <button onclick="abrirModalContexto('gasto')" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 text-sm font-medium transition-all"><i data-lucide="minus-circle" class="w-4 h-4 text-red-500"></i> Nova Despesa</button>
+            </div>
         </nav>
-
         <div class="absolute bottom-6 left-6 right-6">
-            <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Sair
-            </button>
+            <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Sair</button>
         </div>
     </aside>
 
     <main>
-        <header class="flex justify-between items-center mb-8 sticky top-0 bg-[#f8fafc]/95 backdrop-blur z-20 py-4 lg:static lg:bg-transparent lg:p-0">
-            <div class="lg:hidden flex items-center gap-3">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-brand-600">
-                    <span class="font-bold text-sm">BN</span>
+        <header class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 lg:mb-8 sticky top-0 bg-[#f8fafc]/95 backdrop-blur z-20 py-4 lg:static lg:bg-transparent lg:p-0">
+            <div class="flex justify-between items-center w-full lg:w-auto">
+                <div class="lg:hidden flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-brand-600 font-bold text-sm">BN</div>
+                    <div><h2 class="text-sm font-bold text-gray-900 leading-tight">Olá, <span id="nome-usuario">...</span></h2><p class="text-[10px] text-gray-400" id="last-update">Sincronizando...</p></div>
                 </div>
-                <div>
-                    <h2 class="text-sm font-bold text-gray-900 leading-tight">Olá, <span id="nome-usuario">...</span></h2>
-                    <p class="text-[10px] text-gray-400" id="last-update">Sincronizando...</p>
+                <div class="hidden lg:block">
+                    <h2 class="text-2xl font-bold text-gray-900">Visão Geral</h2>
+                    <p class="text-sm text-gray-400">Resumo financeiro completo do mês.</p>
                 </div>
-            </div>
-            
-            <div class="hidden lg:block">
-                <h2 class="text-2xl font-bold text-gray-900">Visão Geral</h2>
-                <p class="text-sm text-gray-400">Acompanhe a saúde financeira da família.</p>
-            </div>
-
-            <div class="flex items-center bg-white rounded-full shadow-sm border border-gray-200 p-1 pl-4 gap-2">
-                <span id="mes-titulo" class="text-xs font-bold text-gray-700 capitalize whitespace-nowrap min-w-[80px] text-center">...</span>
-                <div class="flex">
-                    <button onclick="mudarMes(-1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-400 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                    <button onclick="resetarHoje()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-400 transition"><i data-lucide="calendar" class="w-4 h-4"></i></button>
-                    <button onclick="mudarMes(1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-400 transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                
+                <div class="flex items-center bg-white rounded-full shadow-sm border border-gray-200 p-1 pl-4 gap-2">
+                    <span id="mes-titulo" class="text-xs font-bold text-gray-700 capitalize whitespace-nowrap min-w-[90px] text-center">...</span>
+                    <div class="flex">
+                        <button onclick="mudarMes(-1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-400 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button onclick="resetarHoje()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-400 transition"><i data-lucide="calendar" class="w-4 h-4"></i></button>
+                        <button onclick="mudarMes(1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-400 transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    </div>
                 </div>
             </div>
         </header>
 
         <div id="view-resumo" class="animate-fade-in space-y-6">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-gradient-to-br from-brand-600 to-teal-700 rounded-2xl p-6 text-white shadow-xl shadow-brand-500/20 relative overflow-hidden md:col-span-3 lg:col-span-1">
-                    <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="wallet" class="w-24 h-24"></i></div>
-                    <p class="text-brand-100 text-xs font-semibold uppercase tracking-wider mb-1">Saldo Atual</p>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-3xl font-bold tracking-tight" id="total-saldo"><div class="h-8 w-32 skeleton bg-white/20"></div></span>
-                    </div>
-                    <div class="mt-6 flex gap-2">
-                        <div class="flex-1 bg-white/10 rounded-lg p-2 backdrop-blur-sm">
-                            <div class="flex items-center gap-1 text-brand-50 mb-1"><i data-lucide="arrow-up" class="w-3 h-3"></i><span class="text-[10px] uppercase font-bold">Receitas</span></div>
-                            <span class="text-sm font-bold" id="total-renda">...</span>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div class="bg-gradient-to-br from-brand-600 to-teal-800 rounded-3xl p-6 text-white shadow-xl shadow-brand-500/20 relative overflow-hidden lg:col-span-1 flex flex-col justify-between h-auto min-h-[220px]">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="wallet" class="w-32 h-32"></i></div>
+                    <div>
+                        <p class="text-brand-100 text-xs font-semibold uppercase tracking-wider mb-2">Saldo em Conta</p>
+                        <div class="flex items-baseline gap-1 relative z-10">
+                            <span class="text-4xl lg:text-5xl font-extrabold tracking-tight" id="total-saldo"><div class="h-10 w-40 skeleton bg-white/20"></div></span>
                         </div>
-                        <div class="flex-1 bg-white/10 rounded-lg p-2 backdrop-blur-sm">
-                            <div class="flex items-center gap-1 text-red-200 mb-1"><i data-lucide="arrow-down" class="w-3 h-3"></i><span class="text-[10px] uppercase font-bold">Despesas</span></div>
-                            <span class="text-sm font-bold" id="total-gastos">...</span>
+                    </div>
+                    <div class="mt-8 flex gap-3 relative z-10">
+                        <div class="flex-1 bg-white/10 rounded-xl p-3 backdrop-blur-md border border-white/10">
+                            <div class="flex items-center gap-1.5 text-brand-50 mb-1"><div class="bg-green-400/20 p-1 rounded"><i data-lucide="arrow-up" class="w-3 h-3 text-green-300"></i></div><span class="text-[10px] uppercase font-bold">Receitas</span></div>
+                            <span class="text-base font-bold" id="total-renda">...</span>
+                        </div>
+                        <div class="flex-1 bg-white/10 rounded-xl p-3 backdrop-blur-md border border-white/10">
+                            <div class="flex items-center gap-1.5 text-red-50 mb-1"><div class="bg-red-400/20 p-1 rounded"><i data-lucide="arrow-down" class="w-3 h-3 text-red-300"></i></div><span class="text-[10px] uppercase font-bold">Despesas</span></div>
+                            <span class="text-base font-bold" id="total-gastos">...</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm md:col-span-1 lg:col-span-1">
-                    <h3 class="font-bold text-gray-800 text-sm mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-brand-500"></i> Gastos por Categoria</h3>
-                    <div class="h-40 relative flex justify-center items-center">
+                <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col lg:col-span-1">
+                    <h3 class="font-bold text-gray-800 text-sm mb-2 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-brand-500"></i> Distribuição</h3>
+                    <div class="flex-1 relative flex justify-center items-center min-h-[160px]">
                         <canvas id="graficoGastos"></canvas>
-                        <div id="grafico-empty" class="hidden text-xs text-gray-400 absolute text-center">Sem dados<br>neste mês</div>
+                        <div id="grafico-empty" class="hidden text-xs text-gray-400 absolute text-center">Sem dados</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm md:col-span-2 lg:col-span-1 flex flex-col">
+                <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col lg:col-span-1">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-emerald-500"></i> Investimentos</h3>
-                        <button onclick="abrirModalInvestimento()" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-1.5 rounded-lg transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                        <button onclick="abrirModalInvestimento()" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
                     </div>
-                    <div class="mb-3">
-                        <p class="text-[10px] text-gray-400 uppercase font-bold">Total Acumulado</p>
-                        <p id="total-investido" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                    <div class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100 mb-3">
+                        <p class="text-[10px] text-emerald-600 uppercase font-bold">Total Acumulado</p>
+                        <p id="total-investido" class="text-xl font-bold text-emerald-800">R$ 0,00</p>
                     </div>
-                    <div id="lista-investimentos" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar max-h-[120px]">
-                        </div>
+                    <div id="lista-investimentos" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar max-h-[150px]"></div>
                 </div>
             </div>
-
-            <button onclick="abrirModalEvolucao()" class="w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 lg:hidden">
+            
+            <button onclick="abrirModalEvolucao()" class="w-full bg-indigo-50 text-indigo-600 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 lg:hidden shadow-sm">
                 <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Ver Gráfico de Evolução
             </button>
-
         </div>
 
-        <div id="view-entradas" class="hidden animate-fade-in pb-20">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-xl text-gray-800 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-green-500"></div> Receitas</h3>
-                <span id="header-total-renda" class="font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg text-sm">...</span>
+        <div class="pc-container-listas contents">
+            
+            <div id="view-entradas" class="hidden animate-fade-in pb-20 lg:pb-0">
+                <div class="mobile-header-list flex justify-between items-center mb-4 lg:hidden">
+                    <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Receitas</h3>
+                </div>
+                <div class="hidden lg:flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                    <h3 class="font-bold text-lg text-gray-700 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-green-500"></div> Entradas</h3>
+                </div>
+                <div id="lista-entradas-content" class="space-y-4"></div>
             </div>
-            <div id="lista-entradas-content" class="space-y-4"></div>
-        </div>
 
-        <div id="view-saidas" class="hidden animate-fade-in pb-20">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-xl text-gray-800 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div> Despesas</h3>
-                <span id="header-total-gastos" class="font-bold text-red-600 bg-red-50 px-3 py-1 rounded-lg text-sm">...</span>
+            <div id="view-saidas" class="hidden animate-fade-in pb-20 lg:pb-0">
+                <div class="mobile-header-list flex justify-between items-center mb-4 lg:hidden">
+                    <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Despesas</h3>
+                </div>
+                <div class="hidden lg:flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                    <h3 class="font-bold text-lg text-gray-700 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div> Saídas</h3>
+                </div>
+                <div id="lista-saidas-content" class="space-y-4"></div>
             </div>
-            <div id="lista-saidas-content" class="space-y-4"></div>
         </div>
 
     </main>
 
-    <button onclick="abrirModalContexto()" class="fixed bottom-24 lg:bottom-10 right-6 bg-brand-600 hover:bg-brand-500 text-white w-14 h-14 rounded-full shadow-xl shadow-brand-600/30 z-30 flex items-center justify-center transition-transform active:scale-90 hover:-translate-y-1">
+    <button onclick="abrirModalContexto()" class="lg:hidden fixed bottom-24 right-6 bg-brand-600 hover:bg-brand-500 text-white w-14 h-14 rounded-full shadow-xl shadow-brand-600/30 z-30 flex items-center justify-center transition-transform active:scale-90 hover:-translate-y-1">
         <i data-lucide="plus" class="w-7 h-7"></i>
     </button>
 
-    <nav class="bottom-nav fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 pb-safe pt-2 px-6 flex justify-between items-center z-40 lg:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <nav class="bottom-nav fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 pb-safe pt-2 px-6 flex justify-between items-center z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button onclick="mudarAba('resumo')" id="mob-tab-resumo" class="flex flex-col items-center gap-1 p-2 text-brand-600 w-16 transition-colors">
-            <i data-lucide="layout-grid" class="w-6 h-6"></i>
-            <span class="text-[10px] font-bold">Início</span>
+            <i data-lucide="layout-grid" class="w-6 h-6"></i><span class="text-[10px] font-bold">Início</span>
         </button>
         <button onclick="mudarAba('entradas')" id="mob-tab-entradas" class="flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-gray-600 w-16 transition-colors">
-            <i data-lucide="arrow-up-circle" class="w-6 h-6"></i>
-            <span class="text-[10px] font-medium">Entrada</span>
+            <i data-lucide="arrow-up-circle" class="w-6 h-6"></i><span class="text-[10px] font-medium">Entrada</span>
         </button>
         <button onclick="mudarAba('saidas')" id="mob-tab-saidas" class="flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-gray-600 w-16 transition-colors">
-            <i data-lucide="arrow-down-circle" class="w-6 h-6"></i>
-            <span class="text-[10px] font-medium">Saída</span>
+            <i data-lucide="arrow-down-circle" class="w-6 h-6"></i><span class="text-[10px] font-medium">Saída</span>
         </button>
     </nav>
 
@@ -236,70 +195,35 @@
                 <h2 id="modal-titulo" class="text-xl font-bold text-gray-800">Nova Transação</h2>
                 <button onclick="fecharModal()" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
             <form id="form-transacao" class="space-y-5">
                 <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1.5 rounded-2xl" id="toggle-tipo-container">
-                    <label class="cursor-pointer relative">
-                        <input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()">
-                        <div class="py-3 text-center rounded-xl text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all flex items-center justify-center gap-2">
-                            <i data-lucide="arrow-up-circle" class="w-4 h-4"></i> Receita
-                        </div>
-                    </label>
-                    <label class="cursor-pointer relative">
-                        <input type="radio" name="tipo" value="gasto" class="peer sr-only" onchange="atualizarCategoriasModal()">
-                        <div class="py-3 text-center rounded-xl text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all flex items-center justify-center gap-2">
-                            <i data-lucide="arrow-down-circle" class="w-4 h-4"></i> Despesa
-                        </div>
-                    </label>
+                    <label class="cursor-pointer relative"><input type="radio" name="tipo" value="receita" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-3 text-center rounded-xl text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition-all flex items-center justify-center gap-2"><i data-lucide="arrow-up-circle" class="w-4 h-4"></i> Receita</div></label>
+                    <label class="cursor-pointer relative"><input type="radio" name="tipo" value="gasto" class="peer sr-only" onchange="atualizarCategoriasModal()"><div class="py-3 text-center rounded-xl text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm transition-all flex items-center justify-center gap-2"><i data-lucide="arrow-down-circle" class="w-4 h-4"></i> Despesa</div></label>
                 </div>
                 <input type="radio" name="tipo" value="investimento" class="hidden" onchange="atualizarCategoriasModal()">
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Valor</label>
-                        <div class="relative mt-1">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 font-bold">R$</span>
-                            <input type="text" inputmode="numeric" id="valor-mask" placeholder="0,00" onkeyup="mascaraMoeda(this)" class="input-mobile w-full pl-10 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-bold text-2xl text-gray-800" required>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Detalhes</label>
-                        <div class="grid grid-cols-3 gap-3 mt-1">
-                            <div class="col-span-2 relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="type" class="w-4 h-4"></i></div>
-                                <input type="text" id="descricao" placeholder="Descrição" class="input-mobile w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-700" required>
-                            </div>
-                            <div class="relative">
-                                <input type="date" id="data-custom" class="input-mobile w-full px-2 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-600 text-sm text-center">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="container-categoria">
-                         <label class="text-xs font-bold text-gray-400 uppercase ml-1">Categoria</label>
-                        <div class="relative mt-1">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="tag" class="w-4 h-4"></i></div>
-                            <select id="categoria" class="input-mobile w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium appearance-none text-gray-700"></select>
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                        </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Valor (R$)</label>
+                    <input type="text" inputmode="numeric" id="valor-mask" placeholder="0,00" onkeyup="mascaraMoeda(this)" class="w-full mt-1 px-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-bold text-2xl text-gray-800 text-center" required>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="relative"><div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400"><i data-lucide="type" class="w-4 h-4"></i></div><input type="text" id="descricao" placeholder="Descrição (Ex: Mercado)" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-700" required></div>
+                    <div class="flex gap-3">
+                        <div class="relative flex-1" id="container-categoria"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="tag" class="w-4 h-4"></i></div><select id="categoria" class="w-full pl-10 pr-8 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium appearance-none text-gray-700 text-sm"></select><div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div></div>
+                        <input type="date" id="data-custom" class="w-36 px-2 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-600 text-sm text-center">
                     </div>
                 </div>
 
-                <button type="submit" id="btn-salvar" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-700 active:scale-95 transition-all shadow-xl shadow-brand-500/20 mt-4 flex justify-center items-center gap-2">
-                    <i data-lucide="check" class="w-5 h-5"></i> Confirmar
-                </button>
+                <button type="submit" id="btn-salvar" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-700 active:scale-95 transition-all shadow-xl shadow-brand-500/20 mt-2">Confirmar</button>
             </form>
         </div>
     </div>
 
     <div id="modal-edicao" class="fixed inset-0 bg-gray-900/60 hidden items-end md:items-center justify-center z-50 backdrop-blur-sm">
         <div class="bg-white w-full md:max-w-sm md:rounded-3xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-800">Detalhes</h2>
-                    <p class="text-xs text-gray-400">Gerenciar lançamento</p>
-                </div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-gray-800">Editar Lançamento</h2>
                 <button onclick="document.getElementById('modal-edicao').classList.add('hidden')" class="bg-gray-100 p-2 rounded-full text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
@@ -307,31 +231,29 @@
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase">Descrição</label>
-                    <input id="edit-descricao" class="w-full py-2 border-b border-gray-200 focus:border-brand-500 outline-none font-bold text-gray-800 bg-transparent">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Descrição</label>
+                    <input id="edit-descricao" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-500 focus:bg-white transition-all font-medium text-gray-800">
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase">Valor</label>
-                    <input id="edit-valor" onkeyup="mascaraMoeda(this)" class="w-full py-2 border-b border-gray-200 focus:border-brand-500 outline-none font-bold text-gray-800 bg-transparent">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Valor</label>
+                    <input id="edit-valor" onkeyup="mascaraMoeda(this)" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-500 focus:bg-white transition-all font-bold text-gray-800">
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mt-8">
+            <div class="grid grid-cols-2 gap-3 mt-6">
                 <button id="btn-toggle-status" onclick="alterarStatusPeloModal()" class="w-full py-3 rounded-xl font-bold text-sm bg-gray-100 text-gray-600 hover:bg-gray-200 transition flex justify-center items-center gap-2">
-                   <i data-lucide="check-circle" class="w-4 h-4"></i> <span>Marcar Pago</span>
+                   <i data-lucide="check-circle" class="w-4 h-4"></i> <span>...</span>
                 </button>
                 <button onclick="deletarPeloModal()" class="w-full py-3 rounded-xl font-bold text-sm bg-red-50 text-red-600 hover:bg-red-100 transition flex justify-center items-center gap-2">
                     <i data-lucide="trash-2" class="w-4 h-4"></i> Excluir
                 </button>
             </div>
-            <button onclick="salvarEdicaoModal()" class="w-full mt-3 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-500/20 hover:bg-brand-700 transition">
-                Salvar Alterações
-            </button>
+            <button onclick="salvarEdicaoModal()" class="w-full mt-3 py-3.5 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-500/20 hover:bg-brand-700 transition">Salvar Alterações</button>
         </div>
     </div>
 
     <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/60 hidden items-center justify-center z-50 backdrop-blur-sm p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl animate-slide-up relative">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl relative">
              <button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="absolute top-4 right-4 bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h2 class="text-lg font-bold text-gray-800 mb-6">Evolução Financeira</h2>
             <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
@@ -345,11 +267,12 @@
         let chartEvolucaoInstance = null;
         let abaAtiva = 'resumo';
         
-        // Categorias e Ícones
+        // CACHE DE DADOS (Resolve o problema da edição)
+        let dadosCache = [];
+
         const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Governo', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
-
         const ICON_MAP = {
             'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
             'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
@@ -367,10 +290,9 @@
                     const [ano, mes] = config.ultimo_mes.split('-');
                     dataAtual = new Date(ano, mes - 1, 1);
                 }
-            } catch (e) { console.error("Erro config, usando data atual"); }
-            
+            } catch (e) {}
             atualizarTituloMes();
-            carregarDados(); // Chama carregamento inicial
+            carregarDados();
             lucide.createIcons();
         }
 
@@ -378,19 +300,14 @@
         
         async function mudarMes(d) { 
             dataAtual.setMonth(dataAtual.getMonth() + d); 
-            atualizarTituloMes(); 
-            // Feedback visual de carregamento rápido
-            mostrarSkeletons();
-            await carregarDados(); 
-            salvarMesNoBanco(); 
+            atualizarTituloMes(); mostrarSkeletons();
+            await carregarDados(); salvarMesNoBanco(); 
         }
 
         async function resetarHoje() { 
             dataAtual = new Date(); 
-            atualizarTituloMes(); 
-            mostrarSkeletons();
-            await carregarDados(); 
-            salvarMesNoBanco(); 
+            atualizarTituloMes(); mostrarSkeletons();
+            await carregarDados(); salvarMesNoBanco(); 
         }
 
         async function salvarMesNoBanco() { 
@@ -399,122 +316,59 @@
         }
 
         function mostrarSkeletons() {
-            // Insere classes de skeleton nos valores principais para dar feedback
             ['total-saldo', 'total-renda', 'total-gastos'].forEach(id => {
-                const el = document.getElementById(id);
-                el.innerHTML = '<div class="h-6 w-24 rounded bg-gray-200 animate-pulse inline-block"></div>';
+                document.getElementById(id).innerHTML = '<div class="h-6 w-24 rounded bg-white/30 animate-pulse inline-block"></div>';
             });
         }
 
         function mudarAba(aba) {
             abaAtiva = aba;
-            // Desktop
-            document.querySelectorAll('aside nav button').forEach(b => {
-                b.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 text-sm font-medium transition-all';
-            });
-            const deskBtn = document.getElementById(`desk-tab-${aba}`);
-            if(deskBtn) deskBtn.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-brand-50 text-brand-600 shadow-sm';
-
-            // Mobile
-            document.querySelectorAll('.bottom-nav button').forEach(b => {
-                b.classList.remove('text-brand-600');
-                b.classList.add('text-gray-400');
-            });
+            // Mobile Nav
+            document.querySelectorAll('.bottom-nav button').forEach(b => { b.classList.remove('text-brand-600'); b.classList.add('text-gray-400'); });
             const mobBtn = document.getElementById(`mob-tab-${aba}`);
-            if(mobBtn) {
-                mobBtn.classList.remove('text-gray-400');
-                mobBtn.classList.add('text-brand-600');
-            }
+            if(mobBtn) { mobBtn.classList.remove('text-gray-400'); mobBtn.classList.add('text-brand-600'); }
 
-            // Views
-            ['resumo', 'entradas', 'saidas'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-            document.getElementById(`view-${aba}`).classList.remove('hidden');
+            // Lógica de Visibilidade (Mobile)
+            if (window.innerWidth < 1024) {
+                ['resumo', 'entradas', 'saidas'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+                document.getElementById(`view-${aba}`).classList.remove('hidden');
+            } else {
+                // PC: Resumo sempre visivel. Listas sempre visiveis via CSS Grid
+            }
         }
 
-        // --- Renderização Moderna ---
+        // --- Renderização Segura ---
         function renderizarListaAgrupada(lista, containerId, corTexto) {
-            const container = document.getElementById(containerId); 
-            container.innerHTML = '';
+            const container = document.getElementById(containerId); container.innerHTML = '';
+            if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><p class="text-sm font-medium">Sem lançamentos</p></div>`; return; }
             
-            if(lista.length === 0) { 
-                container.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-12 opacity-60">
-                    <div class="bg-gray-100 p-6 rounded-full mb-4">
-                        <i data-lucide="coffee" class="w-8 h-8 text-gray-400"></i>
-                    </div>
-                    <p class="text-sm font-medium text-gray-500">Nenhum lançamento aqui</p>
-                </div>`; 
-                return; 
-            }
-            
-            // Agrupar por data
             const grupos = {}; 
             lista.forEach(item => { 
-                // Fix timezone offset issues basic way
-                const dateObj = new Date(item.data);
-                const dk = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', weekday: 'short' }); 
-                if(!grupos[dk]) grupos[dk] = []; 
-                grupos[dk].push(item); 
+                const dk = new Date(item.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', weekday: 'short' }); 
+                if(!grupos[dk]) grupos[dk] = []; grupos[dk].push(item); 
             });
 
             for (const [data, itens] of Object.entries(grupos)) {
-                let html = `
-                <div class="mb-6">
-                    <div class="flex items-center gap-3 mb-3 pl-1">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">${data}</h4>
-                        <div class="h-px bg-gray-100 flex-1"></div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden">`;
-                
+                let html = `<div class="mb-5"><div class="flex items-center gap-3 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">`;
                 itens.forEach(item => {
                     const icone = ICON_MAP[item.categoria] || 'circle-dollar-sign';
-                    const corBgIcone = item.tipo === 'receita' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500';
+                    const corIcone = item.tipo === 'receita' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500';
                     const isPago = item.status === 'pago';
-                    const valorF = formatMoney(item.valor);
-                    
-                    // JSON stringify seguro para passar objeto no onclick
-                    const itemStr = encodeURIComponent(JSON.stringify(item));
-
-                    html += `
-                    <div onclick="abrirModalEdicao('${itemStr}')" class="relative group flex items-center gap-4 p-4 hover:bg-gray-50/80 active:bg-gray-100 transition-colors cursor-pointer border-b border-gray-50 last:border-0">
-                        <div class="w-10 h-10 rounded-full ${corBgIcone} flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="${icone}" class="w-5 h-5"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-gray-800 truncate">${item.descricao}</p>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>
-                                ${!isPago ? '<span class="flex items-center gap-1 text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-md font-bold"><div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div> PENDENTE</span>' : ''}
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold ${corTexto}">${valorF}</p>
-                            ${isPago ? '<i data-lucide="check" class="w-3 h-3 text-green-500 ml-auto mt-1 opacity-50"></i>' : ''}
-                        </div>
-                    </div>`;
+                    // USANDO ID PARA CHAMAR EDIÇÃO
+                    html += `<div onclick="prepararEdicao(${item.id})" class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer">
+                        <div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
+                        <div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">${item.descricao}</p><div class="flex items-center gap-2"><span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div></div>
+                        <div class="text-right"><p class="text-sm font-bold ${corTexto}">${formatMoney(item.valor)}</p>${isPago?'<i data-lucide="check" class="w-3 h-3 text-green-500 ml-auto opacity-50"></i>':''}</div></div>`;
                 }); 
-                html += `</div></div>`; 
-                container.innerHTML += html;
+                html += `</div></div>`; container.innerHTML += html;
             }
         }
 
         function renderizarInvestimentos(lista) {
             const container = document.getElementById('lista-investimentos'); container.innerHTML = '';
-            if(lista.length === 0) { container.innerHTML = '<div class="text-center py-4 text-gray-400 text-xs italic">Sem investimentos este mês</div>'; return; }
+            if(lista.length === 0) { container.innerHTML = '<div class="text-center py-4 text-gray-400 text-xs">Sem investimentos</div>'; return; }
             lista.forEach(item => {
-                const valorF = formatMoney(item.valor); let icone = ICON_MAP[item.categoria] || 'pie-chart';
-                const itemStr = encodeURIComponent(JSON.stringify(item));
-                container.innerHTML += `
-                <div onclick="abrirModalEdicao('${itemStr}')" class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-xl cursor-pointer transition mb-2 last:mb-0">
-                    <div class="w-8 h-8 rounded-full bg-white text-emerald-600 shadow-sm flex items-center justify-center">
-                        <i data-lucide="${icone}" class="w-4 h-4"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold text-gray-700 truncate">${item.descricao}</p>
-                        <p class="text-[9px] text-gray-400 uppercase">${item.categoria}</p>
-                    </div>
-                    <p class="text-xs font-bold text-emerald-700">${valorF}</p>
-                </div>`;
+                container.innerHTML += `<div onclick="prepararEdicao(${item.id})" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition mb-1"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-xs font-bold text-gray-700 truncate">${item.descricao}</p><p class="text-[9px] text-gray-400 uppercase">${item.categoria}</p></div><p class="text-xs font-bold text-emerald-700">${formatMoney(item.valor)}</p></div>`;
             });
         }
 
@@ -523,256 +377,133 @@
                 const ano = dataAtual.getFullYear(); const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
                 const res = await fetch(`${API_URL}?mes=${ano}-${mes}`); 
                 const dados = await res.json();
-                processarDados(dados); 
-                document.getElementById('last-update').textContent = 'Atualizado agora';
-            } catch (e) { 
-                console.error(e); 
-                document.getElementById('last-update').textContent = 'Erro ao sincronizar';
-            }
+                dadosCache = dados; // SALVA NO CACHE GLOBAL
+                processarDados(dados); document.getElementById('last-update').textContent = 'Atualizado agora';
+            } catch (e) { console.error(e); }
         }
 
         function processarDados(dados) {
-            let totalRenda = 0, totalGastos = 0, totalInvestido = 0; 
-            const entradas = [], saidas = [], investimentos = [];
-            
-            dados.forEach(item => {
-                item.valor = parseFloat(item.valor);
-                if (item.tipo === 'receita') { totalRenda += item.valor; entradas.push(item); }
-                else if (item.tipo === 'gasto') { totalGastos += item.valor; saidas.push(item); }
-                else if (item.tipo === 'investimento') { totalInvestido += item.valor; investimentos.push(item); }
+            let tr = 0, tg = 0, ti = 0; const ent = [], sai = [], inv = [];
+            dados.forEach(i => {
+                i.valor = parseFloat(i.valor);
+                if (i.tipo === 'receita') { tr += i.valor; ent.push(i); }
+                else if (i.tipo === 'gasto') { tg += i.valor; sai.push(i); }
+                else if (i.tipo === 'investimento') { ti += i.valor; inv.push(i); }
             });
-
-            // Atualiza UI com animação suave de números (poderia usar lib CountUp, faremos direto)
-            document.getElementById('total-saldo').textContent = formatMoney(totalRenda - totalGastos);
-            document.getElementById('total-renda').textContent = formatMoney(totalRenda);
-            document.getElementById('total-gastos').textContent = formatMoney(totalGastos);
-            document.getElementById('total-investido').textContent = formatMoney(totalInvestido);
-            
-            document.getElementById('header-total-renda').textContent = formatMoney(totalRenda);
-            document.getElementById('header-total-gastos').textContent = formatMoney(totalGastos);
-
-            renderizarListaAgrupada(entradas, 'lista-entradas-content', 'text-green-600');
-            renderizarListaAgrupada(saidas, 'lista-saidas-content', 'text-gray-800');
-            renderizarInvestimentos(investimentos); 
-            renderizarGrafico(saidas); 
-            lucide.createIcons();
+            document.getElementById('total-saldo').textContent = formatMoney(tr - tg);
+            document.getElementById('total-renda').textContent = formatMoney(tr);
+            document.getElementById('total-gastos').textContent = formatMoney(tg);
+            document.getElementById('total-investido').textContent = formatMoney(ti);
+            renderizarListaAgrupada(ent, 'lista-entradas-content', 'text-green-600');
+            renderizarListaAgrupada(sai, 'lista-saidas-content', 'text-gray-800');
+            renderizarInvestimentos(inv); renderizarGrafico(sai); lucide.createIcons();
         }
 
-        function renderizarGrafico(saidas) {
-            const ctx = document.getElementById('graficoGastos').getContext('2d'); 
-            const emptyLabel = document.getElementById('grafico-empty');
-            
-            if(chartInstance) chartInstance.destroy();
-            
-            const cats = {}; 
-            saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor); 
-            const data = Object.values(cats); 
-            
-            if (data.length === 0) {
-                emptyLabel.classList.remove('hidden');
-                // Renderiza gráfico vazio cinza
-                 chartInstance = new Chart(ctx, { type: 'doughnut', data: { datasets: [{ data: [1], backgroundColor: ['#f3f4f6'], borderWidth: 0 }] }, options: { cutout: '85%', events: [] } });
-                return;
-            }
-            emptyLabel.classList.add('hidden');
-
-            chartInstance = new Chart(ctx, { 
-                type: 'doughnut', 
-                data: { 
-                    labels: Object.keys(cats), 
-                    datasets: [{ 
-                        data: data, 
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899', '#14b8a6'], 
-                        borderWidth: 2,
-                        borderColor: '#ffffff',
-                        hoverOffset: 4
-                    }] 
-                }, 
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { position: 'right', labels: { boxWidth: 8, usePointStyle: true, font: { size: 10, family: 'Inter' }, padding: 10 } },
-                        tooltip: { backgroundColor: '#1f2937', padding: 12, cornerRadius: 8 }
-                    }, 
-                    cutout: '70%',
-                    layout: { padding: 0 }
-                } 
-            });
-        }
-
-        function abrirModalEvolucao() {
-            document.getElementById('modal-evolucao').classList.remove('hidden'); 
-            document.getElementById('modal-evolucao').classList.add('flex');
-            const ctx = document.getElementById('graficoEvolucao').getContext('2d');
-            if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
-            
-            // Simulação de dados para exemplo visual
-            chartEvolucaoInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Out', 'Nov', 'Dez', 'Jan', 'Fev'],
-                    datasets: [
-                        { label: 'Entradas', data: [4500, 4800, 6000, 5200, 5000], backgroundColor: '#10b981', borderRadius: 4, barThickness: 12 },
-                        { label: 'Saídas', data: [3800, 4100, 5500, 3000, 2500], backgroundColor: '#ef4444', borderRadius: 4, barThickness: 12 }
-                    ]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, border: {display: false} }, x: { grid: { display: false } } }, 
-                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } } 
-                }
-            });
-        }
-
-        // --- Funções de Modal e Formulário ---
-        function abrirModalContexto() { 
-            resetModal(); 
-            const rG = document.querySelector('input[value="gasto"]'); 
-            const rR = document.querySelector('input[value="receita"]'); 
-            
-            if(abaAtiva === 'entradas') { 
-                rR.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Receita'; 
-            } else if(abaAtiva === 'saidas') { 
-                rG.checked = true; esconderToggle(true); document.getElementById('modal-titulo').textContent = 'Nova Despesa'; 
-            } else { 
-                rG.checked = true; esconderToggle(false); document.getElementById('modal-titulo').textContent = 'Adicionar'; 
-            } 
-            atualizarCategoriasModal(); 
-            document.getElementById('modal').classList.remove('hidden'); 
-            document.getElementById('modal').classList.add('flex'); 
-        }
-
-        function abrirModalInvestimento() { 
-            resetModal(); 
-            document.querySelector('input[value="investimento"]').checked = true; 
-            esconderToggle(true); 
-            document.getElementById('container-categoria').classList.remove('hidden'); 
-            atualizarCategoriasModal(); 
-            document.getElementById('modal-titulo').textContent = 'Novo Investimento'; 
-            document.getElementById('descricao').placeholder = 'Ex: Tesouro Selic, Bitcoin...'; 
-            const btn = document.getElementById('btn-salvar');
-            btn.classList.remove('bg-brand-600');
-            btn.classList.add('bg-emerald-600');
-            document.getElementById('modal').classList.remove('hidden'); 
-            document.getElementById('modal').classList.add('flex'); 
-        }
-
-        function fecharModal() { 
-            document.getElementById('modal').classList.add('hidden'); 
-            document.getElementById('modal').classList.remove('flex'); 
-        }
-
-        function resetModal() { 
-            document.getElementById('form-transacao').reset(); 
-            document.getElementById('data-custom').valueAsDate = new Date(); 
-            const btn = document.getElementById('btn-salvar');
-            btn.className = 'w-full bg-brand-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-700 active:scale-95 transition-all shadow-xl shadow-brand-500/20 mt-4 flex justify-center items-center gap-2';
-        }
-
-        function atualizarCategoriasModal() { 
-            const tipo = document.querySelector('input[name="tipo"]:checked').value; 
-            const select = document.getElementById('categoria'); 
-            select.innerHTML = ''; 
-            const lista = tipo === 'receita' ? CAT_RECEITAS : (tipo === 'gasto' ? CAT_DESPESAS : CAT_INVESTIMENTOS); 
-            lista.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }); 
-        }
-
-        function esconderToggle(hide) { document.getElementById('toggle-tipo-container').style.display = hide ? 'none' : 'grid'; }
-
-        // --- Lógica de Edição (Novo Modal) ---
+        // --- NOVA LÓGICA DE EDIÇÃO (Corrigida) ---
         let itemEmEdicao = null;
 
-        function abrirModalEdicao(itemStr) {
-            const item = JSON.parse(decodeURIComponent(itemStr));
+        function prepararEdicao(id) {
+            // Busca o item no cache global pelo ID
+            const item = dadosCache.find(i => i.id == id);
+            if (!item) return;
+
             itemEmEdicao = item;
-            
             document.getElementById('edit-id').value = item.id;
             document.getElementById('edit-descricao').value = item.descricao;
             document.getElementById('edit-valor').value = formatMoney(item.valor);
             
-            // Configurar botão de status
             const btnStatus = document.getElementById('btn-toggle-status');
-            const iconStatus = btnStatus.querySelector('i');
             const spanStatus = btnStatus.querySelector('span');
+            const iconStatus = btnStatus.querySelector('i');
             
             if(item.status === 'pago') {
-                btnStatus.classList.replace('bg-gray-100', 'bg-orange-50');
-                btnStatus.classList.replace('text-gray-600', 'text-orange-600');
-                spanStatus.textContent = 'Marcar Pendente';
-                iconStatus.setAttribute('data-lucide', 'rotate-ccw');
+                btnStatus.classList.replace('bg-gray-100', 'bg-orange-50'); btnStatus.classList.replace('text-gray-600', 'text-orange-600');
+                spanStatus.textContent = 'Marcar como Pendente'; iconStatus.setAttribute('data-lucide', 'rotate-ccw');
             } else {
                 btnStatus.className = 'w-full py-3 rounded-xl font-bold text-sm bg-green-50 text-green-600 hover:bg-green-100 transition flex justify-center items-center gap-2';
-                spanStatus.textContent = 'Marcar Pago';
-                iconStatus.setAttribute('data-lucide', 'check-circle');
+                spanStatus.textContent = 'Confirmar Pagamento'; iconStatus.setAttribute('data-lucide', 'check-circle');
             }
             lucide.createIcons();
-            
-            document.getElementById('modal-edicao').classList.remove('hidden');
-            document.getElementById('modal-edicao').classList.add('flex');
+            document.getElementById('modal-edicao').classList.remove('hidden'); document.getElementById('modal-edicao').classList.add('flex');
         }
 
         async function salvarEdicaoModal() {
             if(!itemEmEdicao) return;
             const id = document.getElementById('edit-id').value;
             const desc = document.getElementById('edit-descricao').value;
-            const valStr = document.getElementById('edit-valor').value;
+            const val = limpaMoeda(document.getElementById('edit-valor').value);
             
-            await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, descricao: desc, valor: limpaMoeda(valStr)}) });
-            document.getElementById('modal-edicao').classList.add('hidden');
-            carregarDados();
+            await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, descricao: desc, valor: val}) });
+            document.getElementById('modal-edicao').classList.add('hidden'); carregarDados();
         }
 
         async function alterarStatusPeloModal() {
             if(!itemEmEdicao) return;
             const novoStatus = itemEmEdicao.status === 'pago' ? 'pendente' : 'pago';
             await fetch(API_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id: itemEmEdicao.id, status: novoStatus}) });
-            document.getElementById('modal-edicao').classList.add('hidden');
-            carregarDados();
+            document.getElementById('modal-edicao').classList.add('hidden'); carregarDados();
         }
 
         async function deletarPeloModal() {
-            if(!itemEmEdicao || !confirm("Tem certeza que deseja apagar este lançamento?")) return;
+            if(!itemEmEdicao || !confirm("Tem certeza?")) return;
             await fetch(`${API_URL}?id=${itemEmEdicao.id}`, { method: 'DELETE' });
-            document.getElementById('modal-edicao').classList.add('hidden');
-            carregarDados();
+            document.getElementById('modal-edicao').classList.add('hidden'); carregarDados();
         }
 
-        // --- Utilitários ---
+        // --- Gráficos e UI Auxiliar ---
+        function renderizarGrafico(saidas) {
+            const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
+            const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor);
+            const data = Object.values(cats);
+            if(data.length === 0) { document.getElementById('grafico-empty').classList.remove('hidden'); chartInstance = new Chart(ctx, { type: 'doughnut', data: { datasets: [{ data: [1], backgroundColor: ['#f3f4f6'], borderWidth: 0 }] }, options: { cutout: '80%', events: [] } }); return; }
+            document.getElementById('grafico-empty').classList.add('hidden');
+            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: data, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, usePointStyle: true, font: { size: 10 } } } }, cutout: '70%', layout: { padding: 0 } } });
+        }
+
+        function abrirModalEvolucao() {
+            document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
+            const ctx = document.getElementById('graficoEvolucao').getContext('2d'); if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
+            chartEvolucaoInstance = new Chart(ctx, { type: 'bar', data: { labels: ['Out', 'Nov', 'Dez', 'Jan', 'Fev'], datasets: [{ label: 'Entradas', data: [4500, 4800, 6000, 5200, 5000], backgroundColor: '#10b981', borderRadius: 4 }, { label: 'Saídas', data: [3800, 4100, 5500, 3000, 2500], backgroundColor: '#ef4444', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'bottom' } } } });
+        }
+
+        function abrirModalContexto(forceType = null) { 
+            resetModal();
+            const rR = document.querySelector('input[value="receita"]');
+            const rG = document.querySelector('input[value="receita"]'); // typo fix logic below
+            
+            if(forceType === 'receita' || abaAtiva === 'entradas') { 
+                document.querySelector('input[value="receita"]').checked = true; document.getElementById('modal-titulo').textContent = 'Nova Receita'; 
+            } else if(forceType === 'gasto' || abaAtiva === 'saidas') { 
+                document.querySelector('input[value="gasto"]').checked = true; document.getElementById('modal-titulo').textContent = 'Nova Despesa'; 
+            } else { 
+                document.querySelector('input[value="gasto"]').checked = true; 
+            }
+            
+            esconderToggle(true);
+            if(!forceType && abaAtiva === 'resumo') esconderToggle(false);
+
+            atualizarCategoriasModal(); 
+            document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); 
+        }
+
+        function abrirModalInvestimento() { 
+            resetModal(); document.querySelector('input[value="investimento"]').checked = true; esconderToggle(true); atualizarCategoriasModal(); 
+            document.getElementById('modal-titulo').textContent = 'Novo Investimento'; document.getElementById('btn-salvar').classList.replace('bg-brand-600', 'bg-emerald-600'); 
+            document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); 
+        }
+
+        function resetModal() { document.getElementById('form-transacao').reset(); document.getElementById('data-custom').valueAsDate = new Date(); document.getElementById('btn-salvar').className = 'w-full bg-brand-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-brand-700 active:scale-95 transition-all shadow-xl shadow-brand-500/20 mt-2'; }
+        function esconderToggle(hide) { document.getElementById('toggle-tipo-container').style.display = hide ? 'none' : 'grid'; }
+        function fecharModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); }
+        function atualizarCategoriasModal() { const tipo = document.querySelector('input[name="tipo"]:checked').value; const select = document.getElementById('categoria'); select.innerHTML = ''; const lista = tipo === 'receita' ? CAT_RECEITAS : (tipo === 'gasto' ? CAT_DESPESAS : CAT_INVESTIMENTOS); lista.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt); }); }
+
         document.getElementById('form-transacao').addEventListener('submit', async (e) => { 
-            e.preventDefault(); 
-            const dataInput = document.getElementById('data-custom').value; 
-            const dataReg = dataInput ? new Date(dataInput + 'T12:00:00') : new Date(); 
-            const valStr = document.getElementById('valor-mask').value; 
-            
-            const form = { 
-                tipo: document.querySelector('input[name="tipo"]:checked').value, 
-                descricao: document.getElementById('descricao').value, 
-                valor: limpaMoeda(valStr), 
-                categoria: document.getElementById('categoria').value || 'Outros', 
-                status: 'pago', 
-                data: dataReg.toISOString() 
-            }; 
-            
-            // Efeito visual de loading no botão
-            const btn = document.getElementById('btn-salvar');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Salvando...';
-            lucide.createIcons();
-            
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); 
-            
-            btn.innerHTML = originalText;
-            fecharModal(); 
-            carregarDados(); 
+            e.preventDefault(); const d = document.getElementById('data-custom').value; const dt = d ? new Date(d+'T12:00:00') : new Date(); 
+            const form = { tipo: document.querySelector('input[name="tipo"]:checked').value, descricao: document.getElementById('descricao').value, valor: limpaMoeda(document.getElementById('valor-mask').value), categoria: document.getElementById('categoria').value || 'Outros', status: 'pago', data: dt.toISOString() }; 
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(form) }); fecharModal(); carregarDados(); 
         });
 
-        function mascaraMoeda(evento) { 
-            const onlyDigits = evento.value.split("").filter(s => /\d/.test(s)).join("").padStart(3, "0"); 
-            const digitsFloat = onlyDigits.slice(0, -2) + "." + onlyDigits.slice(-2); 
-            evento.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(digitsFloat); 
-        }
+        function mascaraMoeda(e) { const v = e.value.replace(/\D/g, "").padStart(3, "0"); const vf = v.slice(0, -2) + "." + v.slice(-2); e.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(vf); }
         function limpaMoeda(v) { return typeof v === 'number' ? v : parseFloat(v.replace(/\D/g, '')) / 100; }
         function formatMoney(v) { return v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
         function atualizarTituloMes() { document.getElementById('mes-titulo').textContent = dataAtual.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
