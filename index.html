@@ -6,7 +6,7 @@
     <title>Finanças Bruno & Nathália</title>
     
     <script>
-        // Simulando sessão ativa para evitar redirect
+        // Simulando sessão ativa
         if (!localStorage.getItem('usuario_logado')) {
             // window.location.href = '/login.html'; 
         }
@@ -47,7 +47,6 @@
             .pc-table-row:hover { background-color: #f9fafb; cursor: pointer; }
         }
 
-        /* Avatar Cover */
         .avatar-img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
@@ -103,7 +102,7 @@
 
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                         <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm overflow-hidden shadow-lg shadow-brand-500/30 relative border-2 border-white cursor-pointer" onclick="mudarAvatar()">
+                        <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm overflow-hidden shadow-lg shadow-brand-500/30 relative border-2 border-white cursor-pointer" onclick="mudarAvatar()">
                             <span class="avatar-initials">B</span>
                             <img src="" class="avatar-img hidden absolute inset-0">
                         </div>
@@ -281,10 +280,20 @@
     <script>
         const API = '/api/financas';
         let dados = [], dataRef = new Date(), aba = 'resumo', itemEdit = null;
+
+        // --- TODAS AS CATEGORIAS RESTAURADAS ---
         const CATS = {
-            receita: ['Salário', '13º', 'Férias', 'Extra', 'Outros'],
-            gasto: ['Casa', 'Mercado', 'Transporte', 'Lazer', 'Saúde', 'Contas', 'Outros'],
-            investimento: ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Reserva', 'Cripto']
+            receita: ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'],
+            gasto: ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Governo', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'],
+            investimento: ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros']
+        };
+        
+        // Mapeamento de Ícones Específicos para as Categorias
+        const ICON_MAP = {
+            'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
+            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 
+            'Manutenção Casa': 'hammer', 'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Governo': 'landmark', 'Internet': 'wifi', 'Lazer': 'coffee', 
+            'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
         };
 
         async function init() {
@@ -292,7 +301,6 @@
             document.getElementById('mobile-user-name').textContent = user.split(' ')[0];
             document.getElementById('pc-user-name').textContent = user;
             
-            // Lógica Avatar
             atualizarAvatars();
 
             try {
@@ -305,10 +313,10 @@
             carregar();
         }
 
-        // --- LÓGICA DE AVATAR (NOVO) ---
+        // --- LÓGICA DE AVATAR ---
         function mudarAvatar() {
             const url = prompt("Cole a URL da imagem para o avatar (ou deixe vazio para remover):");
-            if (url !== null) { // Se não cancelou
+            if (url !== null) { 
                 localStorage.setItem('usuario_avatar', url);
                 atualizarAvatars();
             }
@@ -318,23 +326,17 @@
             const url = localStorage.getItem('usuario_avatar');
             const initials = document.querySelectorAll('.avatar-initials');
             const imgs = document.querySelectorAll('.avatar-img');
-            
-            // Pega a inicial do nome
             const user = localStorage.getItem('usuario_nome') || 'U';
             initials.forEach(el => el.textContent = user.charAt(0).toUpperCase());
 
             if (url && url.trim() !== "") {
-                imgs.forEach(img => {
-                    img.src = url;
-                    img.classList.remove('hidden');
-                });
+                imgs.forEach(img => { img.src = url; img.classList.remove('hidden'); });
                 initials.forEach(el => el.classList.add('hidden'));
             } else {
                 imgs.forEach(img => img.classList.add('hidden'));
                 initials.forEach(el => el.classList.remove('hidden'));
             }
         }
-        // -------------------------------
 
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = '/login.html'; }
 
@@ -398,13 +400,15 @@
 
             const divInv = document.getElementById('lista-investimentos'); divInv.innerHTML = '';
             dados.filter(d=>d.tipo==='investimento').forEach(d => {
-                divInv.innerHTML += `<div onclick="abrirEdicao('${d.id}')" class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer border-b border-gray-50 last:border-0"><div class="truncate pr-2"><p class="text-xs font-bold text-gray-700 truncate">${d.descricao}</p><p class="text-[9px] text-gray-400 uppercase">${d.categoria}</p></div><span class="text-xs font-bold text-brand-600">${fMoney(d.valor)}</span></div>`;
+                const icone = ICON_MAP[d.categoria] || 'pie-chart';
+                divInv.innerHTML += `<div onclick="abrirEdicao('${d.id}')" class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer border-b border-gray-50 last:border-0"><div class="flex items-center gap-2"><i data-lucide="${icone}" class="w-4 h-4 text-gray-400"></i><div class="truncate pr-2"><p class="text-xs font-bold text-gray-700 truncate">${d.descricao}</p><p class="text-[9px] text-gray-400 uppercase">${d.categoria}</p></div></div><span class="text-xs font-bold text-brand-600">${fMoney(d.valor)}</span></div>`;
             });
             if(!divInv.innerHTML) divInv.innerHTML = '<p class="text-xs text-center text-gray-400 py-4">Vazio</p>';
 
             if(aba !== 'resumo') renderLista(aba==='entradas'?'receita':'gasto');
             
             graficos(dados.filter(d=>d.tipo==='gasto'));
+            lucide.createIcons();
         }
 
         function renderLista(tipo) {
@@ -445,12 +449,12 @@
                 
                 itens.forEach(d => {
                     const cor = tipo==='receita'?'text-green-600':'text-gray-800';
-                    const icon = tipo==='receita'?'arrow-up':'arrow-down';
+                    const iconeNome = ICON_MAP[d.categoria] || (tipo==='receita'?'arrow-up':'arrow-down');
                     
                     const cardMobile = `
                     <div onclick="abrirEdicao('${d.id}')" class="lg:hidden bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center cursor-pointer active:scale-[0.98] transition">
                         <div class="flex items-center gap-3 overflow-hidden">
-                            <div class="w-10 h-10 rounded-full ${tipo==='receita'?'bg-green-50 text-green-600':'bg-red-50 text-red-500'} flex items-center justify-center flex-shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+                            <div class="w-10 h-10 rounded-full ${tipo==='receita'?'bg-green-50 text-green-600':'bg-red-50 text-red-500'} flex items-center justify-center flex-shrink-0"><i data-lucide="${iconeNome}" class="w-5 h-5"></i></div>
                             <div class="truncate">
                                 <p class="font-bold text-gray-800 text-sm truncate">${d.descricao}</p>
                                 <p class="text-[10px] text-gray-400 uppercase font-bold">${d.categoria}</p>
@@ -465,7 +469,7 @@
                     const rowPC = `
                     <div onclick="abrirEdicao('${d.id}')" class="hidden lg:grid pc-table-row">
                         <div class="font-bold text-gray-700 flex items-center gap-3"><div class="w-2 h-2 rounded-full ${d.status==='pago'?'bg-green-500':'bg-orange-400'}"></div> ${d.descricao}</div>
-                        <div class="text-sm text-gray-500 bg-gray-50 w-max px-2 py-1 rounded-md text-xs font-bold uppercase">${d.categoria}</div>
+                        <div class="text-sm text-gray-500 bg-gray-50 w-max px-2 py-1 rounded-md text-xs font-bold uppercase flex items-center gap-1"><i data-lucide="${iconeNome}" class="w-3 h-3"></i> ${d.categoria}</div>
                         <div class="text-sm text-gray-500">${new Date(d.data).toLocaleDateString()}</div>
                         <div class="text-right font-bold ${cor}">${fMoney(d.valor)}</div>
                     </div>`;
