@@ -13,7 +13,7 @@
                 extend: {
                     colors: {
                         brand: {
-                            500: '#10b981', // Verde Organizze
+                            500: '#10b981', // Verde Emerald
                             600: '#059669',
                             dark: '#064e3b'
                         }
@@ -39,41 +39,46 @@
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
 
-        /* --- OTIMIZAÇÃO EXCLUSIVA PARA PC --- */
+        /* --- CORREÇÃO DO LAYOUT PC --- */
         @media (min-width: 1024px) {
-            /* Layout Principal em 2 Colunas: Painel (360px) | Conteúdo (Resto) */
-            main { 
+            
+            /* REGRA 1: Só usa GRID quando estiver no modo VISÃO GERAL (pc-resumo) */
+            body.pc-resumo main { 
                 display: grid; 
-                grid-template-columns: 360px 1fr; 
+                grid-template-columns: 360px 1fr; /* Coluna Esquerda | Resto */
                 gap: 2rem; 
                 align-items: start; 
             }
             
-            /* Na aba Resumo no PC, forçamos mostrar tudo */
+            /* Força mostrar tudo na Visão Geral */
             body.pc-resumo #view-resumo { display: block !important; }
-            
-            /* O Wrapper das listas vira um Grid de 2 colunas (Lado a Lado) */
             body.pc-resumo #lists-wrapper { 
                 display: grid !important; 
-                grid-template-columns: 1fr 1fr; 
+                grid-template-columns: 1fr 1fr; /* Listas Lado a Lado */
                 gap: 1.5rem; 
             }
             
-            /* Transformamos as listas em "Cards" bonitos no PC */
-            body.pc-resumo #view-entradas, 
-            body.pc-resumo #view-saidas { 
+            /* REGRA 2: Quando estiver nas abas ENTRADAS ou SAÍDAS, usa layout centralizado */
+            body:not(.pc-resumo) main {
+                display: block;
+                max-width: 56rem; /* max-w-4xl (Largura ótima para leitura de listas) */
+                margin: 2rem auto;
+            }
+
+            /* Estilo de Card para as Listas no PC */
+            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas,
+            body:not(.pc-resumo) #view-entradas, body:not(.pc-resumo) #view-saidas {
                 display: block !important; 
                 background: white;
                 border-radius: 1rem;
                 padding: 1.5rem;
                 border: 1px solid #e5e7eb;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                height: 100%; /* Altura igual */
             }
 
-            /* Ajustes finos para esconder elementos mobile no PC */
-            body.pc-resumo .mobile-header { display: none; }
-            body.pc-resumo .pc-header { display: flex; }
+            /* Esconde cabeçalhos mobile no PC */
+            .mobile-header { display: none !important; }
+            .pc-header { display: flex !important; }
         }
     </style>
 </head>
