@@ -35,59 +35,27 @@
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
-        /* Estilos das Abas e Inputs */
+        /* Abas */
         .nav-item { position: relative; padding: 0.5rem 1rem; color: rgba(255,255,255,0.8); font-weight: 500; transition: all 0.2s; cursor: pointer; }
         .nav-item:hover { color: white; }
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
         
-        .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; }
-        .input-invisible:focus { background: white; border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); padding: 2px 4px; }
+        /* Inputs Invisíveis com Tooltip */
+        .input-invisible { background: transparent; width: 100%; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s; text-overflow: ellipsis; }
+        .input-invisible:focus { background: white; border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); padding: 2px 4px; position: relative; z-index: 10; }
+        
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
 
-        /* --- OTIMIZAÇÃO PC (COMPLETA) --- */
+        /* --- OTIMIZAÇÃO PC --- */
         @media (min-width: 1024px) {
-            
-            /* REGRA 1: Só usa GRID quando estiver no modo VISÃO GERAL (pc-resumo) */
-            body.pc-resumo main { 
-                display: grid; 
-                grid-template-columns: 360px 1fr; /* Coluna Esquerda | Resto */
-                gap: 2rem; 
-                align-items: start; 
-            }
-            
-            /* Força mostrar tudo APENAS na Visão Geral */
+            main { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
             body.pc-resumo #view-resumo { display: block !important; }
-            
-            body.pc-resumo #lists-wrapper { 
-                display: grid !important; 
-                grid-template-columns: 1fr 1fr; /* Listas Lado a Lado */
-                gap: 1.5rem; 
-            }
-            
-            body.pc-resumo #view-entradas, 
-            body.pc-resumo #view-saidas { 
-                display: block !important; 
-            }
-
-            /* REGRA 2: Quando estiver nas abas ENTRADAS ou SAÍDAS, usa layout centralizado */
-            body:not(.pc-resumo) main {
-                display: block;
-                max-width: 56rem; /* Largura ótima para leitura */
-                margin: 2rem auto;
-            }
-
-            /* Estilo de Card para as Listas no PC (Sempre bonito) */
-            #view-entradas, #view-saidas {
-                background: white;
-                border-radius: 1rem;
-                padding: 1.5rem;
-                border: 1px solid #e5e7eb;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            }
-
-            /* Esconde cabeçalhos mobile no PC e mostra o do PC */
+            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
+            body:not(.pc-resumo) main { display: block; max-width: 56rem; margin: 2rem auto; }
+            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
             .mobile-header { display: none !important; }
             .pc-header { display: flex !important; }
         }
@@ -115,7 +83,11 @@
                         <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 hover:text-white transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
                     
-                    <button onclick="logout()" class="text-white/70 hover:text-white transition-colors" title="Sair do sistema">
+                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white hidden md:block" title="Ver Evolução">
+                        <i data-lucide="bar-chart-big" class="w-5 h-5"></i>
+                    </button>
+
+                    <button onclick="logout()" class="text-white/70 hover:text-white" title="Sair">
                         <i data-lucide="log-out" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -130,16 +102,14 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 mt-6">
-
         <div id="view-resumo" class="animate-fade-in space-y-6">
-            
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h2 class="text-xl font-bold text-gray-800">Boa tarde, <span id="nome-usuario">...</span>! ⛅</h2>
                         <p class="text-xs text-gray-400" id="last-update">Sincronizando...</p>
                     </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
+                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100" onclick="abrirModalEvolucao()"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
                 </div>
                 <div class="flex gap-8 mt-2">
                     <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receita</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
@@ -147,7 +117,7 @@
                     <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Despesa</p><p id="total-gastos" class="text-lg font-bold text-red-500">R$ 0,00</p></div>
                 </div>
             </div>
-
+            
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-center border-l-4 border-l-brand-500">
                 <div class="flex items-center gap-2 mb-2"><div class="w-2 h-8 bg-brand-500 rounded-full"></div><p class="text-sm font-bold text-gray-500 uppercase">Saldo Geral</p></div>
                 <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
@@ -170,7 +140,6 @@
         </div>
 
         <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
-            
             <div id="view-entradas" class="hidden h-full">
                 <div class="mobile-header flex justify-between items-center mb-3 bg-gray-100 p-3 rounded-lg sticky top-0 z-10">
                     <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
@@ -194,7 +163,6 @@
                 </div>
                 <div id="lista-saidas-content" class="space-y-3"></div>
             </div>
-
         </div>
     </main>
 
@@ -225,22 +193,39 @@
         </div>
     </div>
 
+    <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50 transition-opacity backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg mx-4 rounded-2xl p-6 shadow-2xl animate-slide-up">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-800">Evolução Recente</h2>
+                <button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
+            <p class="text-xs text-center text-gray-400 mt-4">Comparativo dos últimos meses (Simulado)</p>
+        </div>
+    </div>
+
     <script>
         const API_URL = '/api/financas';
         let dataAtual = new Date();
         let chartInstance = null;
+        let chartEvolucaoInstance = null;
         let abaAtiva = 'resumo';
 
-        const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Outros'];
-        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Luz', 'Gás', 'Condomínio', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Outros'];
+        // --- ATUALIZAÇÃO DAS CATEGORIAS ---
+        const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
+        const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
-        const ICON_MAP = {'Salário': 'wallet', '13º Salário': 'gift', 'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Luz': 'zap', 'Gás': 'flame', 'Condomínio': 'home', 'Internet': 'wifi', 'Lazer': 'coffee', 'Alimentação': 'shopping-cart', 'Saúde': 'activity', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'};
+
+        const ICON_MAP = {
+            'Salário': 'wallet', '13º Salário': 'gift', 'Férias': 'sun', 'Reembolso': 'refresh-cw', 'Cashback': 'coins', 'Serviços Prestados': 'briefcase',
+            'Cartão': 'credit-card', 'Transporte': 'bus', 'Gasolina': 'fuel', 'Manutenção Carro': 'wrench', 'Luz': 'zap', 'Gás': 'flame', 'Manutenção Casa': 'hammer', 
+            'Condomínio': 'home', 'IPTU': 'file-text', 'IPVA': 'car', 'Internet': 'wifi', 'Lazer': 'coffee', 'Alimentação': 'shopping-cart', 
+            'Saúde': 'activity', 'Presente': 'gift', 'Outros': 'more-horizontal', 'CDB': 'trending-up', 'Ações': 'bar-chart-2'
+        };
 
         async function init() {
-            // Define o nome do usuário
             const nome = localStorage.getItem('usuario_nome') || 'Usuário';
             document.getElementById('nome-usuario').textContent = nome;
-
             try {
                 const res = await fetch(`${API_URL}?tipo=config`);
                 const config = await res.json();
@@ -253,23 +238,10 @@
             carregarDados();
         }
 
-        // Função de Logout
-        function logout() {
-            localStorage.removeItem('usuario_logado');
-            localStorage.removeItem('usuario_nome');
-            window.location.href = '/login.html';
-        }
-
-        // --- Navegação e Persistência ---
-        async function mudarMes(d) {
-            dataAtual.setMonth(dataAtual.getMonth() + d);
-            atualizarTituloMes(); carregarDados(); salvarMesNoBanco();
-        }
+        function logout() { localStorage.removeItem('usuario_logado'); window.location.href = '/login.html'; }
+        async function mudarMes(d) { dataAtual.setMonth(dataAtual.getMonth() + d); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
         async function resetarHoje() { dataAtual = new Date(); atualizarTituloMes(); carregarDados(); salvarMesNoBanco(); }
-        async function salvarMesNoBanco() {
-            const mesFormatado = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, '0')}`;
-            try { await fetch(`${API_URL}?tipo=config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ultimo_mes: mesFormatado }) }); } catch(e) {}
-        }
+        async function salvarMesNoBanco() { const mesF = `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, '0')}`; try { await fetch(`${API_URL}?tipo=config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ultimo_mes: mesF }) }); } catch(e) {} }
 
         function mudarAba(aba) {
             abaAtiva = aba;
@@ -279,6 +251,7 @@
             document.getElementById(`view-${aba}`).classList.remove('hidden'); document.getElementById(`tab-${aba}`).classList.add('active');
         }
 
+        // --- Renderização de Listas com Tooltip (Correção de Leitura) ---
         function renderizarListaAgrupada(lista, containerId, corValor) {
             const container = document.getElementById(containerId); container.innerHTML = '';
             if(lista.length === 0) { container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50"><div class="bg-gray-100 p-4 rounded-full mb-3"><i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i></div><p class="text-sm font-medium">Tudo limpo por aqui</p></div>`; return; }
@@ -287,7 +260,14 @@
                 let html = `<div class="mb-4"><div class="flex items-center gap-2 mb-2 px-1"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">${data}</span><div class="h-px bg-gray-100 flex-1"></div></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">`;
                 itens.forEach(item => {
                     let icone = ICON_MAP[item.categoria] || 'circle-dollar-sign'; let corIcone = item.tipo === 'receita' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-500'; const isPago = item.status === 'pago'; const valorF = formatMoney(item.valor);
-                    html += `<div class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative"><div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div><div class="flex-1 min-w-0"><input value="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate"><div class="flex items-center gap-2"><span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div></div><div class="text-right"><input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-28"><div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-md rounded-lg p-1 flex gap-1 border border-gray-100"><button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-500"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button><button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`;
+                    // ADDED: title="${item.descricao}" para ler ao passar o mouse
+                    html += `<div class="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                        <div class="w-10 h-10 rounded-full ${corIcone} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
+                        <div class="flex-1 min-w-0" title="${item.descricao}">
+                            <input value="${item.descricao}" title="${item.descricao}" onchange="editar(${item.id}, 'descricao', this.value)" class="input-invisible text-sm font-bold text-gray-700 truncate w-full">
+                            <div class="flex items-center gap-2"><span class="text-[10px] text-gray-400 uppercase font-bold tracking-wide">${item.categoria}</span>${!isPago ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1.5 rounded font-bold">PENDENTE</span>' : ''}</div>
+                        </div>
+                        <div class="text-right"><input type="text" inputmode="numeric" value="${valorF}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this, ${item.id})" class="input-invisible text-right font-bold ${corValor} w-28"><div class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-md rounded-lg p-1 flex gap-1 border border-gray-100"><button onclick="editar(${item.id}, 'status', '${isPago?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-500"><i data-lucide="${isPago?'rotate-ccw':'check'}" class="w-4 h-4"></i></button><button onclick="deletar(${item.id})" class="p-1.5 hover:bg-red-50 rounded text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`;
                 }); html += `</div></div>`; container.innerHTML += html;
             }
         }
@@ -297,11 +277,11 @@
             if(lista.length === 0) { container.innerHTML = '<div class="text-center py-6 text-gray-400 text-xs">Sem investimentos</div>'; return; }
             lista.forEach(item => {
                 const valorF = formatMoney(item.valor); let icone = ICON_MAP[item.categoria] || 'pie-chart';
-                container.innerHTML += `<div class="flex items-center gap-3 p-4 hover:bg-gray-50 group transition"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="${icone}" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-700">${item.descricao}</p><p class="text-[10px] text-gray-400 uppercase">${item.categoria}</p></div><div class="text-right"><p class="text-sm font-bold text-gray-800">${valorF}</p><button onclick="if(confirm('Apagar?')) deletar(${item.id})" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 hover:underline">remover</button></div></div>`;
+                html += `<div class="flex items-center gap-3 p-4 hover:bg-gray-50 group transition"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i data-lucide="${icone}" class="w-4 h-4"></i></div><div class="flex-1" title="${item.descricao}"><p class="text-sm font-bold text-gray-700 truncate">${item.descricao}</p><p class="text-[10px] text-gray-400 uppercase">${item.categoria}</p></div><div class="text-right"><p class="text-sm font-bold text-gray-800">${valorF}</p><button onclick="if(confirm('Apagar?')) deletar(${item.id})" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 hover:underline">remover</button></div></div>`;
+                container.innerHTML += html;
             });
         }
 
-        // --- Core ---
         async function carregarDados() {
             try {
                 const ano = dataAtual.getFullYear(); const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
@@ -333,6 +313,25 @@
             const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
             const cats = {}; saidas.forEach(i => cats[i.categoria] = (cats[i.categoria] || 0) + i.valor); const data = Object.values(cats); if (data.length === 0) return;
             chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: data, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10, family: 'Inter' } } } }, cutout: '75%' } });
+        }
+
+        // --- Gráfico Evolução (Bônus Seguro) ---
+        function abrirModalEvolucao() {
+            document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
+            const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+            if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
+            // Dados Mockados para Exemplo Seguro (Idealmente viria do backend, mas evitei mexer lá)
+            chartEvolucaoInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'],
+                    datasets: [
+                        { label: 'Entradas', data: [5000, 5200, 4800, 6000, 8000, 5500], backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: 'Saídas', data: [4000, 4100, 3900, 4500, 6000, 3000], backgroundColor: '#ef4444', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'bottom' } } }
+            });
         }
 
         function mascaraMoeda(evento) { const onlyDigits = evento.value.split("").filter(s => /\d/.test(s)).join("").padStart(3, "0"); const digitsFloat = onlyDigits.slice(0, -2) + "." + onlyDigits.slice(-2); evento.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(digitsFloat); }
