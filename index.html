@@ -40,19 +40,48 @@
         .piscar-salvo { animation: flash 0.5s ease-out; }
         @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
 
-        /* PC Layout Inteligente */
+        /* --- OTIMIZAÇÃO PC (DASHBOARD) --- */
         @media (min-width: 1024px) {
-            /* Grid Principal: Esquerda (350px) | Direita (Resto) */
-            main { display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; align-items: start; }
+            /* Grid Principal: Esquerda (360px) | Direita (Resto) */
+            main { 
+                display: grid; 
+                grid-template-columns: 360px 1fr; 
+                gap: 1.5rem; 
+                align-items: start; 
+            }
             
-            /* Quando estiver no RESUMO no PC: */
-            body.pc-resumo #view-resumo { display: block !important; }
+            /* REGRAS ESPECÍFICAS PARA ABA RESUMO NO PC */
+            body.pc-resumo #view-resumo { 
+                display: block !important; /* Força exibir coluna esquerda */
+            }
             
-            /* Força o wrapper das listas a aparecer na direita */
-            body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+            /* Transforma o container das listas em Grid de 2 colunas */
+            body.pc-resumo #lists-wrapper { 
+                display: grid !important; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 1.5rem; 
+            }
             
-            /* Força as listas a aparecerem */
-            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
+            /* Força exibir as listas mesmo que o JS tenha ocultado (pois estamos no dashboard) */
+            body.pc-resumo #view-entradas, 
+            body.pc-resumo #view-saidas { 
+                display: block !important; 
+            }
+
+            /* Esconde os cabeçalhos de lista móveis no PC Resumo para ficar mais limpo */
+            body.pc-resumo .mobile-list-header {
+                display: none;
+            }
+            
+            /* Adiciona estilo de Card às listas no PC */
+            body.pc-resumo #view-entradas,
+            body.pc-resumo #view-saidas {
+                background: white;
+                border-radius: 0.75rem;
+                padding: 1rem;
+                border: 1px solid #f3f4f6;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            }
         }
     </style>
 </head>
@@ -147,18 +176,28 @@
         <div id="lists-wrapper" class="contents lg:block space-y-6 lg:space-y-0">
             
             <div id="view-entradas" class="hidden">
-                 <div class="flex justify-between items-center mb-3 bg-gray-100 lg:bg-transparent p-3 lg:p-0 rounded-lg lg:rounded-none sticky top-0 lg:static z-10">
+                 <div class="mobile-list-header flex justify-between items-center mb-3">
                     <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500"></div> Entradas</h3>
-                    <span id="header-total-renda" class="text-sm font-bold text-green-600 bg-white lg:bg-green-50 px-2 py-1 rounded shadow-sm lg:shadow-none">R$ 0,00</span>
+                    <span id="header-total-renda" class="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">R$ 0,00</span>
                 </div>
+                <div class="hidden lg:flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-700 text-lg">Entradas</h3>
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">RECEITAS</span>
+                </div>
+
                 <div id="lista-entradas-content" class="space-y-3"></div>
             </div>
 
             <div id="view-saidas" class="hidden">
-                <div class="flex justify-between items-center mb-3 bg-gray-100 lg:bg-transparent p-3 lg:p-0 rounded-lg lg:rounded-none sticky top-0 lg:static z-10">
+                <div class="mobile-list-header flex justify-between items-center mb-3">
                     <h3 class="font-bold text-gray-600 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Saídas</h3>
-                    <span id="header-total-gastos" class="text-sm font-bold text-red-600 bg-white lg:bg-red-50 px-2 py-1 rounded shadow-sm lg:shadow-none">R$ 0,00</span>
+                    <span id="header-total-gastos" class="text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded">R$ 0,00</span>
                 </div>
+                 <div class="hidden lg:flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-700 text-lg">Saídas</h3>
+                    <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">DESPESAS</span>
+                </div>
+
                 <div id="lista-saidas-content" class="space-y-3"></div>
             </div>
 
@@ -254,7 +293,7 @@
                 document.getElementById(`tab-${v}`).classList.remove('active');
             });
 
-            // Mostra SÓ o desejado (mas lembre: no PC o CSS força mostrar tudo se for resumo)
+            // Mostra SÓ o desejado (No PC o CSS força mostrar as listas se for resumo)
             document.getElementById(`view-${aba}`).classList.remove('hidden');
             document.getElementById(`tab-${aba}`).classList.add('active');
         }
