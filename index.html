@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Finanças Bruno & Nathalia</title>
     
-    <script>
-        if (!localStorage.getItem('usuario_logado')) {
-            window.location.href = '/login.html';
-        }
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -40,36 +34,39 @@
         .nav-item.active { color: white; font-weight: 700; }
         .nav-item.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 4px; background: white; border-radius: 4px 4px 0 0; }
         
-        /* MODO FANTASMA (Edição Limpa) */
+        /* Inputs Invisíveis (Estilo Simples e Seguro) */
         .input-invisible { 
-            background: transparent !important; 
+            background: transparent; 
             width: 100%; 
-            outline: none !important; 
-            border: 1px solid transparent !important; 
-            border-bottom: 1px solid transparent !important;
-            border-radius: 0 !important; 
-            padding: 0 !important;
+            outline: none; 
+            border: 1px solid transparent; 
+            border-radius: 4px; 
             transition: all 0.2s; 
-            text-overflow: ellipsis; 
-            cursor: pointer;
         }
         .input-invisible:focus { 
-            cursor: text;
-            border-bottom: 2px solid #10b981 !important;
-            color: #000 !important;
+            background: white; 
+            border-color: #d1d5db; 
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); 
+            padding: 2px 4px; 
         }
         
         .piscar-salvo { animation: flash 0.5s ease-out; }
-        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: transparent; } }
+        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: white; } }
 
-        /* --- OTIMIZAÇÃO PC --- */
+        /* --- OTIMIZAÇÃO PC (A VERSÃO SEGURA) --- */
         @media (min-width: 1024px) {
             main { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
             body.pc-resumo #view-resumo { display: block !important; }
             body.pc-resumo #lists-wrapper { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
             body.pc-resumo #view-entradas, body.pc-resumo #view-saidas { display: block !important; }
+            
+            /* Garante que as listas apareçam corretamente nas abas individuais */
             body:not(.pc-resumo) main { display: block; max-width: 60rem; margin: 2rem auto; }
-            #view-entradas, #view-saidas { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+            
+            #view-entradas, #view-saidas { 
+                background: white; border-radius: 1rem; padding: 1.5rem; 
+                border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
+            }
             .mobile-header { display: none !important; }
             .pc-header { display: flex !important; }
         }
@@ -91,11 +88,10 @@
                     <div class="flex items-center bg-brand-600/50 rounded-lg p-1">
                         <button onclick="mudarMes(-1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                         <div class="px-3 text-center cursor-pointer min-w-[100px]" onclick="resetarHoje()">
-                            <span id="mes-titulo" class="text-sm font-bold text-white capitalize">...</span>
+                            <span id="mes-titulo" class="text-sm font-bold text-white capitalize">Carregando...</span>
                         </div>
                         <button onclick="mudarMes(1)" class="p-1 hover:bg-brand-500 rounded text-white/80 transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
-                    <button onclick="abrirModalEvolucao()" class="text-white/70 hover:text-white p-1 hidden md:block" title="Evolução"><i data-lucide="bar-chart-big" class="w-5 h-5"></i></button>
                     <button onclick="logout()" class="text-white/70 hover:text-white p-1" title="Sair"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
@@ -115,7 +111,7 @@
                         <h2 class="text-xl font-bold text-gray-800">Olá, <span id="nome-usuario">...</span>! 👋</h2>
                         <p class="text-xs text-gray-400" id="last-update">Atualizando...</p>
                     </div>
-                    <button onclick="abrirModalEvolucao()" class="text-gray-400 hover:text-brand-500 md:hidden"><i data-lucide="bar-chart-2" class="w-6 h-6"></i></button>
+                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100"><i data-lucide="bar-chart-2" class="w-5 h-5 text-gray-400"></i></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mt-2">
                     <div><p class="text-xs text-gray-400 uppercase font-bold mb-1">Receitas</p><p id="total-renda" class="text-lg font-bold text-green-500">R$ 0,00</p></div>
@@ -126,7 +122,6 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 border-l-4 border-l-brand-500">
                 <p class="text-sm font-bold text-gray-500 uppercase mb-1">Saldo em Caixa</p>
                 <h1 id="total-saldo" class="text-4xl font-extrabold text-gray-800 tracking-tight">R$ 0,00</h1>
-                <p class="text-xs text-gray-400 mt-2">Saldo acumulado</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -199,20 +194,13 @@
         </div>
     </div>
 
-    <div id="modal-evolucao" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg mx-4 rounded-2xl p-6 shadow-2xl animate-fade-in">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-gray-800">Evolução 6 Meses</h2><button onclick="document.getElementById('modal-evolucao').classList.add('hidden'); document.getElementById('modal-evolucao').classList.remove('flex')" class="bg-gray-100 p-2 rounded-full hover:bg-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-            <div class="h-64"><canvas id="graficoEvolucao"></canvas></div>
-        </div>
-    </div>
-
     <script>
         const API_URL = '/api/financas';
         let dataAtual = new Date();
         let chartInstance = null;
-        let chartEvolucaoInstance = null;
         let abaAtiva = 'resumo';
 
+        // TODAS AS CATEGORIAS QUE VOCÊ PEDIU
         const CAT_RECEITAS = ['Salário', '13º Salário', 'Férias', 'Reembolso', 'Cashback', 'Serviços Prestados', 'Outros'];
         const CAT_DESPESAS = ['Cartão', 'Transporte', 'Gasolina', 'Manutenção Carro', 'Luz', 'Gás', 'Manutenção Casa', 'Condomínio', 'IPTU', 'IPVA', 'Governo', 'Internet', 'Lazer', 'Alimentação', 'Saúde', 'Presente', 'Outros'];
         const CAT_INVESTIMENTOS = ['CDB', 'Tesouro', 'Ações', 'FIIs', 'Cripto', 'Poupança', 'Caixinha', 'Outros'];
@@ -255,8 +243,11 @@
                 itens.forEach(i => {
                     const icone = ICON_MAP[i.categoria] || 'circle-dollar-sign';
                     const corBg = i.tipo==='receita'?'bg-green-100 text-green-600':'bg-red-50 text-red-500';
+                    const valor = formatMoney(i.valor);
+                    
+                    // SEGURANÇA NO LAYOUT: Sem posição absoluta nos botões para não cobrir o texto
                     html += `
-                    <div class="group flex items-center p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 gap-3 relative">
+                    <div class="group flex items-center p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 gap-3">
                         <div class="w-10 h-10 rounded-full ${corBg} flex items-center justify-center flex-shrink-0"><i data-lucide="${icone}" class="w-5 h-5"></i></div>
                         
                         <div class="flex-1 min-w-0" title="${i.descricao}">
@@ -267,10 +258,10 @@
                             </div>
                         </div>
 
-                        <div class="relative">
-                            <input type="text" inputmode="numeric" value="${formatMoney(i.valor)}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this,${i.id})" class="input-invisible text-right font-bold ${corValor} w-28 pr-14 text-sm">
-                            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm rounded-l-lg">
-                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-100 rounded text-gray-400"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
+                        <div class="flex items-center gap-2">
+                            <input type="text" inputmode="numeric" value="${valor}" onkeyup="mascaraMoeda(this)" onchange="salvarValorLista(this,${i.id})" class="input-invisible text-right font-bold ${corValor} w-24 text-sm">
+                            <div class="flex opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                                <button onclick="editar(${i.id},'status','${i.status==='pago'?'pendente':'pago'}')" class="p-1.5 hover:bg-gray-200 rounded text-gray-400"><i data-lucide="${i.status==='pago'?'rotate-ccw':'check'}" class="w-4 h-4"></i></button>
                                 <button onclick="deletar(${i.id})" class="p-1.5 hover:bg-red-50 rounded text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </div>
@@ -339,12 +330,7 @@
             const t = document.querySelector('input[name="tipo"]:checked').value, s = document.getElementById('categoria'); s.innerHTML='';
             (t==='receita'?CAT_RECEITAS:(t==='gasto'?CAT_DESPESAS:CAT_INVESTIMENTOS)).forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; s.appendChild(o); });
         }
-        function abrirModalEvolucao() {
-            document.getElementById('modal-evolucao').classList.remove('hidden'); document.getElementById('modal-evolucao').classList.add('flex');
-            const ctx = document.getElementById('graficoEvolucao').getContext('2d');
-            if(chartEvolucaoInstance) chartEvolucaoInstance.destroy();
-            chartEvolucaoInstance = new Chart(ctx, { type: 'bar', data: { labels: ['Ago','Set','Out','Nov','Dez','Jan'], datasets: [{label:'Entradas',data:[5000,5200,4800,6000,8000,5500],backgroundColor:'#10b981',borderRadius:4},{label:'Saídas',data:[4000,4100,3900,4500,6000,3000],backgroundColor:'#ef4444',borderRadius:4}] }, options: {responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}} });
-        }
+        
         function renderizarGrafico(sai) {
             const ctx = document.getElementById('graficoGastos').getContext('2d'); if(chartInstance) chartInstance.destroy();
             const cats={}; sai.forEach(i=>cats[i.categoria]=(cats[i.categoria]||0)+i.valor); const d=Object.values(cats); if(!d.length) return;
