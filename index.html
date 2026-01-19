@@ -50,14 +50,20 @@
                 align-items: start; 
             }
             
-            /* Força mostrar tudo na Visão Geral */
+            /* Força mostrar tudo APENAS na Visão Geral */
             body.pc-resumo #view-resumo { display: block !important; }
+            
             body.pc-resumo #lists-wrapper { 
                 display: grid !important; 
                 grid-template-columns: 1fr 1fr; /* Listas Lado a Lado */
                 gap: 1.5rem; 
             }
             
+            body.pc-resumo #view-entradas, 
+            body.pc-resumo #view-saidas { 
+                display: block !important; 
+            }
+
             /* REGRA 2: Quando estiver nas abas ENTRADAS ou SAÍDAS, usa layout centralizado */
             body:not(.pc-resumo) main {
                 display: block;
@@ -65,10 +71,8 @@
                 margin: 2rem auto;
             }
 
-            /* Estilo de Card para as Listas no PC */
-            body.pc-resumo #view-entradas, body.pc-resumo #view-saidas,
-            body:not(.pc-resumo) #view-entradas, body:not(.pc-resumo) #view-saidas {
-                display: block !important; 
+            /* Estilo de Card para as Listas no PC (aplica visual sempre, mas não força display) */
+            #view-entradas, #view-saidas {
                 background: white;
                 border-radius: 1rem;
                 padding: 1.5rem;
