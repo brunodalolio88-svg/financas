@@ -12,123 +12,174 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        brand: { 500: '#10b981', 600: '#059669', 800: '#065f46', 900: '#064e3b' }
+                        brand: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
                     },
                     animation: {
-                        'fade-up': 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
-                        'float': 'float 6s ease-in-out infinite',
-                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'intro-logo-in': 'introLogoIn 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
+                        'intro-fade-out': 'fadeOut 0.5s ease-in-out 2s forwards',
+                        'card-elastic-entrance': 'elasticEntrance 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) 2.2s forwards',
+                        'bg-heartbeat': 'bgPulse 4s ease-in-out infinite',
+                        'input-focus-pulse': 'focusPulse 1.5s ease-in-out infinite',
+                        'btn-super-pulse': 'superPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'icon-wiggle': 'wiggle 0.5s ease-in-out both',
+                        'spin-fast-once': 'spinFast 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                        'shockwave-text': 'shockwave 3s linear infinite',
+                        'rise-spin-fast': 'riseSpin 10s linear infinite',
+                        'shake-hard': 'shakeHard 0.5s cubic-bezier(.36,.07,.19,.97) both',
                         'float-fast': 'float 4s ease-in-out infinite',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'bg-pan': 'pan 15s ease infinite',
-                        'rise': 'rise 10s infinite linear'
                     },
                     keyframes: {
-                        fadeUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        shake: { '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' }, '20%, 80%': { transform: 'translate3d(2px, 0, 0)' }, '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' }, '40%, 60%': { transform: 'translate3d(4px, 0, 0)' } },
-                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
-                        pan: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
-                        rise: { '0%': { bottom: '-10%', transform: 'translateX(0)', opacity: '0' }, '50%': { opacity: '1' }, '100%': { bottom: '110%', transform: 'translateX(-20px)', opacity: '0' } }
+                        introLogoIn: { '0%': { opacity: '0', transform: 'scale(0) rotate(-180deg)' }, '60%': { transform: 'scale(1.2) rotate(10deg)' }, '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' } },
+                        fadeOut: { to: { opacity: '0', visibility: 'hidden' } },
+                        elasticEntrance: { '0%': { opacity: '0', transform: 'scale(0.5) translateY(100px)' }, '100%': { opacity: '1', transform: 'scale(1) translateY(0)' } },
+                        bgPulse: { '0%, 100%': { filter: 'brightness(1)' }, '50%': { filter: 'brightness(1.2)' } },
+                        focusPulse: { '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.7)', transform: 'scale(1)' }, '50%': { boxShadow: '0 0 20px 5px rgba(52, 211, 153, 0.4)', transform: 'scale(1.02)' } },
+                        superPulse: { '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.6)', transform: 'scale(1)' }, '50%': { boxShadow: '0 0 30px 10px rgba(16, 185, 129, 0.3)', transform: 'scale(1.05)' } },
+                        wiggle: { '0%, 100%': { transform: 'rotate(0deg)' }, '25%': { transform: 'rotate(-10deg)' }, '75%': { transform: 'rotate(10deg)' } },
+                        shockwave: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
+                        spinFast: { to: { transform: 'rotate(360deg)' } },
+                        riseSpin: { '0%': { bottom: '-20%', transform: 'translateX(0) rotate(0deg)', opacity: '0' }, '20%': { opacity: '0.7' }, '100%': { bottom: '120%', transform: 'translateX(-50px) rotate(720deg)', opacity: '0' } },
+                        shakeHard: { '10%, 90%': { transform: 'translate3d(-2px, 0, 0)' }, '20%, 80%': { transform: 'translate3d(4px, 0, 0)' }, '30%, 50%, 70%': { transform: 'translate3d(-6px, 0, 0)' }, '40%, 60%': { transform: 'translate3d(6px, 0, 0)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-12px)' } },
                     }
                 }
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        /* Background Animated Gradient */
-        .animated-bg {
-            background: linear-gradient(-45deg, #111827, #064e3b, #065f46, #0f172a);
-            background-size: 400% 400%;
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overflow: hidden; }
+        .animated-bg-ultra {
+            background: radial-gradient(circle at center, #065f46 0%, #064e3b 30%, #022c22 70%, #0f172a 100%);
+            background-size: 200% 200%;
         }
-        .finance-symbol {
+        .finance-symbol-ultra {
             position: absolute;
-            color: rgba(16, 185, 129, 0.1); /* Brand color with low opacity */
-            font-weight: 800;
+            color: #4ade80;
+            font-weight: 900;
             user-select: none;
             z-index: 0;
+            opacity: 0.3;
+            filter: blur(2px);
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+        .shockwave-text {
+            background: linear-gradient(to right, #1f2937 20%, #34d399 50%, #1f2937 80%);
+            background-size: 200% auto;
+            color: #000;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #intro-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: radial-gradient(circle at center, #064e3b, #0f172a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bn-logo-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #34d399, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+            border: 4px solid rgba(255,255,255,0.2);
         }
     </style>
 </head>
-<body class="animated-bg animate-bg-pan h-screen flex items-center justify-center px-4 overflow-hidden relative">
+<body class="animated-bg-ultra h-[100dvh] flex items-center justify-center px-4 relative animate-bg-heartbeat">
 
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="finance-symbol text-6xl left-[10%] animate-rise" style="animation-duration: 15s;">$</div>
-        <div class="finance-symbol text-4xl left-[20%] animate-rise" style="animation-delay: 2s; animation-duration: 12s;">%</div>
-        <div class="finance-symbol text-7xl left-[80%] animate-rise" style="animation-delay: 5s; animation-duration: 18s;">R$</div>
-        <div class="finance-symbol text-5xl left-[60%] animate-rise" style="animation-delay: 1s; animation-duration: 10s;">€</div>
-        <div class="finance-symbol text-3xl left-[40%] animate-rise" style="animation-delay: 7s; animation-duration: 14s;">$</div>
+    <div id="intro-loader" class="animate-intro-fade-out">
+        <div class="bn-logo-circle animate-intro-logo-in">
+            <span class="text-white font-black text-5xl tracking-tighter italic">B&N</span>
+        </div>
     </div>
 
-    <div class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl w-full max-w-sm animate-fade-up border border-white/40 z-10 relative">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="finance-symbol-ultra text-7xl left-[10%] animate-rise-spin-fast" style="animation-duration: 12s;">$</div>
+        <div class="finance-symbol-ultra text-5xl left-[30%] animate-rise-spin-fast" style="animation-delay: 1s; animation-duration: 9s;">%</div>
+        <div class="finance-symbol-ultra text-8xl left-[80%] animate-rise-spin-fast" style="animation-delay: 3s; animation-duration: 15s;">R$</div>
+        <div class="finance-symbol-ultra text-6xl left-[60%] animate-rise-spin-fast" style="animation-delay: 0.5s; animation-duration: 11s;">€</div>
+        <div class="finance-symbol-ultra text-9xl left-[50%] animate-rise-spin-fast" style="animation-delay: 5s; animation-duration: 18s; opacity: 0.1;">₿</div>
+    </div>
+
+    <div class="bg-white/80 backdrop-blur-[30px] p-6 sm:p-8 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(16,185,129,0.3)] w-full max-w-sm opacity-0 animate-card-elastic-entrance border-2 border-white/40 z-10 relative overflow-hidden">
         
+        <div class="absolute top-0 -left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent transform skew-x-12 animate-[pan_4s_ease-in-out_infinite]"></div>
+
         <div class="text-center mb-8 relative">
-            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-brand-500/20 rounded-full blur-2xl animate-pulse-slow"></div>
-            
-            <div class="bg-gradient-to-tr from-brand-50 to-white p-4 rounded-2xl inline-flex mb-4 shadow-sm border border-brand-100 animate-float relative z-10">
-                <i data-lucide="wallet" class="w-8 h-8 text-brand-600"></i>
+            <div class="group bg-gradient-to-tr from-brand-400 to-white p-4 rounded-3xl inline-flex mb-4 shadow-xl shadow-brand-500/20 border-2 border-white animate-float-fast relative z-10 hover:animate-spin-fast-once cursor-pointer">
+                <i data-lucide="wallet" class="w-10 h-10 text-brand-900"></i>
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Finanças Pessoais</h1>
-            <p class="text-sm font-medium text-gray-500 mt-1 flex justify-center items-center gap-1">
-                Bruno <span class="text-brand-500">&bull;</span> Nathália
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tighter shockwave-text animate-shockwave-text">Finanças B&N</h1>
+            <p class="text-sm font-bold text-gray-600 mt-2 flex justify-center items-center gap-1 uppercase tracking-widest">
+                Acesso <span class="text-brand-500 animate-pulse">⚡</span> Seguro
             </p>
         </div>
 
-        <form id="form-login" class="space-y-5">
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Usuário</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-brand-600 transition-colors duration-300">
-                        <i data-lucide="user" class="w-5 h-5 transition-transform group-focus-within:scale-110"></i>
+        <form id="form-login" class="space-y-6">
+            <div class="group relative transition-all duration-300 focus-within:animate-input-focus-pulse rounded-2xl">
+                <label class="block text-xs font-black text-brand-900 uppercase tracking-wider mb-2 ml-2">Usuário</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-600 transition-all duration-300">
+                        <i data-lucide="user" class="w-6 h-6 group-hover:animate-icon-wiggle"></i>
                     </div>
                     <input type="text" id="usuario" 
-                        class="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all duration-300 font-medium text-gray-800 placeholder-gray-400 focus:bg-white" 
-                        placeholder="Digite seu usuário" required autocomplete="username">
+                        class="w-full pl-14 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-brand-500 transition-all duration-300 font-bold text-lg text-gray-900 placeholder-gray-400" 
+                        placeholder="Digite o usuário" required autocomplete="username">
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Senha</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-brand-600 transition-colors duration-300">
-                        <i data-lucide="lock" class="w-5 h-5 transition-transform group-focus-within:scale-110"></i>
+            <div class="group relative transition-all duration-300 focus-within:animate-input-focus-pulse rounded-2xl">
+                <label class="block text-xs font-black text-brand-900 uppercase tracking-wider mb-2 ml-2">Senha</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-600 transition-all duration-300">
+                        <i data-lucide="lock-keyhole" class="w-6 h-6 group-hover:animate-icon-wiggle"></i>
                     </div>
                     <input type="password" id="senha" 
-                        class="w-full pl-11 pr-12 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all duration-300 font-medium text-gray-800 placeholder-gray-400 focus:bg-white" 
-                        placeholder="••••••••" required autocomplete="current-password">
+                        class="w-full pl-14 pr-14 py-4 bg-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-brand-500 transition-all duration-300 font-bold text-lg text-gray-900 placeholder-gray-400" 
+                        placeholder="Digite a senha" required autocomplete="current-password">
                     
-                    <button type="button" onclick="toggleSenha()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-brand-600 focus:outline-none cursor-pointer transition-colors">
-                        <i id="eye-icon" data-lucide="eye" class="w-5 h-5 hover:scale-110 transition-transform"></i>
+                    <button type="button" onclick="toggleSenha()" class="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-brand-600 focus:outline-none cursor-pointer transition-colors">
+                        <i id="eye-icon" data-lucide="eye" class="w-6 h-6 hover:scale-125 transition-transform"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" id="btn-entrar" class="group relative w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-brand-500/30 flex justify-center items-center gap-2 active:scale-[0.98] mt-4 overflow-hidden">
-                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <span class="relative z-10 flex items-center gap-2">
-                    Entrar no Sistema
-                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+            <button type="submit" id="btn-entrar" class="group relative w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-black py-5 rounded-2xl transition-all duration-300 shadow-2xl shadow-brand-500/40 flex justify-center items-center gap-3 active:scale-[0.95] mt-8 overflow-hidden animate-btn-super-pulse">
+                <span class="absolute inset-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></span>
+                <span class="relative z-10 flex items-center gap-3 text-xl uppercase tracking-wide">
+                    Acessar
+                    <i data-lucide="zap" class="w-6 h-6 fill-current group-hover:animate-bounce"></i>
                 </span>
             </button>
         </form>
         
-        <div id="erro-box" class="hidden mt-4 bg-red-50 text-red-600 text-sm font-medium p-3 rounded-xl flex items-center gap-2 border border-red-100 animate-shake">
-            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
-            <span id="erro-msg">Credenciais inválidas.</span>
+        <div id="erro-box" class="hidden mt-6 bg-red-50 text-red-700 text-sm font-bold p-4 rounded-2xl flex items-center gap-3 border-2 border-red-200 animate-shake-hard shadow-lg">
+            <i data-lucide="x-octagon" class="w-5 h-5 text-red-600"></i>
+            <span id="erro-msg">Acesso negado.</span>
         </div>
-
-        <p class="text-center text-xs text-gray-400 mt-8 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-            &copy; 2026 Sistema B&N v2.0
-        </p>
     </div>
 
     <script>
         lucide.createIcons();
 
+        // Limpeza do Loader
+        const loader = document.getElementById('intro-loader');
+        loader.addEventListener('animationend', (e) => {
+            if (e.animationName === 'fadeOut') {
+                loader.style.display = 'none';
+            }
+        });
+
         if(localStorage.getItem('usuario_logado')) {
-            window.location.href = '/';
+           window.location.href = '/';
         }
 
         function toggleSenha() {
@@ -150,24 +201,23 @@
             const erroBox = document.getElementById('erro-box');
             const erroMsg = document.getElementById('erro-msg');
             
-            // UX de Loading
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5"></i> <span class="animate-pulse">Verificando...</span>';
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-8 h-8 text-white"></i>';
+            btn.classList.remove('animate-btn-super-pulse');
             lucide.createIcons();
             btn.disabled = true;
-            btn.classList.add('cursor-not-allowed', 'opacity-90');
+            btn.classList.add('cursor-not-allowed', 'opacity-90', 'scale-95', 'grayscale');
             erroBox.classList.add('hidden');
 
             const usuario = document.getElementById('usuario').value.toLowerCase().trim();
             const senha = document.getElementById('senha').value;
 
-            // Simulação de delay para ver a animação (pode remover em produção)
-            await new Promise(r => setTimeout(r, 800));
+            // Delay reduzido para 1.2s (melhor UX no mobile)
+            await new Promise(r => setTimeout(r, 1200));
 
             try {
-                // Simulação local para teste (Remova isso e descomente o fetch real)
-                // if(usuario !== 'admin') throw new Error("Usuário não encontrado");
-                
+                // if(usuario !== 'admin') throw new Error("Usuário incorreto"); // Teste
+
                 const res = await fetch('/api/auth', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -177,18 +227,19 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    // Feedback de Sucesso Visual
-                    btn.classList.remove('bg-brand-600', 'hover:bg-brand-500');
-                    btn.classList.add('bg-green-500');
-                    btn.innerHTML = '<i data-lucide="check" class="w-6 h-6 text-white animate-bounce"></i>';
+                    btn.classList.remove('bg-gradient-to-r', 'from-brand-600', 'to-brand-500', 'scale-95', 'opacity-90', 'grayscale');
+                    btn.classList.add('bg-green-500', 'animate-bounce', 'shadow-green-500/50');
+                    btn.innerHTML = '<i data-lucide="check-circle" class="w-10 h-10 text-white fill-green-600 animate-pulse"></i>';
+                    lucide.createIcons();
                     
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+
                     localStorage.setItem('usuario_logado', 'true');
                     localStorage.setItem('usuario_nome', data.nome);
-                    if(data.avatar) localStorage.setItem('usuario_avatar', data.avatar);
                     
-                    setTimeout(() => window.location.href = '/', 500);
+                    setTimeout(() => window.location.href = '/', 1000);
                 } else {
-                    throw new Error(data.message || "Usuário ou senha incorretos");
+                    throw new Error(data.message || "Dados inválidos");
                 }
             } catch (err) {
                 erroMsg.textContent = err.message;
@@ -196,12 +247,15 @@
                 
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
-                btn.classList.remove('cursor-not-allowed', 'opacity-90');
+                btn.classList.remove('cursor-not-allowed', 'opacity-90', 'scale-95', 'grayscale');
+                btn.classList.add('animate-btn-super-pulse');
                 lucide.createIcons();
                 
-                erroBox.classList.remove('animate-shake');
+                erroBox.classList.remove('animate-shake-hard');
                 void erroBox.offsetWidth;
-                erroBox.classList.add('animate-shake');
+                erroBox.classList.add('animate-shake-hard');
+                
+                if (navigator.vibrate) navigator.vibrate(200);
             }
         });
     </script>
