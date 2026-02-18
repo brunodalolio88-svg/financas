@@ -453,10 +453,15 @@
                     // Status PC: Mostra "PENDENTE" se não pago
                     const statusTag = d.status !== 'pago' ? `<span class="ml-auto text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-1 rounded">PENDENTE</span>` : '';
 
+                    // NOVO: Botão de Check
+                    const checkIcon = d.status === 'pago' ? 'check-circle-2' : 'circle';
+                    const checkColor = d.status === 'pago' ? 'text-green-500' : 'text-gray-300';
+                    const btnCheck = `<button onclick="event.stopPropagation(); toggleStatusRapido('${d.id}')" class="mr-2 z-10 p-1 rounded-full hover:bg-gray-50 ${checkColor} transition" title="Marcar como Pago"><i data-lucide="${checkIcon}" class="w-6 h-6"></i></button>`;
+
                     const cardMobile = `
                     <div onclick="abrirEdicao('${d.id}')" class="lg:hidden bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center cursor-pointer active:scale-[0.98] transition">
                         <div class="flex items-center gap-3 overflow-hidden">
-                            <div class="w-10 h-10 rounded-full ${tipo==='receita'?'bg-green-50 text-green-600':'bg-red-50 text-red-500'} flex items-center justify-center flex-shrink-0"><i data-lucide="${iconeNome}" class="w-5 h-5"></i></div>
+                            ${btnCheck} <div class="w-10 h-10 rounded-full ${tipo==='receita'?'bg-green-50 text-green-600':'bg-red-50 text-red-500'} flex items-center justify-center flex-shrink-0"><i data-lucide="${iconeNome}" class="w-5 h-5"></i></div>
                             <div class="truncate">
                                 <p class="font-bold text-gray-800 text-sm truncate">${d.descricao}</p>
                                 <p class="text-[10px] text-gray-400 uppercase font-bold">${d.categoria}</p>
@@ -470,7 +475,9 @@
 
                     const rowPC = `
                     <div onclick="abrirEdicao('${d.id}')" class="hidden lg:grid pc-table-row">
-                        <div class="font-bold text-gray-700 flex items-center gap-3"><div class="w-2.5 h-2.5 rounded-full ${dotColor}"></div> ${d.descricao}</div>
+                        <div class="font-bold text-gray-700 flex items-center gap-3">
+                            ${btnCheck} <div class="w-2.5 h-2.5 rounded-full ${dotColor}"></div> ${d.descricao}
+                        </div>
                         <div class="text-sm text-gray-500 bg-gray-50 w-max px-2 py-1 rounded-md text-xs font-bold uppercase flex items-center gap-1"><i data-lucide="${iconeNome}" class="w-3 h-3"></i> ${d.categoria}</div>
                         <div class="text-sm text-gray-500">${new Date(d.data).toLocaleDateString()}</div>
                         <div class="flex items-center justify-end gap-3 font-bold ${cor}">
@@ -517,6 +524,15 @@
             const st = itemEdit.status==='pago'?'pendente':'pago';
             await fetch(API, { method: 'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: itemEdit.id, status:st})});
             document.getElementById('modal-edicao').classList.add('hidden'); carregar();
+        }
+        
+        // NOVO: Função para alternar status rápido via botão da lista
+        async function toggleStatusRapido(id) {
+            const item = dados.find(d => String(d.id) === String(id));
+            if(!item) return;
+            const st = item.status==='pago'?'pendente':'pago';
+            await fetch(API, { method: 'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: item.id, status:st})});
+            carregar();
         }
 
         async function deletarItem() {
